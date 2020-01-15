@@ -18,39 +18,42 @@ open FSharp.Core
 #I @"C:\Users\stephen\.nuget\packages\markdowndoc\1.0.1-alpha-20191014\lib\netstandard2.0"
 #r "MarkdownDoc.dll"
 
-#load "..\src\AssetPatch\Base\Addendum.fs"
-#load "..\src\AssetPatch\Base\Common.fs"
-#load "..\src\AssetPatch\Base\AssocList.fs"
-#load "..\src\AssetPatch\Base\ChangeFile.fs"
-#load "..\src\AssetPatch\Base\Acronyms.fs"
-#load "..\src\AssetPatch\Base\AbsChangeFile.fs"
-#load "..\src\AssetPatch\Base\Parser.fs"
-#load "..\src\AssetPatch\Base\Printer.fs"
-#load "..\src\AssetPatch\Utilities\ChangeFileReport.fs"
-#load "..\src\AssetPatch\Utilities\TidyChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Common.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
+#load "..\src\PatchAnalysis\Utilities\ChangeFileReport.fs"
+#load "..\src\PatchAnalysis\Utilities\TidyChangeFile.fs"
 open AssetPatch.Base.Parser
-open AssetPatch.Utilities.ChangeFileReport
-open AssetPatch.Utilities.TidyChangeFile
+open PatchAnaylsis.Utilities.ChangeFileReport
+open PatchAnaylsis.Utilities.TidyChangeFile
 
 
 let outputDirectory () : string = 
-    Path.Combine(__SOURCE_DIRECTORY__, @"..\output")
+    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\output")
 
 let outputFile (relFileName : string) : string = 
-    Path.Combine(__SOURCE_DIRECTORY__, @"..\output", relFileName)
+    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\output", relFileName)
 
+/// This is calculated from the folder where pandoc is invoked in
+/// eg: X:\coding\work\asset-patch\output to X:\coding\libs\markdown-css-master\"
+let pathToCss = @"..\..\..\libs\markdown-css-master\github.css"
 
-let outputChangeReport (sourcePath : string) = 
-    let pathToCss = @"..\..\..\..\..\libs\markdown-css-master\github.css"
+let outputChangeReport1 (sourcePath : string) = 
     changeFileReport pathToCss (outputDirectory ()) sourcePath
 
 
-let changeFileReport01 () = 
+let reportChangeFiles (dir: string) = 
     let sources = 
-        System.IO.Directory.GetFiles( path = @"G:\work\Projects\assets\asset_patch\file_download_edm"
-                                    , searchPattern = "*.txt")
-    Array.iter (outputChangeReport >> ignore) sources
+        System.IO.Directory.GetFiles( path = dir, searchPattern = "*.txt")
+    Array.iter (outputChangeReport1 >> ignore) sources
 
+let reportChangeFiles01 () = 
+    reportChangeFiles @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
 
 
 
@@ -62,7 +65,6 @@ let tidyChangeFile01 () =
 
 
 let temp01 () = 
-    let pathToCss = @"..\..\..\..\..\libs\markdown-css-master\github.css"
     let file = @"G:\work\Projects\assets\asset_patch\file_download_edm\control_automation_04_equi.txt"
     changeFileReport pathToCss (outputDirectory ()) file
 

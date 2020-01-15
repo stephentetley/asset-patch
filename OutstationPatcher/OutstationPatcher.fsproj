@@ -12,8 +12,6 @@
     <None Include="RunOutstationPatcher.fsx" />
   </ItemGroup>
 
-  <ItemGroup />
-
   <ItemGroup>
     <ProjectReference Include="..\AssetPatch\src\AssetPatch.fsproj" />
   </ItemGroup>

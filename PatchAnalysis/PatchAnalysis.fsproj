@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\PatchAnalysis\Utilities\ChangeFileReport.fs" />
+    <Compile Include="src\PatchAnalysis\Utilities\TidyChangeFile.fs" />
+    <None Include="test\TestUtils01.fsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AssetPatch\src\AssetPatch.fsproj" />
+  </ItemGroup>
+  
+</Project>
