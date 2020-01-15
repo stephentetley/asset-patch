@@ -36,6 +36,14 @@ module EmitCommon =
           ClassFlocs : NewClassFloc list
           ValuaFlocs : NewValuaFloc list
         }
+        
+        static member Empty : Phase1FlocData = 
+            { FuncLocs = []
+              FuncLocLinks = []
+              ClassFlocs = []
+              ValuaFlocs = []
+            }
+
         member x.IsEmpty 
             with get () : bool = 
                 x.FuncLocs.IsEmpty &&  x.ClassFlocs.IsEmpty && x.ValuaFlocs.IsEmpty

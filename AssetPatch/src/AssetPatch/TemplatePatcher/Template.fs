@@ -236,12 +236,15 @@ module Template =
                     (attributes : EquipmentAttribute list) : Equipment = 
         let equip1 = 
             template {
-                let! level = asksFloc () |>> fun x -> x.Level
+                let! floc = asksFloc ()
+                let! props = asksFuncLocProperties ()
                 let! cs = unlistM classes
                 let! es = unlistM subordinateEquipment
                 let! equinum = getEquipmentIndex description
                 return {
                     EquipmentId = equinum
+                    FuncLoc = floc
+                    FlocProperties = props
                     Description = description
                     Category = category
                     ObjectType = objectType

@@ -32,20 +32,7 @@ module TemplateHierarchy =
         }
 
 
-    /// EquipmentId may be a dollar number
-    type S4Equipment = 
-        { EquipmentId : string option
-          Description : string       
-          Category : string
-          ObjectType : string
-          Manufacturer : string option
-          Model : string option
-          SerialNumber : string option
-          ConstructionYear : uint16 option
-          ConstructionMonth : uint8 option
-          Classes : S4Class list
-          SuboridnateEquipment : S4Equipment list
-        }
+    
 
 
     type FuncLocProperties = 
@@ -58,7 +45,23 @@ module TemplateHierarchy =
           Currency : string
         }
 
-    
+    /// EquipmentId may be a dollar number
+    type S4Equipment = 
+        { EquipmentId : string option
+          FuncLoc : FuncLocPath
+          FlocProperties : FuncLocProperties
+          Description : string       
+          Category : string
+          ObjectType : string
+          Manufacturer : string option
+          Model : string option
+          SerialNumber : string option
+          ConstructionYear : uint16 option
+          ConstructionMonth : uint8 option
+          Classes : S4Class list
+          SuboridnateEquipment : S4Equipment list
+        }
+
     type S4Component = 
         { FuncLoc : FuncLocPath
           FlocProperties : FuncLocProperties

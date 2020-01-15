@@ -147,7 +147,7 @@ module EdcTemplate =
                 ]
 
 
-    let edcTemplate (parameters : WorkListRow) : Function =        
+    let edcEnvironmentalDischarge (parameters : WorkListRow) : Function =        
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| environmental_discharge 
                 [ east_north_common {| NGR = parameters.NGR |}

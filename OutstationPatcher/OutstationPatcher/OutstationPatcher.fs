@@ -34,8 +34,6 @@ module OutstationPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    /// This will need changes to TemplatePatcher...
-
     let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase1Data> = 
         match path.Level with
         | 1 -> applyFlocTemplate1 (path, row) osLevel2Template >>= function1EmitPhase1

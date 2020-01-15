@@ -10,6 +10,7 @@ module EdcPatcher =
 
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.CompilerMonad
+    open AssetPatch.TemplatePatcher.EmitCommon
     open AssetPatch.TemplatePatcher.Emitter
     open AssetPatch.TemplatePatcher.PatchCompiler
 
@@ -31,15 +32,36 @@ module EdcPatcher =
             Directory.CreateDirectory(dirName) |> ignore
         else ()
     
+    /// Note - we need to be able to create floc patches at different
+    /// levels in the tree (according to what already exists).
+    let private phase1ProcessRow (row : WorkListRow) : CompilerMonad<Phase1Data> = 
+        let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
+        match rootPath.Level with
+        | 1 -> applyFlocTemplate1 (rootPath, row) edcEnvironmentalDischarge >>= function1EmitPhase1
+        | 2 -> applyFlocTemplate1 (rootPath, row) edcLiquidDischarge >>= processGroup1EmitPhase1
+        | 3 -> applyFlocTemplate1 (rootPath, row) edcRegulatoryMonitoring >>= process1EmitPhase1
+        | 4 -> applyFlocTemplate1 (rootPath, row) edcSystem >>= system1EmitPhase1
+        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) edcLevelTransmitter >>= equipment1EmitPhase1
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
+
+    let private phase2ProcessRow (row : WorkListRow) : CompilerMonad<Phase2Data> = 
+        let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
+        match rootPath.Level with
+        | 1 -> applyFlocTemplate1 (rootPath, row) edcEnvironmentalDischarge >>= function1EmitPhase2
+        | 2 -> applyFlocTemplate1 (rootPath, row) edcLiquidDischarge >>= processGroup1EmitPhase2
+        | 3 -> applyFlocTemplate1 (rootPath, row) edcRegulatoryMonitoring >>= process1EmitPhase2
+        | 4 -> applyFlocTemplate1 (rootPath, row) edcSystem >>= system1EmitPhase2
+        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) edcLevelTransmitter >>= equipment1EmitPhase2
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
+
+
     let runEdcPatcherPhase1 (opts : EdcPatcherOptions) : Result<unit, string> = 
         let compilerOpts : CompilerOptions = makeCompilerOptions opts           
         runCompiler compilerOpts None
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
-                let! xs = 
-                    readWorkList opts.WorkListPath |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))             
-                let! worklist1 = applyFlocTemplate xs edcTemplate
-                let! phase1Data = functionListEmitPhase1 worklist1
+                let! worklist = readWorkList opts.WorkListPath // 
+                let! phase1Data = mapM phase1ProcessRow worklist |>> Phase1Data.Concat
                 do! writePhase1Data opts.OutputDirectory "edc_patch" phase1Data
                 return ()
             }
@@ -52,10 +74,8 @@ module EdcPatcher =
         runCompiler compilerOpts (Some equipmentDownloadPath)
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
-                let! xs = 
-                    readWorkList opts.WorkListPath |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))             
-                let! worklist1 = applyFlocTemplate xs edcTemplate
-                let! phase2Data = functionListEmitPhase2 worklist1
+                let! worklist = readWorkList opts.WorkListPath
+                let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
                 do! writePhase2Data opts.OutputDirectory "edc_patch" phase2Data
                 return ()
             }

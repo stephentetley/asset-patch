@@ -70,8 +70,8 @@ module OutstationTemplate =
                 [ manufacturer parameters.Manufacturer
                   model parameters.Model
                   serial_number parameters.``Serial Number``
-                  construction_year (uint16 installDate.Year)
-                  construction_month (uint8 installDate.Month)
+                  construction_year installDate.Year
+                  construction_month installDate.Month
                 ]
             ]
     

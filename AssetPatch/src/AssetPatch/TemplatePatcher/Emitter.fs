@@ -17,13 +17,22 @@ module Emitter =
     // ************************************************************************
     // Phase 1
 
+    let equipment1EmitPhase1 (source : S4Equipment) : CompilerMonad<Phase1Data> = 
+        compile {
+            let! equiResults = 
+                equipmentsToPhase1EquiData [source]
+            return { FlocData = Phase1FlocData.Empty; EquiData = equiResults } 
+        }
+
+    let equipmentListEmitPhase1 (source : S4Equipment list) : CompilerMonad<Phase1Data> = 
+        mapM equipment1EmitPhase1 source |>> Phase1Data.Concat
 
     let component1EmitPhase1 (source : S4Component) : CompilerMonad<Phase1Data> = 
         compile {
             let! flocResult = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
             let! equiResults = 
-                equipmentsToPhase1EquiData source.FuncLoc source.FlocProperties source.Equipment
+                equipmentsToPhase1EquiData source.Equipment
             return { FlocData = flocResult; EquiData = equiResults } 
         }
 
@@ -36,7 +45,7 @@ module Emitter =
             let! flocResult = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
             let! equiResults = 
-                equipmentsToPhase1EquiData source.FuncLoc source.FlocProperties source.Equipment
+                equipmentsToPhase1EquiData source.Equipment
             let  x1 = { FlocData = flocResult; EquiData = equiResults } 
             let! x2 = componentListEmitPhase1 source.Components
             return  Phase1Data.Concat [x1; x2]
@@ -53,7 +62,7 @@ module Emitter =
             let! flocResult = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
             let! equiResults = 
-                equipmentsToPhase1EquiData source.FuncLoc source.FlocProperties source.Equipment
+                equipmentsToPhase1EquiData source.Equipment
             let  x1 = { FlocData = flocResult; EquiData = equiResults } 
             let! x2 = itemListEmitPhase1 source.Items
             return  Phase1Data.Concat [x1; x2]
@@ -68,7 +77,7 @@ module Emitter =
             let! flocResult = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
             let! equiResults = 
-                equipmentsToPhase1EquiData source.FuncLoc source.FlocProperties source.Equipment
+                equipmentsToPhase1EquiData source.Equipment
             let  x1 = { FlocData = flocResult; EquiData = equiResults } 
             let! x2 = assemblyListEmitPhase1 source.Assemblies
             return  Phase1Data.Concat [x1; x2]
@@ -134,15 +143,21 @@ module Emitter =
 
     type Phase2Data =  Phase2EquiData
 
+    let equipment1EmitPhase2 (source : S4Equipment) : CompilerMonad<Phase2Data> = 
+        equipmentsToPhase2EquiData [source]
+
+    let equipmentListEmitPhase2 (source : S4Equipment list) : CompilerMonad<Phase2Data> = 
+        equipmentsToPhase2EquiData source
+
     let component1EmitPhase2 (source : S4Component) : CompilerMonad<Phase2Data> = 
-        equipmentsToPhase2EquiData source.FuncLoc source.FlocProperties source.Equipment
+        equipmentsToPhase2EquiData source.Equipment
 
     let componentListEmitPhase2 (source : S4Component list) : CompilerMonad<Phase2Data> = 
         mapM component1EmitPhase2 source |>> Phase2EquiData.Concat
 
     let item1EmitPhase2 (source : S4Item) : CompilerMonad<Phase2Data> = 
         compile { 
-            let! x1 = equipmentsToPhase2EquiData source.FuncLoc source.FlocProperties source.Equipment
+            let! x1 = equipmentsToPhase2EquiData source.Equipment
             let! x2 = componentListEmitPhase2 source.Components
             return Phase2EquiData.Concat [x1; x2]
         }
@@ -153,7 +168,7 @@ module Emitter =
 
     let assembly1EmitPhase2 (source : S4Assembly) : CompilerMonad<Phase2Data> = 
         compile { 
-            let! x1 = equipmentsToPhase2EquiData source.FuncLoc source.FlocProperties source.Equipment
+            let! x1 = equipmentsToPhase2EquiData source.Equipment
             let! x2 = itemListEmitPhase2 source.Items
             return Phase2EquiData.Concat [x1; x2]
         }
@@ -165,7 +180,7 @@ module Emitter =
 
     let system1EmitPhase2 (source : S4System) : CompilerMonad<Phase2Data> = 
         compile { 
-            let! x1 = equipmentsToPhase2EquiData source.FuncLoc source.FlocProperties source.Equipment
+            let! x1 = equipmentsToPhase2EquiData source.Equipment
             let! x2 = assemblyListEmitPhase2 source.Assemblies
             return Phase2EquiData.Concat [x1; x2]
         }

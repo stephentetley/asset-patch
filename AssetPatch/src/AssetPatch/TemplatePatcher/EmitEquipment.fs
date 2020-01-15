@@ -61,60 +61,54 @@ module EmitEquipment =
            }
 
     
-    let private equipmentToNewEqui1 (funcLoc : FuncLocPath) 
-                                    (props : FuncLocProperties)
-                                    (equipment : S4Equipment) : CompilerMonad<NewEqui> = 
+    let private equipmentToNewEqui1 (equipment : S4Equipment) : CompilerMonad<NewEqui> = 
         let commonProps : CommonProperties = 
-            { CompanyCode = props.CompanyCode 
-              ControllingArea = props.ControllingArea 
-              PlantCode = props.MaintenancePlant
-              UserStatus = props.ObjectStatus
+            { CompanyCode = equipment.FlocProperties.CompanyCode 
+              ControllingArea = equipment.FlocProperties.ControllingArea 
+              PlantCode = equipment.FlocProperties.MaintenancePlant
+              UserStatus = equipment.FlocProperties.ObjectStatus
             }
-
+        let startupDate = equipment.FlocProperties.StartupDate
         compile {
             return { 
                 Description = equipment.Description
-                FuncLoc = funcLoc
+                FuncLoc = equipment.FuncLoc
                 Category = equipment.Category
                 ObjectType = equipment.ObjectType
                 Manufacturer = 
                     Option.defaultValue "TO BE DETERMINED" equipment.Manufacturer
                 Model = Option.defaultValue "TO BE DETERMINED" equipment.Model
                 SerialNumber = Option.defaultValue "" equipment.SerialNumber
-                StartupDate = props.StartupDate
+                StartupDate = equipment.FlocProperties.StartupDate
                 ConstructionYear = 
-                     Option.defaultValue (uint16 props.StartupDate.Year) equipment.ConstructionYear
+                     Option.defaultValue (uint16 startupDate.Year) equipment.ConstructionYear
                 ConstructionMonth = 
-                    Option.defaultValue (uint8 props.StartupDate.Month) equipment.ConstructionMonth
-                MaintenancePlant = props.MaintenancePlant
-                Currency = props.Currency
+                    Option.defaultValue (uint8 startupDate.Month) equipment.ConstructionMonth
+                MaintenancePlant = equipment.FlocProperties.MaintenancePlant
+                Currency = equipment.FlocProperties.Currency
                 CommonProps = commonProps
             }
         }
         
     /// Recursive version of equipmentToNewEqui1
-    let equipmentToNewEqui (flocPath : FuncLocPath) 
-                        (props : FuncLocProperties)
-                        (source : S4Equipment) : CompilerMonad<NewEqui list> = 
+    let equipmentToNewEqui (source : S4Equipment) : CompilerMonad<NewEqui list> = 
             let rec work kids cont = 
                 match kids with
                 | [] -> mreturn []
                 | (x :: xs) -> 
                     compile {
-                        let! v1 = equipmentToNewEqui1 flocPath props x
+                        let! v1 = equipmentToNewEqui1 x
                         return! work kids (fun vs -> let ans = (v1 :: vs) in cont ans)
                     }
             compile {
-                let! equiResult1 = equipmentToNewEqui1 flocPath props source
+                let! equiResult1 = equipmentToNewEqui1 source
                 let! kids = work source.SuboridnateEquipment id
                 return (equiResult1 :: kids)
             }
 
-    let equipmentsToPhase1EquiData (flocPath : FuncLocPath) 
-                            (props : FuncLocProperties) 
-                            (source : S4Equipment list) : CompilerMonad<Phase1EquiData> = 
+    let equipmentsToPhase1EquiData (source : S4Equipment list) : CompilerMonad<Phase1EquiData> = 
         compile { 
-            let! xss = mapM (equipmentToNewEqui flocPath props) source 
+            let! xss = mapM equipmentToNewEqui source 
             return { Equis = List.concat xss }
         }
 
@@ -131,15 +125,14 @@ module EmitEquipment =
         } 
 
     /// Recursive version of equipmentToNewEqui1
-    let equipmentToPhase2EquiData (flocPath : FuncLocPath) 
-                                        (source : S4Equipment) : CompilerMonad<Phase2EquiData> = 
+    let equipmentToPhase2EquiData (source : S4Equipment) : CompilerMonad<Phase2EquiData> = 
             let rec work (kids : S4Equipment list) cont = 
                 match kids with
                 | [] -> mreturn []
                 | (x :: xs) -> 
                     compile {
                         match x.EquipmentId with 
-                        | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (flocPath.ToString()) source.Description)
+                        | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (source.FuncLoc.ToString()) source.Description)
                         | Some equiNum -> 
                             let! v1 = equipmentToPhase2EquiData1 equiNum x.Classes
                             return! work kids (fun vs -> let ans = (v1 :: vs) in cont ans)
@@ -147,7 +140,7 @@ module EmitEquipment =
 
             compile {
                 match source.EquipmentId with
-                | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (flocPath.ToString()) source.Description)
+                | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (source.FuncLoc.ToString()) source.Description)
                 | Some equiNum -> 
                     let! equiResult1 = equipmentToPhase2EquiData1 equiNum source.Classes
                     let! kids = work source.SuboridnateEquipment id
@@ -156,11 +149,9 @@ module EmitEquipment =
     
 
     /// This recurses to sub-equipment
-    let equipmentsToPhase2EquiData (flocPath : FuncLocPath) 
-                                    (props : FuncLocProperties) 
-                                    (source : S4Equipment list) : CompilerMonad<Phase2EquiData> = 
+    let equipmentsToPhase2EquiData (source : S4Equipment list) : CompilerMonad<Phase2EquiData> = 
         compile { 
-            let! xss = mapM (equipmentToPhase2EquiData flocPath) source 
+            let! xss = mapM equipmentToPhase2EquiData source 
             return (Phase2EquiData.Concat xss)
         }
 
