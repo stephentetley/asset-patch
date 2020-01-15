@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="excel-sample\WorkListSample.xlsx" />
+    <Compile Include="EdcPatcher\InputData.fs" />
+    <Compile Include="EdcPatcher\EdcTemplate.fs" />
+    <Compile Include="EdcPatcher\EdcPatcher.fs" />
+    <None Include="RunEdcPatcher.fsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AssetPatch\src\AssetPatch.fsproj" />
+  </ItemGroup>
+
+</Project>
