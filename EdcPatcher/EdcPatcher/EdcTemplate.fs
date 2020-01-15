@@ -8,6 +8,7 @@ module EdcTemplate =
     
     open System
 
+    open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Template
     open AssetPatch.TemplateCatalogue
     open AssetPatch.TemplateCatalogue.Smonsy
@@ -112,19 +113,22 @@ module EdcTemplate =
 
 
     let edcSystem (parameters : WorkListRow) : System =  
-        let sysCode = "SYS01" 
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| montoring_system sysCode "EA Event Duration Monitoring"
-                [ east_north_common {| NGR = parameters.NGR |}
-                  aib_reference_common {| SAI = parameters.``AI2 Root Reference`` |}
-                  smonsy 
-                    [ system_type "EA Overflow Monitoring" 
+        let sysFloc = FuncLocPath.Create parameters.``S4 Equipment FuncLoc``
+        match sysFloc.LevelCode 5 with
+        | None -> templateError (sprintf "failed to get system for %s" (sysFloc.ToString()) )
+        | Some sysCode -> 
+            locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
+                <| montoring_system sysCode "EA Event Duration Monitoring"
+                    [ east_north_common {| NGR = parameters.NGR |}
+                      aib_reference_common {| SAI = parameters.``AI2 Root Reference`` |}
+                      smonsy 
+                        [ system_type "EA Overflow Monitoring" 
+                        ]
                     ]
-                ]
-                _no_assemblies_
-                [ 
-                  edcLevelTransmitter parameters
-                ]
+                    _no_assemblies_
+                    [ 
+                      edcLevelTransmitter parameters
+                    ]
                 
     let edcRegulatoryMonitoring (parameters : WorkListRow) : Process = 
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]

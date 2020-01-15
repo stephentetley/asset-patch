@@ -31,7 +31,13 @@ module FuncLocPath =
         member x.Level 
             with get () : int = x.Elements.Length
         
-        
+        /// 1-indexed
+        member x.LevelCode
+            with get (ix: int) : string option = 
+                let (FuncLocPath xs) = x 
+                List.rev xs |> List.tryItem (ix-1)
+
+
         interface System.IEquatable<FuncLocPath> with
             member x.Equals(y) = 
                 x.Elements = y.Elements

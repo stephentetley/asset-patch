@@ -113,6 +113,8 @@ module Template =
             work source (fun msg -> Error msg) (fun xs -> Ok(Some(xs)))
 
 
+    let templateError (msg: string): Template<'a> = 
+        Template <| fun _ -> Error msg
 
     let rootFloc (floc : FuncLocPath) (ma : Template<'a>) : Template<'a> = 
         Template <| fun env -> 
