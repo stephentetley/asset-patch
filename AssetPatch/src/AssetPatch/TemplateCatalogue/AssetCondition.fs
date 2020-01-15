@@ -132,11 +132,11 @@ module AssetCondition =
 
 
     /// ASSET_CONDITION:SURVEY_DATE
-    let survey_date (year : uint32) : Characteristic = 
-        _characteristic "SURVEY_DATE" (uint32Value <| year)
+    let survey_date (year : int) : Characteristic = 
+        _characteristic "SURVEY_DATE" (intValue <| year)
 
     /// Emit ASSET_CONDITION with defaults for new
-    let asset_condition_new_item (year : uint32) : Class = 
+    let asset_condition_new_item (year : int) : Class = 
         asset_condition 
             [   condition_grade Good
                 condition_grade_reason "New"

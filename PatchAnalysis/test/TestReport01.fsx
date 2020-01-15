@@ -26,33 +26,29 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
-#load "..\src\PatchAnalysis\Utilities\TidyChangeFile.fs"
+#load "..\src\PatchAnalysis\Utilities\ChangeFileReport.fs"
 open AssetPatch.Base.Parser
-open PatchAnaylsis.Utilities.TidyChangeFile
+open PatchAnaylsis.Utilities.ChangeFileReport
 
-
-
+let outputDirectory () : string = 
+    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\output")
 
 let outputFile (relFileName : string) : string = 
     Path.Combine(__SOURCE_DIRECTORY__, @"..\..\output", relFileName)
 
+/// This is calculated from the folder where pandoc is invoked in
+/// eg: X:\coding\work\asset-patch\output to X:\coding\libs\markdown-css-master\"
+let pathToCss = @"..\..\..\libs\markdown-css-master\github.css"
 
-let tidyChangeFile01 () = 
-    let src = @"G:\work\Projects\assets\asset_patch\file_download_edm\ACO01_funcloc_file_download.txt"
-    let dest = outputFile "ACO01_funcloc_tidy.txt"
-    tidyChangeFile ["FUNCLOC"; "TXTMI"] [] src dest
+let outputChangeReport1 (sourcePath : string) = 
+    changeFileReport pathToCss (outputDirectory ()) sourcePath
 
 
-let testParser (file : string) = 
-    match runParserOnFile (parseChangeFile ()) () file Text.Encoding.UTF8 with
-    | FParsec.CharParsers.ParserResult.Failure (str,_,_) -> Result.Error str
-    | FParsec.CharParsers.ParserResult.Success (ans,_,_) -> Result.Ok ans
+let reportChangeFiles (dir: string) = 
+    let sources = 
+        System.IO.Directory.GetFiles( path = dir, searchPattern = "*.txt")
+    Array.iter (outputChangeReport1 >> ignore) sources
 
-let temp01 () = 
-    let file = @"G:\work\Projects\assets\asset_patch\file_download_edm\control_automation_04_equi.txt"
-    testParser file
-
-let temp02 () = 
-    let file = @"G:\work\Projects\assets\asset_patch\file_download_edm\ACO01_funcloc_file_download.txt"
-    testParser file
+let reportChangeFiles01 () = 
+    reportChangeFiles @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
 

@@ -111,6 +111,8 @@ module Base =
     // ************************************************************************
     // Equipment attributes
 
+
+
     let manufacturer (name : string) : EquipmentAttribute = 
         equipmentAttribute <| fun e1 ->  { e1 with Manufacturer = Some name }
         
@@ -122,12 +124,12 @@ module Base =
         equipmentAttribute <| fun e1 -> { e1 with SerialNumber = Some productCode }
 
 
-    let construction_year (year : uint16) : EquipmentAttribute = 
-        equipmentAttribute <| fun e1 -> { e1 with ConstructionYear = Some year }
+    let construction_year (year : int) : EquipmentAttribute = 
+        equipmentAttribute <| fun e1 -> { e1 with ConstructionYear = Some (uint16 year) }
     
 
-    let construction_month (month : uint8) : EquipmentAttribute = 
-        equipmentAttribute <| fun e1 -> { e1 with ConstructionMonth = Some month }
+    let construction_month (month : int) : EquipmentAttribute = 
+        equipmentAttribute <| fun e1 -> { e1 with ConstructionMonth = Some (uint8 month) }
     
     // ************************************************************************
     // Classes and characteritics
