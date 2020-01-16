@@ -12,7 +12,7 @@ module InputData =
     open AssetPatch.Lib.Common
 
     [<Literal>]
-    let PROVIDERSOURCE = __SOURCE_DIRECTORY__ + @"\..\excel-sample\WorkListSample.xlsx"
+    let PROVIDERSOURCE = __SOURCE_DIRECTORY__ + @"\..\excel-sample\OS_Worklist_Sample.xlsx"
     
     type WorkListTable = 
         ExcelFile< FileName = PROVIDERSOURCE,

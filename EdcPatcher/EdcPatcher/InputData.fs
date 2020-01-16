@@ -13,7 +13,7 @@ module InputData =
 
 
     [<Literal>]
-    let PROVIDERSOURCE = __SOURCE_DIRECTORY__ + @"\..\excel-sample\WorkListSample.xlsx"
+    let PROVIDERSOURCE = __SOURCE_DIRECTORY__ + @"\..\excel-sample\EDC_Worklist_Sample.xlsx"
 
     type WorkListTable = 
         ExcelFile< FileName = PROVIDERSOURCE,
