@@ -34,12 +34,6 @@ module EdcTemplate =
             | None -> new DateTime(year=1970, month=1, day=1)
 
 
-    let private aib_reference_leaf_instance (parameters : WorkListRow) : Class = 
-        aib_reference 
-            [ s4_aib_reference () 
-              ai2_aib_reference parameters.``AI2 Equipment SAI Number``
-              ai2_aib_reference parameters.``AI2 Equipment PLI Code``
-            ]
 
     let private lstnut_leaf_instance (parameters : WorkListRow) : Class = 
         lstnut
@@ -70,11 +64,9 @@ module EdcTemplate =
               applyOptional (lstn_relay_function 6) (tryGetNonBlank parameters.``Relay 6 Function``)
               applyOptional (lstn_relay_on_level 6) (tryGetDecimal parameters.``Relay 6 On``)
               applyOptional (lstn_relay_off_level 6) (tryGetDecimal parameters.``Relay 6 Off``)
-              
             ]
 
    
-
     let private startupDateTrafo (parameters: {| InstallDate: string |}) : EnvTransformer = 
         match tryGetUSDate parameters.InstallDate with
         | None -> id
@@ -83,13 +75,13 @@ module EdcTemplate =
     // ************************************************************************
     // Hierarchy templates
 
-    let edcLevelTransmitter (parameters : WorkListRow) : Equipment = 
+    let makeLevelTransmitter (parameters : WorkListRow) : Equipment = 
         let year : int = (getInstallDate parameters.``Install Date``).Year
         let month : int = (getInstallDate parameters.``Install Date``).Month
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| lstn_level_transmitter parameters.``Level Controller Name``
                 [ east_north_common parameters.NGR
-                  aib_reference_leaf_instance parameters
+                  aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
                   lstnut_leaf_instance parameters
                   asset_condition_common year
                 ]
@@ -102,7 +94,7 @@ module EdcTemplate =
                 ]
 
 
-    let edcSystem (parameters : WorkListRow) : System =  
+    let makeSYS (parameters : WorkListRow) : System =  
         let sysFloc = FuncLocPath.Create parameters.``S4 Equipment FuncLoc``
         match sysFloc.LevelCode 5 with
         | None -> templateError (sprintf "failed to get system for %s" (sysFloc.ToString()) )
@@ -110,45 +102,45 @@ module EdcTemplate =
             locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
                 <| montoring_system sysCode "EA Event Duration Monitoring"
                     [ east_north_common parameters.NGR
-                      aib_reference_common parameters.``AI2 Root Reference``
+                      aib_reference_floc_common parameters.``AI2 Root Reference``
                       smonsy 
                         [ system_type "EA Overflow Monitoring" 
                         ]
                     ]
                     _no_assemblies_
                     [ 
-                      edcLevelTransmitter parameters
+                      makeLevelTransmitter parameters
                     ]
                 
-    let edcRegulatoryMonitoring (parameters : WorkListRow) : Process = 
+    let makeRGM (parameters : WorkListRow) : Process = 
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| regulatory_monitoring
                 [ east_north_common parameters.NGR
-                  aib_reference_common parameters.``AI2 Root Reference``
+                  aib_reference_floc_common parameters.``AI2 Root Reference``
                 ]
                 [   
-                  edcSystem parameters
+                  makeSYS parameters
                 ]
 
-    let edcLiquidDischarge (parameters : WorkListRow) : ProcessGroup = 
+    let makeLQD (parameters : WorkListRow) : ProcessGroup = 
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| liquid_discharge
                 [ east_north_common parameters.NGR
-                  aib_reference_common parameters.``AI2 Root Reference``
+                  aib_reference_floc_common parameters.``AI2 Root Reference``
                 ]
                 [   
-                  edcRegulatoryMonitoring parameters
+                  makeRGM parameters
                 ]
 
 
-    let edcEnvironmentalDischarge (parameters : WorkListRow) : Function =        
+    let makeEDC (parameters : WorkListRow) : Function =        
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| environmental_discharge 
                 [ east_north_common parameters.NGR
-                  aib_reference_common parameters.``AI2 Root Reference``
+                  aib_reference_floc_common parameters.``AI2 Root Reference``
                 ]
                 [ 
-                    edcLiquidDischarge parameters
+                    makeLQD parameters
                 ]
     
 

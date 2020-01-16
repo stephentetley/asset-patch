@@ -36,10 +36,11 @@ module OutstationPatcher =
     /// levels in the tree (according to what already exists).
     let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase1Data> = 
         match path.Level with
-        | 1 -> applyFlocTemplate1 (path, row) osLevel2Template >>= function1EmitPhase1
-        | 2 -> applyFlocTemplate1 (path, row) osLevel3Template >>= processGroup1EmitPhase1
-        | 3 -> applyFlocTemplate1 (path, row) osLevel4Template >>= process1EmitPhase1
-        | 4 -> applyFlocTemplate1 (path, row) osLevel5Template >>= system1EmitPhase1
+        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= function1EmitPhase1
+        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroup1EmitPhase1
+        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= process1EmitPhase1
+        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= system1EmitPhase1
+        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= equipment1EmitPhase1
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runOutstationPatcherPhase1 (opts : OsPatcherOptions) : Result<unit, string> = 
@@ -56,10 +57,11 @@ module OutstationPatcher =
 
     let private phase2ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase2Data> = 
         match path.Level with
-        | 1 -> applyFlocTemplate1 (path, row) osLevel2Template >>= function1EmitPhase2
-        | 2 -> applyFlocTemplate1 (path, row) osLevel3Template >>= processGroup1EmitPhase2
-        | 3 -> applyFlocTemplate1 (path, row) osLevel4Template >>= process1EmitPhase2
-        | 4 -> applyFlocTemplate1 (path, row) osLevel5Template >>= system1EmitPhase2
+        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= function1EmitPhase2
+        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroup1EmitPhase2
+        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= process1EmitPhase2
+        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= system1EmitPhase2
+        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= equipment1EmitPhase2
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
 

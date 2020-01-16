@@ -160,8 +160,16 @@ module Base =
         _characteristic "S4_AIB_REFERENCE" NullValue
 
 
-    let aib_reference_common (sainumber : string) : Class = 
-        aib_reference [ ai2_aib_reference sainumber; s4_aib_reference () ]
+    let aib_reference_floc_common (saiNumber : string) : Class = 
+        aib_reference [ ai2_aib_reference saiNumber; s4_aib_reference () ]
+
+    let aib_reference_equipment_common (saiNumber : string) (pliNumber: string) : Class = 
+        aib_reference 
+            [ ai2_aib_reference saiNumber
+              ai2_aib_reference pliNumber
+              s4_aib_reference () 
+            ]
+
 
     /// Class:EAST_NORTH
     let east_north : Characteristic list -> Class = 

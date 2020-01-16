@@ -37,21 +37,21 @@ module EdcPatcher =
     let private phase1ProcessRow (row : WorkListRow) : CompilerMonad<Phase1Data> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFlocTemplate1 (rootPath, row) edcEnvironmentalDischarge >>= function1EmitPhase1
-        | 2 -> applyFlocTemplate1 (rootPath, row) edcLiquidDischarge >>= processGroup1EmitPhase1
-        | 3 -> applyFlocTemplate1 (rootPath, row) edcRegulatoryMonitoring >>= process1EmitPhase1
-        | 4 -> applyFlocTemplate1 (rootPath, row) edcSystem >>= system1EmitPhase1
-        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) edcLevelTransmitter >>= equipment1EmitPhase1
+        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= function1EmitPhase1
+        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroup1EmitPhase1
+        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= process1EmitPhase1
+        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= system1EmitPhase1
+        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= equipment1EmitPhase1
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
     let private phase2ProcessRow (row : WorkListRow) : CompilerMonad<Phase2Data> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFlocTemplate1 (rootPath, row) edcEnvironmentalDischarge >>= function1EmitPhase2
-        | 2 -> applyFlocTemplate1 (rootPath, row) edcLiquidDischarge >>= processGroup1EmitPhase2
-        | 3 -> applyFlocTemplate1 (rootPath, row) edcRegulatoryMonitoring >>= process1EmitPhase2
-        | 4 -> applyFlocTemplate1 (rootPath, row) edcSystem >>= system1EmitPhase2
-        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) edcLevelTransmitter >>= equipment1EmitPhase2
+        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= function1EmitPhase2
+        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroup1EmitPhase2
+        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= process1EmitPhase2
+        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= system1EmitPhase2
+        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= equipment1EmitPhase2
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
