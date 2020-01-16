@@ -72,31 +72,28 @@ module EdcTemplate =
         | Some date -> startupDate date
 
 
-    let getL2Sainum (parameters: WorkListRow): string = 
+    let private getL2Sainum (parameters: WorkListRow): string = 
         parameters.``AI2 EDC Sainum``
 
-    let getL3Sainum (parameters: WorkListRow): string = 
+    let private getL3Sainum (parameters: WorkListRow): string = 
         let level3 = parameters.``AI2 LQD Sainum``
         match level3.ToUpper() with
         | "DITTO" -> getL2Sainum parameters
         | _ -> level3
 
-    let getL4Sainum (parameters: WorkListRow): string = 
+    let private getL4Sainum (parameters: WorkListRow): string = 
         let level4 = parameters.``AI2 RGM Sainum``
         match level4.ToUpper() with
-        | "DITTO" -> getL2Sainum parameters
+        | "DITTO" -> getL3Sainum parameters
         | _ -> level4
 
-    let getL5Sainum (parameters: WorkListRow): string = 
+    let private getL5Sainum (parameters: WorkListRow): string = 
         let level5 = parameters.``AI2 SYS Sainum``
         match level5.ToUpper() with
-        | "DITTO" -> getL2Sainum parameters
+        | "DITTO" -> getL4Sainum parameters
         | _ -> level5
 
-    //let instantiateRootFloc (flocText: string) (level: int) : FuncLocPath = 
-    //    let floc = FuncLocPath.Create flocText
-    //    floc.
-
+    
 
     // ************************************************************************
     // Hierarchy templates

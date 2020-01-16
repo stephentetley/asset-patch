@@ -13,7 +13,6 @@ module OutstationTemplate =
     open AssetPatch.TemplateCatalogue.Ctossy
     open AssetPatch.TemplateCatalogue.Netwtl
     open AssetPatch.Lib.Common
-    open AssetPatch.Lib.OSGB36
 
     open OutstationPatcher.InputData
 
@@ -31,38 +30,53 @@ module OutstationTemplate =
         | None -> id
         | Some date -> startupDate date
 
+    let private getL2Sainum (parameters: WorkListRow): string = 
+        parameters.``AI2 CAA Sainum``
+
+    let private getL3Sainum (parameters: WorkListRow): string = 
+        let level3 = parameters.``AI2 NET Sainum``
+        match level3.ToUpper() with
+        | "DITTO" -> getL2Sainum parameters
+        | _ -> level3
+
+    let private getL4Sainum (parameters: WorkListRow): string = 
+        let level4 = parameters.``AI2 TEL Sainum``
+        match level4.ToUpper() with
+        | "DITTO" -> getL3Sainum parameters
+        | _ -> level4
+
+    let private getL5Sainum (parameters: WorkListRow): string = 
+        let level5 = parameters.``AI2 SYS Sainum``
+        match level5.ToUpper() with
+        | "DITTO" -> getL4Sainum parameters
+        | _ -> level5
+
 
     // ************************************************************************
     // Hierarchy templates
 
     let makeTelemetryOustation (parameters : WorkListRow) : Equipment = 
-        let installDate = getInstallDate parameters.``Install Date``
+        let installDate = getInstallDate parameters.``Outstation Install Date``
 
-        telemetry_outstation parameters.``Outstation Name``
+        telemetry_outstation parameters.``Telemetry Outstation Name``
             [ east_north_common parameters.NGR
-              aib_reference 
-                [ s4_aib_reference () 
-                  ai2_aib_reference parameters.``AI2 Equipment SAI Number``
-                  ai2_aib_reference parameters.``AI2 Equipment PLI Code``
-                ]
-              netwtl 
-                [
-                ]    
+              aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
+              netwtl []    
             ]
-            _no_subordinate_equipment_
-            [ manufacturer parameters.Manufacturer
-              model parameters.Model
-              serial_number parameters.``Serial Number``
+            _no_subordinate_equipment_  // Not true...
+            [ manufacturer parameters.``Outstation Manufacturer``
+              model parameters.``Outstation Model``
+              serial_number parameters.``Oustation Serial Number``
               construction_year installDate.Year
               construction_month installDate.Month
             ]
 
     /// Level 5
     let makeSYS (parameters : WorkListRow) : System = 
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| telemetry_system parameters.``System Code`` parameters.``System Name``
+        locals [startupDateTrafo {| InstallDate = parameters.``Outstation Install Date`` |}]
+            <| telemetry_system parameters.``S4 System Code`` parameters.``S4 System Name``
                 [ east_north_common parameters.NGR
-                  aib_reference_floc_common parameters.``AI2 Equipment SAI Number``
+                  aib_reference_floc_common (getL5Sainum parameters)
                   ctossy 
                     [ system_type "REMOTE TELEMETRY SYSTEM"
                     ]
@@ -75,7 +89,7 @@ module OutstationTemplate =
     let makeTEL (parameters : WorkListRow) : Process = 
         telemetry
             [ east_north_common parameters.NGR
-                // aib_reference_common   
+              aib_reference_floc_common (getL4Sainum parameters)
             ]
             [   
                 makeSYS parameters
@@ -85,7 +99,7 @@ module OutstationTemplate =
     let makeNET (parameters : WorkListRow) : ProcessGroup = 
         networks
             [ east_north_common parameters.NGR
-                // aib_reference_common
+              aib_reference_floc_common (getL3Sainum parameters)
             ]
             [ 
                 makeTEL parameters
@@ -95,7 +109,7 @@ module OutstationTemplate =
     let makeCAA (parameters : WorkListRow) : Function = 
         control_and_automation 
             [ east_north_common parameters.NGR
-              // aib_reference_common parameters.
+              aib_reference_floc_common (getL2Sainum parameters)
             ]
             [ 
                 makeNET parameters
