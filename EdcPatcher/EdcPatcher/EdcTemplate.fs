@@ -10,10 +10,11 @@ module EdcTemplate =
 
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Template
-    open AssetPatch.TemplateCatalogue
-    open AssetPatch.TemplateCatalogue.Smonsy
     open AssetPatch.Lib.Common
     open AssetPatch.Lib.OSGB36
+    open AssetPatch.TemplateCatalogue
+    open AssetPatch.TemplateCatalogue.Smonsy
+
 
     open EdcPatcher.InputData
 
@@ -72,18 +73,7 @@ module EdcTemplate =
               
             ]
 
-    
-    let private east_north_common (parameters: {| NGR: string |}) = 
-        match NGR.Create parameters.NGR with
-        | Some eastNorth -> east_north_ngr eastNorth
-        | None ->  east_north [ easting 0; northing 0 ]
-
-    let private aib_reference_common (parameters: {| SAI: string |}) =  
-        aib_reference 
-            [   s4_aib_reference ()
-                ai2_aib_reference parameters.SAI
-                
-            ]
+   
 
     let private startupDateTrafo (parameters: {| InstallDate: string |}) : EnvTransformer = 
         match tryGetUSDate parameters.InstallDate with
@@ -98,10 +88,10 @@ module EdcTemplate =
         let month : int = (getInstallDate parameters.``Install Date``).Month
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| lstn_level_transmitter parameters.``Level Controller Name``
-                [ east_north_common {| NGR = parameters.NGR |}
+                [ east_north_common parameters.NGR
                   aib_reference_leaf_instance parameters
                   lstnut_leaf_instance parameters
-                  asset_condition_new_item year
+                  asset_condition_common year
                 ]
                 _no_subordinate_equipment_
                 [ manufacturer parameters.``Controller Manufacturer``
@@ -119,8 +109,8 @@ module EdcTemplate =
         | Some sysCode -> 
             locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
                 <| montoring_system sysCode "EA Event Duration Monitoring"
-                    [ east_north_common {| NGR = parameters.NGR |}
-                      aib_reference_common {| SAI = parameters.``AI2 Root Reference`` |}
+                    [ east_north_common parameters.NGR
+                      aib_reference_common parameters.``AI2 Root Reference``
                       smonsy 
                         [ system_type "EA Overflow Monitoring" 
                         ]
@@ -133,8 +123,8 @@ module EdcTemplate =
     let edcRegulatoryMonitoring (parameters : WorkListRow) : Process = 
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| regulatory_monitoring
-                [ east_north_common {| NGR = parameters.NGR |}
-                  aib_reference_common {| SAI = parameters.``AI2 Root Reference`` |}
+                [ east_north_common parameters.NGR
+                  aib_reference_common parameters.``AI2 Root Reference``
                 ]
                 [   
                   edcSystem parameters
@@ -143,8 +133,8 @@ module EdcTemplate =
     let edcLiquidDischarge (parameters : WorkListRow) : ProcessGroup = 
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| liquid_discharge
-                [ east_north_common {| NGR = parameters.NGR |}
-                  aib_reference_common {| SAI = parameters.``AI2 Root Reference`` |}
+                [ east_north_common parameters.NGR
+                  aib_reference_common parameters.``AI2 Root Reference``
                 ]
                 [   
                   edcRegulatoryMonitoring parameters
@@ -154,8 +144,8 @@ module EdcTemplate =
     let edcEnvironmentalDischarge (parameters : WorkListRow) : Function =        
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| environmental_discharge 
-                [ east_north_common {| NGR = parameters.NGR |}
-                  aib_reference_common  {| SAI = parameters.``AI2 Root Reference`` |}
+                [ east_north_common parameters.NGR
+                  aib_reference_common parameters.``AI2 Root Reference``
                 ]
                 [ 
                     edcLiquidDischarge parameters

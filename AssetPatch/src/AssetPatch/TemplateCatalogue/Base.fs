@@ -9,6 +9,7 @@ module Base =
     
     open AssetPatch.TemplatePatcher.CommonTypes
     open AssetPatch.TemplatePatcher.Template
+    open AssetPatch.Lib.OSGB36
 
     // ************************************************************************
     // Function
@@ -159,7 +160,8 @@ module Base =
         _characteristic "S4_AIB_REFERENCE" NullValue
 
 
-    
+    let aib_reference_common (sainumber : string) : Class = 
+        aib_reference [ ai2_aib_reference sainumber; s4_aib_reference () ]
 
     /// Class:EAST_NORTH
     let east_north : Characteristic list -> Class = 
@@ -172,6 +174,14 @@ module Base =
     /// EAST_NORTH:NORTHING
     let northing (v : int) : Characteristic = 
         _characteristic "NORTHING" (intValue v)
+
+    
+    let east_north_common (ngr : string) : Class = 
+        match NGR.Create ngr with
+        | None -> templateError (sprintf "invalid NGR: %s" ngr)
+        | Some s -> 
+            let ea = ngrToEastingNorthing s
+            east_north [ easting ea.Easting ;  northing ea.Northing ]
 
     
 

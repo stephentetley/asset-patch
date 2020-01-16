@@ -26,16 +26,16 @@
     <Compile Include="AssetPatch\TemplatePatcher\EmitFuncLoc.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\PatchCompiler.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\Datatypes.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\RewriteMonad.fs" />
+    <Compile Include="AssetPatch\Lib\Common.fs" />
+    <Compile Include="AssetPatch\Lib\OSGB36.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Base.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\AssetCondition.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Smonsy.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Lstnut.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Ctossy.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Netwtl.fs" />
-    <Compile Include="AssetPatch\RewritePatcher\Datatypes.fs" />
-    <Compile Include="AssetPatch\RewritePatcher\RewriteMonad.fs" />
-    <Compile Include="AssetPatch\Lib\Common.fs" />
-    <Compile Include="AssetPatch\Lib\OSGB36.fs" />
   </ItemGroup>
 
   <ItemGroup>

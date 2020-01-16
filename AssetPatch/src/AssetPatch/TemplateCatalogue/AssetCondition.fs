@@ -136,7 +136,7 @@ module AssetCondition =
         _characteristic "SURVEY_DATE" (intValue <| year)
 
     /// Emit ASSET_CONDITION with defaults for new
-    let asset_condition_new_item (year : int) : Class = 
+    let asset_condition_common (year : int) : Class = 
         asset_condition 
             [   condition_grade Good
                 condition_grade_reason "New"

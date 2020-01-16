@@ -20,9 +20,7 @@ module OSGB36 =
 
     open System.Text.RegularExpressions
     
-    open AssetPatch.TemplatePatcher.Template
-    open AssetPatch.TemplateCatalogue
-
+ 
     [<Struct>]
     /// Two letters and 10 digits
     type NGR = 
@@ -146,9 +144,6 @@ module OSGB36 =
     
 
 
-    let east_north_ngr (ngr : NGR) : Class = 
-        let ea = ngrToEastingNorthing ngr
-        east_north [ easting ea.Easting ;  northing ea.Northing ]
 
 
     
