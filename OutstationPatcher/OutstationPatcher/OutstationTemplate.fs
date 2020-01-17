@@ -10,8 +10,8 @@ module OutstationTemplate =
 
     open AssetPatch.TemplatePatcher.Template
     open AssetPatch.TemplateCatalogue
-    open AssetPatch.TemplateCatalogue.Ctossy
-    open AssetPatch.TemplateCatalogue.Netwtl
+    open AssetPatch.TemplateCatalogue.Ctos
+    open AssetPatch.TemplateCatalogue.Netw
     open AssetPatch.Lib.Common
 
     open OutstationPatcher.InputData
@@ -54,6 +54,11 @@ module OutstationTemplate =
 
     // ************************************************************************
     // Hierarchy templates
+
+    //let makeModem (parameters : WorkListRow) : Equipment = 
+    //    let installDate = getInstallDate parameters.``Outstation Install Date``
+    //    modem 
+
 
     let makeTelemetryOustation (parameters : WorkListRow) : Equipment = 
         let installDate = getInstallDate parameters.``Outstation Install Date``

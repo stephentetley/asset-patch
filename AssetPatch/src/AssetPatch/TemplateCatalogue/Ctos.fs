@@ -5,7 +5,7 @@ namespace AssetPatch.TemplateCatalogue
 
 
 
-module Ctossy =
+module Ctos =
     
     open AssetPatch.TemplatePatcher.CommonTypes
     open AssetPatch.TemplatePatcher.Template

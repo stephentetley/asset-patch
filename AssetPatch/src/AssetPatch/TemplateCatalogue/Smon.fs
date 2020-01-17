@@ -5,7 +5,7 @@ namespace AssetPatch.TemplateCatalogue
 
 
 
-module Smonsy =
+module Smon =
     
     open AssetPatch.TemplatePatcher.CommonTypes
     open AssetPatch.TemplatePatcher.Template

@@ -101,13 +101,9 @@ module Base =
     let _no_equipment_ : Equipment list = []
     let _no_subordinate_equipment_ : Equipment list = []
 
-    let lstn_level_transmitter (name : string) 
-                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "LSTN"
 
-    let telemetry_outstation (name : string) 
-                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "NETW"
+
+
 
     // ************************************************************************
     // Equipment attributes

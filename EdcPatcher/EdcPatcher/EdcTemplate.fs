@@ -12,7 +12,7 @@ module EdcTemplate =
     open AssetPatch.TemplatePatcher.Template
     open AssetPatch.Lib.Common
     open AssetPatch.TemplateCatalogue
-    open AssetPatch.TemplateCatalogue.Smonsy
+    open AssetPatch.TemplateCatalogue.Smon
 
 
     open EdcPatcher.InputData

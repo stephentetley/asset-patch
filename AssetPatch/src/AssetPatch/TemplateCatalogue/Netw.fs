@@ -5,10 +5,19 @@ namespace AssetPatch.TemplateCatalogue
 
 
 
-module Netwtl =
+module Netw =
     
     open AssetPatch.TemplatePatcher.CommonTypes
     open AssetPatch.TemplatePatcher.Template
+
+
+    let telemetry_outstation (name : string) 
+                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
+        _equipment name "I" "NETW" "NETWTL"
+
+    let modem (name : string) 
+                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
+        _equipment name "I" "NETW" "NETWMO"
 
 
     /// Class:NETWTL

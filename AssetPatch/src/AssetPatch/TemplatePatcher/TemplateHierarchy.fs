@@ -53,6 +53,7 @@ module TemplateHierarchy =
           Description : string       
           Category : string
           ObjectType : string
+          ZZClass: string
           Manufacturer : string option
           Model : string option
           SerialNumber : string option

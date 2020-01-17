@@ -233,6 +233,7 @@ module Template =
     let _equipment (description : string) 
                     (category : string) 
                     (objectType : string)
+                    (zzClass: string)
                     (classes : Class list) 
                     (subordinateEquipment : Equipment list) 
                     (attributes : EquipmentAttribute list) : Equipment = 
@@ -249,6 +250,7 @@ module Template =
                     FlocProperties = props
                     Description = description
                     Category = category
+                    ZZClass = zzClass
                     ObjectType = objectType
                     Manufacturer = None
                     Model = None

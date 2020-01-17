@@ -48,7 +48,7 @@ let reportChangeFiles (srcDir: string) (destDir: string): Unit =
     Array.iter (outputChangeReport1 destDir >> ignore) sources
 
 let reportChangeFiles01 () = 
-    let src =  @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
-    let dest = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output\html"
+    let src =  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings"
+    let dest = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\html"
     reportChangeFiles src dest
 
