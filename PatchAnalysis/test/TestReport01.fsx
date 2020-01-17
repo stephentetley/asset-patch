@@ -27,28 +27,28 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
 #load "..\src\PatchAnalysis\Utilities\ChangeFileReport.fs"
-open AssetPatch.Base.Parser
 open PatchAnaylsis.Utilities.ChangeFileReport
 
-let outputDirectory () : string = 
-    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\output")
 
-let outputFile (relFileName : string) : string = 
-    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\output", relFileName)
+/// Copy this file to the ouput directory so Markdown can find it easily
+let pathToCss () = 
+    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\..\..\libs\markdown-css-master\github.css")
 
-/// This is calculated from the folder where pandoc is invoked in
-/// eg: X:\coding\work\asset-patch\output to X:\coding\libs\markdown-css-master\"
-let pathToCss = @"..\..\..\libs\markdown-css-master\github.css"
+let outputChangeReport1 (destDir: string) (sourcePath: string) : Result<Unit, string> = 
+    let cssDest = Path.Combine(destDir, "github.css")
+    if not <| File.Exists(cssDest) then
+        File.Copy(sourceFileName = pathToCss (), destFileName =  cssDest)
+    else ()
+    changeFileReport "github.css" destDir sourcePath
 
-let outputChangeReport1 (sourcePath : string) = 
-    changeFileReport pathToCss (outputDirectory ()) sourcePath
 
-
-let reportChangeFiles (dir: string) = 
+let reportChangeFiles (srcDir: string) (destDir: string): Unit = 
     let sources = 
-        System.IO.Directory.GetFiles( path = dir, searchPattern = "*.txt")
-    Array.iter (outputChangeReport1 >> ignore) sources
+        System.IO.Directory.GetFiles( path = srcDir, searchPattern = "*.txt")
+    Array.iter (outputChangeReport1 destDir >> ignore) sources
 
 let reportChangeFiles01 () = 
-    reportChangeFiles @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
+    let src =  @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
+    let dest = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output\html"
+    reportChangeFiles src dest
 

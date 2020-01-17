@@ -74,7 +74,7 @@ open EdcPatcher.EdcPatcher
 let options : EdcPatcherOptions = 
     {   UserName = "TETLEYS"
         OutputDirectory = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
-        WorkListPath = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\EA_discharge_2019_worklist1.xlsx" 
+        WorkListPath =    @"G:\work\Projects\assets\asset_patch\env_discharge_2019\EA_discharge_2019_worklist1.xlsx" 
     }
 
 let main01 () = 
