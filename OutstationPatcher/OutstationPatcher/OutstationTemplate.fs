@@ -55,10 +55,20 @@ module OutstationTemplate =
     // ************************************************************************
     // Hierarchy templates
 
-    //let makeModem (parameters : WorkListRow) : Equipment = 
-    //    let installDate = getInstallDate parameters.``Outstation Install Date``
-    //    modem 
-
+    let makeModem (parameters : WorkListRow) : Equipment = 
+        let installDate = getInstallDate parameters.``Outstation Install Date``
+        modem parameters.``Modem Name`` 
+            [ east_north_common parameters.NGR
+              aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
+              netwtl []    
+            ]
+            _no_subordinate_equipment_ 
+            [ manufacturer parameters.``Modem Manufacturer``
+              model parameters.``Modem Model``
+              serial_number parameters.``Modem Serial Number``
+              construction_year installDate.Year
+              construction_month installDate.Month
+            ]
 
     let makeTelemetryOustation (parameters : WorkListRow) : Equipment = 
         let installDate = getInstallDate parameters.``Outstation Install Date``
@@ -68,7 +78,7 @@ module OutstationTemplate =
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwtl []    
             ]
-            _no_subordinate_equipment_  // Not true...
+            _no_subordinate_equipment_ 
             [ manufacturer parameters.``Outstation Manufacturer``
               model parameters.``Outstation Model``
               serial_number parameters.``Oustation Serial Number``
@@ -88,6 +98,7 @@ module OutstationTemplate =
                 ]
                 _no_assemblies_
                 [ makeTelemetryOustation parameters
+                  makeModem parameters
                 ]
     
     /// Level 4

@@ -73,11 +73,8 @@ module PatchWriter =
 
     let private writeChangesAndHeaders (outputPath: string)
                                            (changeFile : ChangeFile) : CompilerMonad<unit> =
-        compile {
-            do! liftAction (fun () -> writePatchAndVariantHeaders outputPath changeFile)
-            return ()
-        }
-
+        liftAction (fun () -> writePatchAndVariantHeaders outputPath changeFile)
+        
 
     // ************************************************************************
     // New FuncLocs file

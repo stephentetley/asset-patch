@@ -26,7 +26,9 @@ module EquiIndexing =
         { Description : string 
           FuncLoc : FuncLocPath }
 
-    type EquiMap = Map<EquiKey, string>
+    type EquiDollarId = string
+
+    type EquiMap = Map<EquiKey, EquiDollarId>
 
     let emptyEquiMap : EquiMap = Map.empty
 

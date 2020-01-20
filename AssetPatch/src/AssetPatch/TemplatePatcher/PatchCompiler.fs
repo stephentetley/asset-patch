@@ -8,14 +8,13 @@ module PatchCompiler =
     
     open System.IO
 
-    // Open first so common names get overridden
-    open AssetPatch.TemplatePatcher.Template
 
+    open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath 
+    open AssetPatch.TemplatePatcher.PatchTypes
     open AssetPatch.TemplatePatcher.CompilerMonad
     open AssetPatch.TemplatePatcher.PatchWriter
     open AssetPatch.TemplatePatcher.EmitCommon
-    
 
 
     // ************************************************************************
@@ -66,6 +65,21 @@ module PatchCompiler =
         else
             writeNewEquisFile directory filePrefix equiData.Equis
 
+    let writePhase1EquipmentList (directory: string) 
+                                (filePrefix: string) 
+                                (equiData: Phase1EquiData) : CompilerMonad<Unit> =
+        let makeRow (equi: NewEqui): string = 
+            sprintf "%s\t%s" equi.Description (equi.FuncLoc.ToString())
+
+        compile { 
+            let name1 = sprintf "%s_equipment_list.txt" (safeName filePrefix)
+            let path = Path.Combine(directory, name1)
+            let sw = new StreamWriter(path = path)
+            do sw.WriteLine "TXTMI\tTPLN_EILO"
+            do List.iter (fun (row: NewEqui) -> sw.WriteLine (makeRow row)) equiData.Equis
+            do sw.Close()
+            return ()
+        }
 
     let writePhase1Data (directory : string) 
                         (filePrefix : string) 
@@ -75,9 +89,13 @@ module PatchCompiler =
             let source = phase1Data.RemoveDups ()
             do! writePhase1FlocData directory filePrefix source.FlocData
             do! writePhase1EquiData directory filePrefix source.EquiData
+            do! writePhase1EquipmentList directory filePrefix source.EquiData
             return ()
         }
             
+            
+
+
     // Write ClassEqui and ValuaEqui patch files
     let writePhase2EquiData (directory : string) 
                                 (filePrefix : string) 

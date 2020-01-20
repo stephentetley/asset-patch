@@ -155,7 +155,3 @@ module EmitEquipment =
             return (Phase2EquiData.Concat xss)
         }
 
-
-    
-
-    
