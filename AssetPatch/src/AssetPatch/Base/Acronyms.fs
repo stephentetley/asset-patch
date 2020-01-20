@@ -156,6 +156,17 @@ module Acronyms =
             ; ("ATFLB",         "Value to")
             ]    
 
+    // ************************************************************************
+    // iflotx fields
+
+    let private iflotxColumnAcronyms : Map<string,string> = 
+        Map.ofList <|            
+            [ ("PLTXT",         "FunctLocDescrip.")
+            ; ("FUNCLOC",       "Functional Location")
+            ; ("LANGUCODE",     "Language Key")
+            ; ("FL_LTXT",       "Long Text")
+            ; ("KZMLA",         "Primary language")
+            ]
 
 
     // ************************************************************************
@@ -320,6 +331,18 @@ module Acronyms =
             ; ("ATFLB",         "Value to")
             ]
 
+    // ************************************************************************
+    // eqmltxt fields
+
+    let private eqmltxtColumnAcronyms : Map<string,string> = 
+        Map.ofList <|            
+            [ ("SHORTXT",       "Description (medium text)")
+            ; ("EQUI",          "Equipment")
+            ; ("LANGUCODE",     "Language Key")
+            ; ("EQ_LTXT",       "Long Text")
+            ; ("LTXTIND",         "More Text Exists")
+            ]
+
 
     // ************************************************************************
     // Decode function
@@ -330,9 +353,11 @@ module Acronyms =
         | FuncLoc -> Map.tryFind acronym funclocColumnAcronyms  
         | ClassFloc -> Map.tryFind acronym classflocColumnAcronyms  
         | ValuaFloc -> Map.tryFind acronym valuaflocColumnAcronyms
+        | Iflotx -> Map.tryFind acronym iflotxColumnAcronyms
         | Equi -> Map.tryFind acronym equiColumnAcronyms
         | ClassEqui -> Map.tryFind acronym classequiColumnAcronyms
         | ValuaEqui -> Map.tryFind acronym valuaequiColumnAcronyms
+        | Eqmltxt -> Map.tryFind acronym eqmltxtColumnAcronyms
 
     let getHeaderDescriptions (entityType : EntityType) 
                             (headers : HeaderRow) : HeaderRow = 

@@ -287,3 +287,27 @@ module PatchTypes =
                 ; ("ATFLB",         "Value to",                 valueToOutput x.Value)
                 ]
             
+
+    // ************************************************************************
+    // Eqmltxt
+
+
+    /// LanguageKey is always "EN"
+    type NewEqmltxt = 
+        { EquipmentId : string
+          Description : string
+          LongText : string
+          MoteTextExists : bool
+        }
+    
+
+        /// Note - CharacteristicValue is used twice.
+        member x.ToAssocs() : AssocList<string, string> = 
+            makeAssocs
+                [ ("EQUI",          "Equipment",                    x.EquipmentId.ToString())
+                ; ("SHORTXT",       "Description (medium text)",    x.Description)
+                ; ("LANGUCODE",     "Language Key",                 "EN")
+                ; ("EQ_LTXT",       "Long Text",                    x.LongText)
+                ; ("LTXTIND",       "More Text Exists",             (if x.MoteTextExists then "X" else ""))        // Always 1 "EQ"
+                ]
+            

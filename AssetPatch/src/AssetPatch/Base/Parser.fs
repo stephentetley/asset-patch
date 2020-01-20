@@ -72,9 +72,12 @@ module Parser =
                 [ token "FUNCLOC"   >>. preturn FuncLoc 
                 ; token "CLASSFLOC" >>. preturn ClassFloc
                 ; token "VALUAFLOC" >>. preturn ValuaFloc
+                ; token "IFLOTX"    >>. preturn Iflotx
                 ; token "EQUI"      >>. preturn Equi
                 ; token "CLASSEQUI" >>. preturn ClassEqui
                 ; token "VALUAEQUI" >>. preturn ValuaEqui
+                ; token "EQMLTXT"   >>. preturn Eqmltxt
+
                 ]
         directive (named "Entity Type" inner)
 

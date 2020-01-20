@@ -32,8 +32,8 @@ module ChangeFile =
         | U1
 
     type EntityType = 
-        | FuncLoc | ClassFloc | ValuaFloc
-        | Equi | ClassEqui | ValuaEqui
+        | FuncLoc | ClassFloc | ValuaFloc | Iflotx
+        | Equi | ClassEqui | ValuaEqui | Eqmltxt
 
     [<Struct>]
     type Selection = 

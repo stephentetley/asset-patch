@@ -46,9 +46,11 @@ module Printer =
             | FuncLoc -> "FUNCLOC"
             | ClassFloc -> "CLASSFLOC"
             | ValuaFloc -> "VALUAFLOC"
+            | Iflotx -> "IFOLTX"
             | Equi -> "EQUI"
             | ClassEqui -> "CLASSEQUI" 
             | ValuaEqui -> "VALUAEQUI"
+            | Eqmltxt -> "EQMLTXT"
         defines "Entity Type" etname
             
     let variant (name : string) : Doc = 
