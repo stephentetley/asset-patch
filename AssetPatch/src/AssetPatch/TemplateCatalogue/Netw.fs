@@ -11,13 +11,13 @@ module Netw =
     open AssetPatch.TemplatePatcher.Template
 
 
-    let telemetry_outstation (name : string) 
+    let telemetry_outstation (name : string) (memoLine : string)
                 : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "NETW" "NETWTL"
+        _equipment name "I" "NETW" "NETWTL" memoLine
 
-    let modem (name : string) 
+    let modem (name : string) (memoLine : string)
                 : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "NETW" "NETWMO"
+        _equipment name "I" "NETW" "NETWMO" memoLine
 
 
     /// Class:NETWTL

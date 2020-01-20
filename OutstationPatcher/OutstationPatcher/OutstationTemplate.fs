@@ -58,6 +58,7 @@ module OutstationTemplate =
     let makeModem (parameters : WorkListRow) : Equipment = 
         let installDate = getInstallDate parameters.``Outstation Install Date``
         modem parameters.``Modem Name`` 
+              parameters.``Modem Memo Line``
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwtl []    
@@ -74,6 +75,7 @@ module OutstationTemplate =
         let installDate = getInstallDate parameters.``Outstation Install Date``
 
         telemetry_outstation parameters.``Telemetry Outstation Name``
+                parameters.``Outstation Memo Line``
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwtl []    
@@ -81,7 +83,7 @@ module OutstationTemplate =
             _no_subordinate_equipment_ 
             [ manufacturer parameters.``Outstation Manufacturer``
               model parameters.``Outstation Model``
-              serial_number parameters.``Oustation Serial Number``
+              serial_number parameters.``Outstation Serial Number``
               construction_year installDate.Year
               construction_month installDate.Month
             ]

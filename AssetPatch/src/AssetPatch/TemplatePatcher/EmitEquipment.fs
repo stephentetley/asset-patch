@@ -114,13 +114,21 @@ module EmitEquipment =
 
     /// equiId may be a dollar number
     let equipmentToPhase2EquiData1 (equiId : string) 
+                                     (equiDescription: string)
+                                     (memoLine: string)
                                      (classes : S4Class list) : CompilerMonad<Phase2EquiData> = 
         let collect xs = List.foldBack (fun (c1, vs1)  (cs,vs) -> (c1 ::cs, vs1 @ vs)) xs ([],[])
         compile { 
             let! (cs, vs) = mapM (classToProperties equiId) classes |>> collect
+            let eqmltxt = 
+                { EquipmentId = equiId
+                  Description = equiDescription
+                  LongText = memoLine
+                  MoreTextExists = false }
             return { 
                 ClassEquis = cs
                 ValuaEquis = vs
+                Eqmltxts = [eqmltxt]
             }
         } 
 
@@ -134,7 +142,7 @@ module EmitEquipment =
                         match x.EquipmentId with 
                         | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (source.FuncLoc.ToString()) source.Description)
                         | Some equiNum -> 
-                            let! v1 = equipmentToPhase2EquiData1 equiNum x.Classes
+                            let! v1 = equipmentToPhase2EquiData1 equiNum x.Description x.MemoLine x.Classes
                             return! work kids (fun vs -> let ans = (v1 :: vs) in cont ans)
                     }
 
@@ -142,7 +150,7 @@ module EmitEquipment =
                 match source.EquipmentId with
                 | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (source.FuncLoc.ToString()) source.Description)
                 | Some equiNum -> 
-                    let! equiResult1 = equipmentToPhase2EquiData1 equiNum source.Classes
+                    let! equiResult1 = equipmentToPhase2EquiData1 equiNum source.Description source.MemoLine source.Classes
                     let! kids = work source.SuboridnateEquipment id
                     return (equiResult1 :: kids |> Phase2EquiData.Concat)
             }

@@ -233,7 +233,8 @@ module Template =
     let _equipment (description : string) 
                     (category : string) 
                     (objectType : string)
-                    (zzClass: string)
+                    (zzClass : string)
+                    (memoLine : string)
                     (classes : Class list) 
                     (subordinateEquipment : Equipment list) 
                     (attributes : EquipmentAttribute list) : Equipment = 
@@ -259,6 +260,7 @@ module Template =
                     ConstructionMonth = None
                     Classes = cs 
                     SuboridnateEquipment = es 
+                    MemoLine = memoLine
                 }
             } 
         setAttributes equip1 attributes

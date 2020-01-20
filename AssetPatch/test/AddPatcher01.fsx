@@ -59,6 +59,8 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplatePatcher\EmitFuncLoc.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Emitter.fs"
 #load "..\src\AssetPatch\TemplatePatcher\PatchCompiler.fs"
+#load "..\src\AssetPatch\Lib\Common.fs"
+#load "..\src\AssetPatch\Lib\OSGB36.fs"
 #load "..\src\AssetPatch\TemplateCatalogue\Base.fs"
 #load "..\src\AssetPatch\TemplateCatalogue\AssetCondition.fs"
 open AssetPatch.Base.Common
@@ -75,7 +77,7 @@ let outputFile (relFileName : string) : string =
     Path.Combine(outputDirectory (), relFileName)
 
 
-let assetConditionTemplate : Class1<uint32> = fun year ->
+let assetConditionTemplate : Class1<int> = fun year ->
     asset_condition 
         [ condition_grade Good
           condition_grade_reason "NEW"

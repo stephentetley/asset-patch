@@ -61,6 +61,7 @@ module TemplateHierarchy =
           ConstructionMonth : uint8 option
           Classes : S4Class list
           SuboridnateEquipment : S4Equipment list
+          MemoLine : string
         }
 
     type S4Component = 

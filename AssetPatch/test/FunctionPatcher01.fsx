@@ -59,7 +59,11 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplatePatcher\EmitFuncLoc.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Emitter.fs"
 #load "..\src\AssetPatch\TemplatePatcher\PatchCompiler.fs"
+#load "..\src\AssetPatch\Lib\Common.fs"
+#load "..\src\AssetPatch\Lib\OSGB36.fs"
 #load "..\src\AssetPatch\TemplateCatalogue\Base.fs"
+#load "..\src\AssetPatch\TemplateCatalogue\Lstn.fs"
+#load "..\src\AssetPatch\TemplateCatalogue\Netw.fs"
 open AssetPatch.Base.FuncLocPath
 open AssetPatch.TemplatePatcher.Template
 open AssetPatch.TemplatePatcher.CompilerMonad
@@ -112,7 +116,8 @@ let edcTemplate (parameters : RowParams) : Function =
                     ]
                     _no_assemblies_
                     [ 
-                      lstn_level_transmitter "Storm Overflow Level Monitor Loop"
+                      Lstn.lstn_level_transmitter "Storm Overflow Level Monitor Loop"
+                        ""
                         [ east_north_common
                           aib_reference [ s4_aib_reference () ]
                         ]
@@ -179,7 +184,8 @@ let caaTemplate (parameters : RowParams) : Site =
                             ]
                             _no_assemblies_
                             [ 
-                              telemetry_outstation "Telemetry Outstation"
+                              Netw.telemetry_outstation "Telemetry Outstation"
+                                ""
                                 [ east_north_common
                                   aib_reference                             
                                     [ s4_aib_reference ()

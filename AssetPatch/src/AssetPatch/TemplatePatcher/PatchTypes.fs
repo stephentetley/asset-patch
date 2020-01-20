@@ -297,7 +297,7 @@ module PatchTypes =
         { EquipmentId : string
           Description : string
           LongText : string
-          MoteTextExists : bool
+          MoreTextExists : bool
         }
     
 
@@ -308,6 +308,6 @@ module PatchTypes =
                 ; ("SHORTXT",       "Description (medium text)",    x.Description)
                 ; ("LANGUCODE",     "Language Key",                 "EN")
                 ; ("EQ_LTXT",       "Long Text",                    x.LongText)
-                ; ("LTXTIND",       "More Text Exists",             (if x.MoteTextExists then "X" else ""))        // Always 1 "EQ"
+                ; ("LTXTIND",       "More Text Exists",             (if x.MoreTextExists then "X" else ""))        // Always 1 "EQ"
                 ]
             

@@ -4,15 +4,15 @@
 namespace AssetPatch.TemplateCatalogue
 
 
-[<AutoOpen>]
+
 module Lstn =
     
     open AssetPatch.TemplatePatcher.CommonTypes
     open AssetPatch.TemplatePatcher.Template
 
-    let lstn_level_transmitter (name : string) 
+    let lstn_level_transmitter (name : string) (memoLine : string)
                 : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "LSTN" "LSTNUT"
+        _equipment name "I" "LSTN" "LSTNUT" memoLine
 
 
     /// Class:LSTNUT

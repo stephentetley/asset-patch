@@ -106,6 +106,7 @@ module PatchCompiler =
             compile {
                 do! writeNewClassEquisFile directory filePrefix equiData.ClassEquis
                 do! writeNewValuaEquisFile directory filePrefix equiData.ValuaEquis
+                do! writeNewEqmltxtsFile directory filePrefix equiData.Eqmltxts
                 return ()
             }
 

@@ -103,6 +103,7 @@ module EdcTemplate =
         let month : int = (getInstallDate parameters.``Install Date``).Month
         locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
             <| lstn_level_transmitter parameters.``Level Controller Name``
+                    parameters.``Memo Line``
                 [ east_north_common parameters.NGR
                   aib_reference_equipment_common parameters.``AI2 Equipment Sainum`` parameters.``AI2 Equipment PLI Code``
                   lstnut_leaf_instance parameters

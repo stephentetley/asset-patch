@@ -248,4 +248,28 @@ module PatchWriter =
                 return ()
             }
 
-    
+    // ************************************************************************
+    // New Eqmltxt (mulitlingual text/ memo line) file
+
+
+    /// Render a list of new ValuaEquis into a ChangeFile
+    let private makeNewEqmltxtsFile (rows : NewEqmltxt list) : CompilerMonad<ChangeFile> = 
+        rows
+            |> List.sortBy (fun row -> row.EquipmentId)
+            |> List.map (fun x -> x.ToAssocs())       
+            |> makeChangeFile Eqmltxt "Asset Patch Create Eqmltxts"
+
+
+    /// Write a list of new ValuaEquis to a ChangeFile
+    let writeNewEqmltxtsFile (directory : string) 
+                            (filePrefix : string) 
+                            (eqmltxts : NewEqmltxt list) : CompilerMonad<unit> = 
+        compile { 
+            match eqmltxts with
+            | [] -> return ()
+            | _ ->       
+                let! changes = makeNewEqmltxtsFile eqmltxts
+                let! outPath = genFileName directory filePrefix "08_create_eqmltxts"
+                do! writeChangesAndHeaders outPath changes
+                return ()
+            }

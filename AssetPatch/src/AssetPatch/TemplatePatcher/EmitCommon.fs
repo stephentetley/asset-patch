@@ -102,16 +102,18 @@ module EmitCommon =
     type Phase2EquiData = 
         { ClassEquis : NewClassEqui list
           ValuaEquis : NewValuaEqui list
+          Eqmltxts : NewEqmltxt list
         }
         member x.IsEmpty 
             with get () : bool = 
-                x.ClassEquis.IsEmpty && x.ValuaEquis.IsEmpty
+                x.ClassEquis.IsEmpty && x.ValuaEquis.IsEmpty && x.Eqmltxts.IsEmpty
 
         static member Concat (source : Phase2EquiData list) : Phase2EquiData = 
             let add (r1 : Phase2EquiData) (acc : Phase2EquiData) = 
                 { ClassEquis = r1.ClassEquis @ acc.ClassEquis
                   ValuaEquis = r1.ValuaEquis @ acc.ValuaEquis
+                  Eqmltxts   = r1.Eqmltxts @ acc.Eqmltxts
                 }
-            List.foldBack add source { ClassEquis = []; ValuaEquis = [] }
+            List.foldBack add source { ClassEquis = []; ValuaEquis = []; Eqmltxts = []}
 
     type Phase2Data = Phase2EquiData

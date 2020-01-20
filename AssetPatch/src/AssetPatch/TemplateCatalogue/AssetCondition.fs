@@ -4,7 +4,6 @@
 namespace AssetPatch.TemplateCatalogue
 
 
-[<AutoOpen>]
 module AssetCondition =
     
     open AssetPatch.TemplatePatcher.CommonTypes
