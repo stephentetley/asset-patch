@@ -201,7 +201,6 @@ module PatchTypes =
           CommonProps : CommonProperties
         }
 
-        /// Note - do not write EQUI to file.
         member x.ToAssocs() : AssocList<string, string> =         
             makeAssocs
                 // [ ("ABCK_EILO",     "ABC Indicator",                    "") 

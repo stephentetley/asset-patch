@@ -2,13 +2,12 @@
 
 #r "netstandard"
 #r "System.Text.Encoding.dll"
-open System
 open System.IO
 
 #I @"C:\Users\stephen\.nuget\packages\FParsec\1.0.4-rc3\lib\netstandard1.6"
 #r "FParsec"
 #r "FParsecCS"
-open FParsec
+
 
 open FSharp.Core
 

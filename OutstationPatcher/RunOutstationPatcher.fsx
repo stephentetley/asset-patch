@@ -9,27 +9,17 @@
 #r "ExcelDataReader.dll"
 #r "ExcelProvider.DesignTime.dll"
 
-#I @"C:\Users\stephen\.nuget\packages\system.io.packaging\4.5.0\lib\netstandard1.3"
-#r "System.IO.Packaging"
-#I @"C:\Users\stephen\.nuget\packages\DocumentFormat.OpenXml\2.9.1\lib\netstandard1.3"
-#r "DocumentFormat.OpenXml"
-
 
 #I @"C:\Users\stephen\.nuget\packages\FParsec\1.0.4-rc3\lib\netstandard1.6"
 #r "FParsec"
 #r "FParsecCS"
 
 
-open FSharp.Core
-
 #I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190721\lib\netstandard2.0"
 #r "SLFormat.dll"
 
 #I @"C:\Users\stephen\.nuget\packages\markdowndoc\1.0.1-alpha-20191014\lib\netstandard2.0"
 #r "MarkdownDoc.dll"
-
-#I @"C:\Users\stephen\.nuget\packages\sheetdoc\1.0.0-alpha-20191121a\lib\netstandard2.0"
-#r "SheetDoc.dll"
 
 
 #load "..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
