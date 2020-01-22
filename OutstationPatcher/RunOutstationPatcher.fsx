@@ -1,10 +1,5 @@
 ﻿#r "netstandard"
 #r "System.Text.Encoding.dll"
-#r "System.Xml.Linq"
-#r "System.Xml.ReaderWriter"
-#r "System.Xml.XDocument"
-#r "System.IO.FileSystem.Primitives"
-open System.IO
 
 #I @"C:\Users\stephen\.nuget\packages\ExcelProvider\1.0.1\lib\netstandard2.0"
 #r "ExcelProvider.Runtime.dll"
@@ -69,11 +64,6 @@ open FSharp.Core
 #load "OutstationPatcher\OutstationPatcher.fs"
 open OutstationPatcher.OutstationPatcher
 
-let outputDirectory (child : string) : string = 
-    match child with 
-    | null | "" -> Path.Combine(__SOURCE_DIRECTORY__, @"..\output")
-    | _ -> Path.Combine(__SOURCE_DIRECTORY__, @"..\output", child)
-
 
 let options : OsPatcherOptions = 
     {   UserName = "TETLEYS"
@@ -85,10 +75,11 @@ let main01 () =
     runOutstationPatcherPhase1 options 
 
 
-// Generate ClassEqui and ValuaEqui files for Equipment 
+// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
 // once it has been activated and downloaded...
+// Note - parsing the equi file is currently far from robust.
 let main02 () = 
-    let equiFile = @"G:\work\Projects\assets\asset_patch\__oustation_equi_download_with_dollar_numbers.txt"
+    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\mmim_upgrade_worklist1_mocked_download.txt"
     runOutstationPatcherPhase2 options equiFile  
 
 

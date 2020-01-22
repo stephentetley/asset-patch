@@ -1,9 +1,5 @@
 ﻿#r "netstandard"
 #r "System.Text.Encoding.dll"
-#r "System.Xml.Linq"
-#r "System.Xml.ReaderWriter"
-#r "System.Xml.XDocument"
-#r "System.IO.FileSystem.Primitives"
 open System.IO
 
 

@@ -66,6 +66,7 @@ module OutstationPatcher =
 
 
     /// Phase 2 materializes ClassEqui and ValuaEqui patches
+    /// Equipment download must have *EQUI, TXTMI & TPLN_EILO
     let runOutstationPatcherPhase2 (opts : OsPatcherOptions) 
                             (equipmentDownloadPath : string)  : Result<unit, string> = 
         let compilerOpts : CompilerOptions = makeCompilerOptions opts  

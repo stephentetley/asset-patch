@@ -23,6 +23,10 @@ module Netw =
     /// Class:NETWTL
     let netwtl : Characteristic list -> Class = 
         _class "NETWTL" 
+
+    /// Class:NETWMO
+    let netwmo : Characteristic list -> Class = 
+        _class "NETWMO" 
     
     /// NETW_SUPPLY_VOLTAGE
     let netw_supply_voltage (v : int) : Characteristic =         
@@ -53,5 +57,5 @@ module Netw =
         _characteristic "SPECIFIC_MODEL" (TextValue v)
 
     /// MANUFACTURERS_ASSET_LIFE_YR
-    let manufacturers_asset_life_yr (v : int) : Characteristic =         
-        _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (intValue v)
+    let manufacturers_asset_life_yr (v : decimal) : Characteristic =         
+        _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (DecimalValue v)

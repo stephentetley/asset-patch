@@ -1,9 +1,5 @@
 ﻿#r "netstandard"
 #r "System.Text.Encoding.dll"
-#r "System.Xml.Linq"
-#r "System.Xml.ReaderWriter"
-#r "System.Xml.XDocument"
-#r "System.IO.FileSystem.Primitives"
 open System.IO
 
 
@@ -69,6 +65,7 @@ open AssetPatch.TemplatePatcher.Template
 open AssetPatch.TemplatePatcher.CompilerMonad
 open AssetPatch.TemplatePatcher.PatchCompiler
 open AssetPatch.TemplateCatalogue
+open AssetPatch.TemplateCatalogue.AssetCondition
 
 let outputDirectory () : string = 
     Path.Combine(__SOURCE_DIRECTORY__, @"..\output")

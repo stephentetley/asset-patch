@@ -1,10 +1,6 @@
 ﻿#r "netstandard"
 #r "System.Text.Encoding.dll"
-#r "System.Xml.Linq"
-#r "System.Xml.ReaderWriter"
-#r "System.Xml.XDocument"
-#r "System.IO.FileSystem.Primitives"
-open System.IO
+
 
 #I @"C:\Users\stephen\.nuget\packages\ExcelProvider\1.0.1\lib\netstandard2.0"
 #r "ExcelProvider.Runtime.dll"
@@ -81,7 +77,7 @@ let main01 () =
     runEdcPatcherPhase1 options 
 
 
-// Generate ClassEqui and ValuaEqui files for Equipment 
+// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
 // once it has been activated and downloaded...
 let main02 () = 
     let equiFile = @"G:\work\Projects\assets\asset_patch\env_discharge_worklist1_mocked_download.txt"

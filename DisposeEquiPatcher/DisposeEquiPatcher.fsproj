@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Temp01.fsx" />
-    <None Include="AddPatcher01.fsx" />
-    <None Include="FunctionPatcher01.fsx" />
+    <None Include="excel-sample\Dispose_Equi_Worklist_Sample.xlsx" />
+    <Compile Include="DisposeEquiPatcher/DisposeEquiPatcher.fs" />
+    <None Include="RunDisposeEquiPatcher.fsx" />
   </ItemGroup>
 
   <ItemGroup />

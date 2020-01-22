@@ -141,6 +141,11 @@ module Base =
     let uniclass_desc () : Characteristic = 
         _characteristic "UNICLASS_DESC" NullValue
 
+    /// *:UNICLASS_DESC
+    /// This is usually "SEE LONG TEXT"
+    let memo_line (v: string) : Characteristic = 
+        _characteristic "MEMO_LINE" (TextValue v)
+
 
     /// AIB_REFERENCE
     let aib_reference : Characteristic list -> Class = 

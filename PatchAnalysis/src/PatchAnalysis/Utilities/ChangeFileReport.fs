@@ -83,9 +83,11 @@ module ChangeFileReport =
             | FuncLoc -> "FUNCLOC"
             | ClassFloc -> "CLASSFLOC"
             | ValuaFloc -> "VALUAFLOC"
+            | Iflotx -> "IFLOTX"
             | Equi -> "EQUI"
             | ClassEqui -> "CLASSEQUI" 
             | ValuaEqui -> "VALUAEQUI"
+            | Eqmltxt -> "EQMLTXT"
         name |> rawtext
     
     let variant (name : string) : Text = 

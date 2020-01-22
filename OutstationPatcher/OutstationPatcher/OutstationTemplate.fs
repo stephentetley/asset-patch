@@ -10,6 +10,7 @@ module OutstationTemplate =
 
     open AssetPatch.TemplatePatcher.Template
     open AssetPatch.TemplateCatalogue
+    open AssetPatch.TemplateCatalogue.AssetCondition
     open AssetPatch.TemplateCatalogue.Ctos
     open AssetPatch.TemplateCatalogue.Netw
     open AssetPatch.Lib.Common
@@ -61,7 +62,13 @@ module OutstationTemplate =
               parameters.``Modem Memo Line``
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
-              netwtl []    
+              netwmo [
+                manufacturers_asset_life_yr 15.0M
+                uniclass_code ()
+                uniclass_desc ()
+                memo_line "SEE LONG TEXT"
+                ]
+              asset_condition_common installDate.Year
             ]
             _no_subordinate_equipment_ 
             [ manufacturer parameters.``Modem Manufacturer``
@@ -78,7 +85,13 @@ module OutstationTemplate =
                 parameters.``Outstation Memo Line``
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
-              netwtl []    
+              netwtl [
+                manufacturers_asset_life_yr 7.5M
+                uniclass_code ()
+                uniclass_desc ()
+                memo_line "SEE LONG TEXT"
+                ] 
+              asset_condition_common installDate.Year
             ]
             _no_subordinate_equipment_ 
             [ manufacturer parameters.``Outstation Manufacturer``

@@ -12,6 +12,8 @@ module EdcTemplate =
     open AssetPatch.TemplatePatcher.Template
     open AssetPatch.Lib.Common
     open AssetPatch.TemplateCatalogue
+    open AssetPatch.TemplateCatalogue.AssetCondition
+    open AssetPatch.TemplateCatalogue.Lstn
     open AssetPatch.TemplateCatalogue.Smon
 
 
