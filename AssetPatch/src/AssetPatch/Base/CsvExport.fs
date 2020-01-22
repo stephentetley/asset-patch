@@ -8,6 +8,7 @@ module CsvExport =
     open FSharp.Data
 
     open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.Acronyms
 
 
     /// Joins with Environment.NewLine
@@ -41,11 +42,18 @@ module CsvExport =
         csv2.Save(path = outputPath, separator = sep, quote = quote)
 
 
+    let private translateHeaders (entityType: EntityType) (codes: string []): string [] = 
+        let decode1 (code: string) = 
+            match decodeAcronym entityType code with
+            | None -> code
+            | Some desc -> sprintf "%s (%s)" desc code
+        Array.map decode1 codes
+
     let exportCsv (changeFile: ChangeFile) (outputPath: string) : Unit = 
         let assocs = changeFile.RowAssocs ()
         match List.tryHead assocs with
         | None -> ()
-        | Some a -> 
-            let headers = AssocList.keys a
+        | Some a ->             
+            let headers = AssocList.keys a |> translateHeaders changeFile.Header.EntityType
             let rows = List.map AssocList.values assocs
             saveCsv headers ',' '"' rows outputPath

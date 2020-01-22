@@ -36,6 +36,20 @@
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "DisposeEquiPatcher\InputData.fs"
 #load "DisposeEquiPatcher\DisposeEquiPatcher.fs"
+open DisposeEquiPatcher.InputData
 open DisposeEquiPatcher.DisposeEquiPatcher
+
+
+let temp01() = 
+    let input = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_retire_2019_worklist1.xlsx"
+    readWorkList input
+
+let retireMm3x01 () = 
+    let opts = 
+        { UserName = "TETLEYS"
+          WorkListPath = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_retire_2019_worklist1.xlsx"
+          OutputFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_retire_2019_file_upload.txt"
+          }
+    runDisposeEquiPatcher opts
 
 
