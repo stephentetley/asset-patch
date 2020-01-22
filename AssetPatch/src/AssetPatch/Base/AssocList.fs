@@ -141,6 +141,9 @@ module AssocList =
     let keys (source : AssocList<'Key, 'T>) : 'Key [] =
         source |> toListBy (fun k _ -> k) |> List.toArray
 
+    let values (source : AssocList<'Key, 'T>) : 'T [] =
+        source |> toListBy (fun _ v -> v) |> List.toArray
+
     let prioritize1 (key : 'Key) 
                     (assocs : AssocList<'Key, 'T>) : AssocList<'Key, 'T> when 'Key : equality  = 
         match tryFind key assocs with

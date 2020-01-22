@@ -60,3 +60,7 @@ let temp03 () =
     let file = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_worklist1_mocked_download.txt"
     testParser file
 
+let temp04 () = 
+    let file = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\file_download_telemetry_systems.txt"
+    testParser file
+

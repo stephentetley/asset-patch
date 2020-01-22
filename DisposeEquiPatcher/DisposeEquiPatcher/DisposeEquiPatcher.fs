@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2019
+﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
 namespace DisposeEquiPatcher

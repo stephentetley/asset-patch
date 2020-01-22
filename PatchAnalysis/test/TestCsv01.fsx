@@ -1,8 +1,15 @@
-﻿// Copyright (c) Stephen Tetley 2019
+﻿// Copyright (c) Stephen Tetley 2020
 
 #r "netstandard"
+#r "System.Xml.Linq.dll"
 #r "System.Text.Encoding.dll"
 open System.IO
+
+// Use FSharp.Data for CSV reading
+#I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.3.3\lib\netstandard2.0"
+#r @"FSharp.Data.dll"
+
+
 
 #I @"C:\Users\stephen\.nuget\packages\FParsec\1.0.4-rc3\lib\netstandard1.6"
 #r "FParsec"
@@ -24,30 +31,28 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
-#load "..\src\PatchAnalysis\Utilities\ChangeFileReport.fs"
-open PatchAnaylsis.Utilities.ChangeFileReport
+#load "..\..\AssetPatch\src\AssetPatch\Base\CsvExport.fs"
+open AssetPatch.Base.Parser
+open AssetPatch.Base.CsvExport
 
 
-/// Copy this file to the ouput directory so Markdown can find it easily
-let pathToCss () = 
-    Path.Combine(__SOURCE_DIRECTORY__, @"..\..\..\..\libs\markdown-css-master\github.css")
 
-let outputChangeReport1 (destDir: string) (sourcePath: string) : Result<Unit, string> = 
-    let cssDest = Path.Combine(destDir, "github.css")
-    if not <| File.Exists(cssDest) then
-        File.Copy(sourceFileName = pathToCss (), destFileName =  cssDest)
-    else ()
-    changeFileReport "github.css" destDir sourcePath
+let outputCsv1 (destDir: string) (sourcePath: string) : Result<Unit, string> = 
+    match readChangeFile sourcePath with
+    | Error msg -> Error msg
+    | Ok ans -> 
+        let filename = Path.GetFileName sourcePath
+        let outfile = Path.Combine(destDir, filename) |> fun x -> Path.ChangeExtension(x, "csv")
+        exportCsv ans outfile |> Ok
 
 
-let reportChangeFiles (srcDir: string) (destDir: string): Unit = 
+let exportCsvFiles (srcDir: string) (destDir: string): Unit = 
     let sources = 
         System.IO.Directory.GetFiles( path = srcDir, searchPattern = "*.txt")
-    Array.iter (outputChangeReport1 destDir >> ignore) sources
+    Array.iter (outputCsv1 destDir >> ignore) sources
 
-let reportChangeFiles01 () = 
+let exportCsv01 () = 
     let src =  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\"
-    let dest = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\html"
-    reportChangeFiles src dest
+    let dest = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\csv"
+    exportCsvFiles src dest
 

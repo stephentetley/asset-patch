@@ -49,7 +49,8 @@ module OutstationPatcher =
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
-                    readWorkList opts.WorkListPath |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
+                    liftAction (fun _ -> readWorkList opts.WorkListPath) 
+                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
                 let! phase1Data = mapM phase1ProcessRow worklist |>> Phase1Data.Concat
                 do! writePhase1Data opts.OutputDirectory "outstation_patch" phase1Data
                 return ()
@@ -74,7 +75,8 @@ module OutstationPatcher =
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
-                    readWorkList opts.WorkListPath |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
+                    liftAction (fun _ -> readWorkList opts.WorkListPath)
+                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
                 let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
                 do! writePhase2Data opts.OutputDirectory "outstation_patch" phase2Data
                 return ()

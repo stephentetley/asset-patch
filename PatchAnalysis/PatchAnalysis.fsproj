@@ -9,6 +9,7 @@
     <Compile Include="src\PatchAnalysis\Utilities\TidyChangeFile.fs" />
     <None Include="test\TestReport01.fsx" />
     <None Include="test\TestUtils01.fsx" />
+    <None Include="test\TestCsv01.fsx" />
   </ItemGroup>
 
   <ItemGroup>

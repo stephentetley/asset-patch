@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2019
+﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
 
@@ -8,7 +8,6 @@ module InputData =
     
     open FSharp.Interop.Excel
 
-    open AssetPatch.TemplatePatcher.CompilerMonad
     open AssetPatch.Lib.Common
 
 
@@ -23,14 +22,12 @@ module InputData =
     type WorkListRow = WorkListTable.Row
 
 
-    let readWorkList (xlsxPath : string) : CompilerMonad<WorkListRow list> =
-        let action () = 
-            let source = (new WorkListTable(filename = xlsxPath)).Data
-            source
-                |> Seq.choose (fun (row : WorkListRow) -> 
-                                if notBlank row.``S4 Equipment Id`` then Some row else None)
-                |> Seq.toList
-        liftAction action
+    let readWorkList (xlsxPath : string) : WorkListRow list =
+        let source = (new WorkListTable(filename = xlsxPath)).Data
+        source
+            |> Seq.choose (fun (row : WorkListRow) -> 
+                            if notBlank row.``S4 Equipment Id`` then Some row else None)
+            |> Seq.toList
 
 
     

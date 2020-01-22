@@ -60,7 +60,7 @@ module EdcPatcher =
         runCompiler compilerOpts None
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
-                let! worklist = readWorkList opts.WorkListPath // 
+                let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
                 let! phase1Data = mapM phase1ProcessRow worklist |>> Phase1Data.Concat
                 do! writePhase1Data opts.OutputDirectory "edc_patch" phase1Data
                 return ()
@@ -74,7 +74,7 @@ module EdcPatcher =
         runCompiler compilerOpts (Some equipmentDownloadPath)
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
-                let! worklist = readWorkList opts.WorkListPath
+                let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
                 let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
                 do! writePhase2Data opts.OutputDirectory "edc_patch" phase2Data
                 return ()
