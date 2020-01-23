@@ -25,8 +25,8 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
-#load "..\src\PatchAnalysis\Utilities\ChangeFileReport.fs"
-open PatchAnaylsis.Utilities.ChangeFileReport
+#load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\ChangeFileReport.fs"
+open AssetPatch.Anaylsis.Utilities.ChangeFileReport
 
 
 /// Copy this file to the ouput directory so Markdown can find it easily

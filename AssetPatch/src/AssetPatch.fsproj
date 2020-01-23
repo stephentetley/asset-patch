@@ -15,6 +15,9 @@
     <Compile Include="AssetPatch\Base\Printer.fs" />
     <Compile Include="AssetPatch\Base\CsvExport.fs" />
     <Compile Include="AssetPatch\Base\FuncLocPath.fs" />
+    <Compile Include="AssetPatch\Analysis\Utilities\ChangeFileReport.fs" />
+    <Compile Include="AssetPatch\Analysis\Utilities\TidyChangeFile.fs" />
+    <Compile Include="AssetPatch\Analysis\PatchDiff.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\CommonTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\PatchTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\EquiIndexing.fs" />

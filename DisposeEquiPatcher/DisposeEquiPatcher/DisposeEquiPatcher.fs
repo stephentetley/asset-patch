@@ -27,15 +27,16 @@ module DisposeEquiPatcher =
           Status: string
         }
 
-        member x.ToAssocs() : AssocList<string, string> =         
-            makeAssocs
-                [ ("EQUI",          "Equipment",                        x.EquipmentId)
-                ; ("TXTMI",         "Description (medium text)",        x.DescriptionMediumText)  
-                ; ("USTA_EQUI",     "Display lines for user status",    x.Status)
-                ; ("TPLN_EILO",     "Functional Location",              x.FuncLoc.ToString())
-                ; ("EQART_EQU",     "Object Type",                      x.ObjectType)
-                ; ("USTW_EQUI",     "Status of an object",              x.Status)
-                ]
+    let private makeDisposeEquiAssocs (x: DisposeEqui) : AssocList<string, string> =
+        let newName = x.DescriptionMediumText + " (del)"
+        makeAssocs
+            [ ("EQUI",          "Equipment",                        x.EquipmentId)
+            ; ("TXTMI",         "Description (medium text)",        newName)  
+            ; ("USTA_EQUI",     "Display lines for user status",    x.Status)
+            ; ("TPLN_EILO",     "Functional Location",              x.FuncLoc.ToString())
+            ; ("EQART_EQU",     "Object Type",                      x.ObjectType)
+            ; ("USTW_EQUI",     "Status of an object",              x.Status)
+            ]
 
 
     let private inputRowToDisposeEqui (row: WorkListRow) : DisposeEqui = 
@@ -68,7 +69,7 @@ module DisposeEquiPatcher =
 
     let private makeChangeFile (username: string) (rows : DisposeEqui list) : ChangeFile = 
         let timestamp = DateTime.Now
-        let assocRows = rows |> List.map (fun x -> x.ToAssocs())
+        let assocRows = rows |> List.map makeDisposeEquiAssocs
         let headerRow = getHeaderRow assocRows
         let header = makeHeader username "Variant TODO" timestamp 
         { 

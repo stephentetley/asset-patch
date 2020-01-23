@@ -47,8 +47,8 @@ let temp01() =
 let retireMm3x01 () = 
     let opts = 
         { UserName = "TETLEYS"
-          WorkListPath = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_retire_2019_worklist1.xlsx"
-          OutputFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_retire_2019_file_upload.txt"
+          WorkListPath = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_preprod_2019_worklist1.xlsx"
+          OutputFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\patch_output\MM3X_preprod_2019_file_upload.txt"
           }
     runDisposeEquiPatcher opts
 
