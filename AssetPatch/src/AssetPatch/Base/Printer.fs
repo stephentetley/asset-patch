@@ -8,6 +8,7 @@ module Printer =
     open System
 
     open AssetPatch.Base.Addendum
+
     open AssetPatch.Base.ChangeFile
     open AssetPatch.Base.Acronyms
    

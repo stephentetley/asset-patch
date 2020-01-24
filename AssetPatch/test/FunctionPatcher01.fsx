@@ -27,13 +27,6 @@ open FSharp.Core
 #I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190721\lib\netstandard2.0"
 #r "SLFormat.dll"
 
-#I @"C:\Users\stephen\.nuget\packages\markdowndoc\1.0.1-alpha-20191014\lib\netstandard2.0"
-#r "MarkdownDoc.dll"
-
-#I @"C:\Users\stephen\.nuget\packages\sheetdoc\1.0.0-alpha-20191121a\lib\netstandard2.0"
-#r "SheetDoc.dll"
-
-
 #load "..\src\AssetPatch\Base\Addendum.fs"
 #load "..\src\AssetPatch\Base\Common.fs"
 #load "..\src\AssetPatch\Base\AssocList.fs"

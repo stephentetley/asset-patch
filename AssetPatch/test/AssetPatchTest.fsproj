@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <None Include="Temp01.fsx" />
-    <None Include="AddPatcher01.fsx" />
     <None Include="FunctionPatcher01.fsx" />
     <None Include="TestCsv01.fsx" />
     <None Include="TestReport01.fsx" />
