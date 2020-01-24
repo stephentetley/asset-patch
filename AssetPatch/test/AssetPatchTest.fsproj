@@ -11,6 +11,7 @@
     <None Include="TestCsv01.fsx" />
     <None Include="TestReport01.fsx" />
     <None Include="TestUtils01.fsx" />
+    <None Include="TestPatchDiff01.fsx" />
   </ItemGroup>
 
   <ItemGroup />
