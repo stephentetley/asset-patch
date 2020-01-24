@@ -172,7 +172,21 @@ module PatchDiff =
                 ] 
                 yield! (List.map (fun tds -> tr [] tds) ds)
             ]
-        | [] -> []
+        | [] -> 
+            [
+                tr [] [ 
+                    th [_rowspan "1"] 
+                        [
+                            ix |> string |> str
+                        ]
+                    th [_rowspan "1"] 
+                        [
+                            str key
+                        ]
+                    td [] ["WARNING:" |> str]
+                    td [_colspan "2"] ["No differences" |> str]
+                ]
+            ]
             
         
             
