@@ -7,77 +7,35 @@ module ChangeFileReport =
 
     open System.IO 
 
-    // Possibly SLFormat.CommandOptions should not expose a function called text
-    open SLFormat.CommandOptions
-
-    open MarkdownDoc.Markdown
-    open MarkdownDoc.Pandoc
+    open Giraffe.GiraffeViewEngine
 
     open AssetPatch.Base
     open AssetPatch.Base.ChangeFile
     open AssetPatch.Base.Acronyms
     open AssetPatch.Base.Parser
+    
+
+    let private cellValue (src : string) : XmlNode = 
+        match src with
+        | null | "" -> str ""
+        | _ -> str src
+
+    let private linkToTop : XmlNode = 
+        a [_href "#top"] [str  "Back to top"]
 
 
-    // ************************************************************************
-    // Invoking Pandoc
-
-    let pandocHtmlDefaultOptions (pathToCss : string) : PandocOptions = 
-        let highlightStyle = argument "--highlight-style" &= argValue "tango"
-        let selfContained = argument "--self-contained"
-        /// Github style is nicer for tables than Tufte
-        /// Note - body width has been changed on both stylesheets
-        let css = argument "--css" &= doubleQuote pathToCss
-        { Standalone = true
-          InputExtensions = []
-          OutputExtensions = []
-          OtherOptions = [ css; highlightStyle; selfContained ]  }
-
-
-    let writeHtml5Markdown (pageTitle : string)
-                            (pandocOpts : PandocOptions)
-                            (outputDirectory : string) 
-                            (htmlFileName : string) 
-                            (report: Markdown) : Result<unit, string> = 
-        let mdFileName = Path.ChangeExtension(htmlFileName, "md")       
-        let mdFileAbsPath =
-            Path.Combine(outputDirectory, mdFileName)
-        /// Need a pretty wide page width...
-        writeMarkdown 260 report mdFileAbsPath
-        let retCode = 
-            runPandocHtml5 
-                true 
-                outputDirectory 
-                mdFileName
-                htmlFileName
-                (Some pageTitle)
-                pandocOpts
-        match retCode with
-        | Result.Ok i -> printfn "Return code: %i" i ; Result.Ok ()
-        | Result.Error msg -> Result.Error msg
-
-
-    let cellValue (str : string) : Markdown = 
-        match str with
-        | null | "" -> nbsp 
-        | _ -> str |> text |> markdownText
-
-    let linkToTop : Markdown = 
-        inlineLink "Back to top" "#top" None |> markdownText
-
-
-    let fileType (source : FileType) : Markdown = 
+    let private fileType (source : FileType) : XmlNode = 
         let value = 
             match source with
             | Download -> "Download" 
             | Upload -> "Upload"
-        value |> rawtext |> doubleAsterisks |> markdownText
+        value |> str 
 
-    let dataModel (source : DataModel) : Text = 
+    let private dataModel (source : DataModel) : XmlNode = 
         match source with
-        | U1 -> "U1" |> rawtext
+        | U1 -> "U1" |> str
 
-    let entityType (source : EntityType) : Text = 
+    let private entityType (source : EntityType) : XmlNode = 
         let name = 
             match source with
             | FuncLoc -> "FUNCLOC"
@@ -88,77 +46,88 @@ module ChangeFileReport =
             | ClassEqui -> "CLASSEQUI" 
             | ValuaEqui -> "VALUAEQUI"
             | Eqmltxt -> "EQMLTXT"
-        name |> rawtext
+        name |> str
     
-    let variant (name : string) : Text = 
-        name |> text
+    let private variant (name : string) : XmlNode = 
+        name |> str
 
 
 
-    let headerTable (source : FileHeader) : Markdown = 
-        let specs = 
-            [ { ColumnSpec.Width = 40 ; ColumnSpec.Alignment = Alignment.AlignLeft }
-            ; { ColumnSpec.Width = 50 ; ColumnSpec.Alignment = Alignment.AlignLeft }
+    let private headerTable (source : FileHeader) : XmlNode = 
+        let makeRow (name : string) (value : XmlNode) : XmlNode = 
+            tr [] [
+                td [] [name |> str]
+                td [] [value]
             ]
-        let makeRow (name : string) (value : Markdown) : TableRow = 
-            [ doubleAsterisks (name |> text) |> markdownText ; value ]
-        let rows : TableRow list= 
-            [ [fileType source.FileType; nbsp]
-            ; makeRow "Data Model:"     (dataModel source.DataModel |> markdownText)
-            ; makeRow "Entity Type:"    (entityType source.EntityType |> markdownText)
-            ; makeRow "Variant:"        (variant source.Variant |> markdownText)
-            ; makeRow "User:"           (text source.User |> markdownText)            
-            ; makeRow "Date:"           (source.DateTime.ToString(format="yyyyMMdd") |> cellValue)
-            ; makeRow "Time:"           (source.DateTime.ToString(format="HHmmss") |> cellValue)
+        table [] [
+            tr [] [
+                td [_colspan "2"] [fileType source.FileType]
             ]
-        makeTableWithoutHeadings specs rows |> gridTable
+            makeRow "Data Model:"     (dataModel source.DataModel)
+            makeRow "Entity Type:"    (entityType source.EntityType)
+            makeRow "Variant:"        (variant source.Variant)
+            makeRow "User:"           (str source.User)
+            makeRow "Date:"           (source.DateTime.ToString(format="yyyyMMdd") |> str)
+            makeRow "Time:"           (source.DateTime.ToString(format="HHmmss") |> str)
+        ]
         
-
-
-    let dataAssocTable (entityType : EntityType) 
-                       (source : AssocList<string, string>) : Markdown = 
-        let title = text >> doubleAsterisks >> markdownText
+       
+    let private dataAssocTable (entityType : EntityType) 
+                       (source : AssocList<string, string>) : XmlNode = 
         let headings =
-            [ alignLeft 10 (title "Index")
-            ; alignLeft 30 (title "Field")
-            ; alignLeft 50 (title "Description")
-            ; alignLeft 40 (title "Value")
+            tr [] [
+                th [] [str "Index"]
+                th [] [str "Field"]
+                th [] [str "Description"]
+                th [] [str "Value"]
             ]
-        let makeRow (ix :int) (name, value) : TableRow = 
-            [ ix + 1 |> int32Md |> markdownText 
-            ; name |> cellValue
-            ; decodeAcronym entityType name 
-                |> Option.defaultValue "" |> text |> markdownText 
-            ; value |> text |> markdownText 
+        let makeRow (ix :int) (name, value) : XmlNode =
+            tr [] [
+                td [] [ ix + 1 |> string |> str ]
+                td [] [ name |> str]
+                td [] [ decodeAcronym entityType name 
+                            |> Option.defaultValue "" |> str ]
+                td [] [value |> str]
             ]
-        let rows : TableRow list = 
-            List.mapi makeRow (AssocList.toList source)
-        makeTableWithHeadings headings rows |> gridTable
+        table [] [
+            headings
+            yield! (List.mapi makeRow (AssocList.toList source))    
+        ]
 
-    let dataRows (patch : ChangeFile) : Markdown = 
+    let private dataRows (patch : ChangeFile) : XmlNode list = 
         let rowAssocs = patch.RowAssocs ()
         let rowCount = rowAssocs.Length
         let makeTable ix (rowAssoc : AssocList<string, string>) = 
-            h2 (text "Row" ^+^ int32Md (ix+1) ^+^ text "of" ^+^ int32Md rowCount)
-                ^!!^ dataAssocTable patch.Header.EntityType rowAssoc
-                ^!!^ linkToTop
-        List.mapi makeTable rowAssocs |> vsep
+            [
+                h2 [] [sprintf "Row %i of %i" (ix+1) rowCount |> str]
+                dataAssocTable patch.Header.EntityType rowAssoc
+                p [] [linkToTop]
+            ]
+        List.mapi makeTable rowAssocs |> List.concat
 
 
 
-    let patchToMarkdown (patch : ChangeFile) : Markdown = 
-        h1 (text "Patch Report")
-            ^!!^ headerTable patch.Header
-            ^!!^ dataRows patch
-            ^!!^ emptyMarkdown
+    let patchToHtml (patch : ChangeFile) : XmlNode =
+        let titleText = sprintf "Patch Summary (%s)" (patch.Header.EntityType.ToString())
+        html [] [
+            head [] [
+                title [] [str titleText]
+                link [ 
+                    _rel "stylesheet"
+                    _type "text/css"
+                    _href "github.css"
+                ]
+            ]
+            body [] [
+                h1 [] [str "Patch Report"]
+                headerTable patch.Header
+                yield! dataRows patch
+            ]
+        ]
 
-    let pandocGenHtml (pandocOpts : PandocOptions)
-                       (outputDirectory : string)
-                       (htmlFileName : string) 
-                       (patch : ChangeFile) : Result<unit, string> = 
-        let doc = patchToMarkdown patch 
-        let title = sprintf "Patch Summary (%s)" (patch.Header.EntityType.ToString())
-        writeHtml5Markdown title pandocOpts outputDirectory htmlFileName doc
+    let private genHtml (htmlFileName : string) (patch : ChangeFile) : Result<unit, string> = 
+        let html = patchToHtml patch |> renderHtmlDocument
+        File.WriteAllText(path = htmlFileName, contents = html) |> Ok
 
 
     
@@ -168,10 +137,16 @@ module ChangeFileReport =
         let outputHtmlFile = 
             Path.GetFileName(inputPatch) 
                 |> fun s -> Path.ChangeExtension(path = s, extension = "html")
+                |> fun s -> Path.Combine(outputDirectory, s)
         match readChangeFile inputPatch with
         | Result.Error msg -> Result.Error msg
         | Result.Ok ans -> 
-            let opts = pandocHtmlDefaultOptions pathToCssSytlesheet
-            pandocGenHtml opts outputDirectory outputHtmlFile ans
+            let cssDest = 
+                Path.GetFileName(pathToCssSytlesheet) 
+                    |> fun s -> Path.Combine(outputDirectory, s)
+            if not <| File.Exists(cssDest) then
+                File.Copy(sourceFileName =pathToCssSytlesheet, destFileName =  cssDest)
+            else ()
+            genHtml outputHtmlFile ans
             
         

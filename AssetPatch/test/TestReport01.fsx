@@ -8,14 +8,10 @@ open System.IO
 #r "FParsec"
 #r "FParsecCS"
 
+#I @"C:\Users\stephen\.nuget\packages\giraffe\4.0.1\lib\netstandard2.0"
+#r "Giraffe"
 
 open FSharp.Core
-
-#I @"C:\Users\stephen\.nuget\packages\slformat\1.0.2-alpha-20190721\lib\netstandard2.0"
-#r "SLFormat.dll"
-
-#I @"C:\Users\stephen\.nuget\packages\markdowndoc\1.0.1-alpha-20191014\lib\netstandard2.0"
-#r "MarkdownDoc.dll"
 
 #load "..\..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Common.fs"
@@ -34,11 +30,7 @@ let pathToCss () =
     Path.Combine(__SOURCE_DIRECTORY__, @"..\..\..\..\libs\markdown-css-master\github.css")
 
 let outputChangeReport1 (destDir: string) (sourcePath: string) : Result<Unit, string> = 
-    let cssDest = Path.Combine(destDir, "github.css")
-    if not <| File.Exists(cssDest) then
-        File.Copy(sourceFileName = pathToCss (), destFileName =  cssDest)
-    else ()
-    changeFileReport "github.css" destDir sourcePath
+    changeFileReport (pathToCss ()) destDir sourcePath
 
 
 let reportChangeFiles (srcDir: string) (destDir: string): Unit = 
