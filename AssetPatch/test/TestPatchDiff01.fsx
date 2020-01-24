@@ -33,8 +33,6 @@ open AssetPatch.Analysis.PatchDiff
 
 
 
-
-
 let reportDiffs01 () = 
     let src1=  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\preprod+outstation_retire+before_download.txt"
     let src2 = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\preprod+outstation_retire+after_download.txt"

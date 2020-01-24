@@ -93,6 +93,8 @@ module PatchDiff =
     // ************************************************************************
     // Report
 
+    let removeAssocSame(diffs: AssocDiff<string, string> list) : AssocDiff<string, string> list = 
+        diffs |> List.filter (fun x -> match x with | AssocSame(_,_) -> false; | _ -> true)
 
     let private headerTable (tableTitle: string) (changeFile: ChangeFile): XmlNode = 
         let dateValue = changeFile.Header.DateTime.ToString(format="yyyyMMdd")
@@ -129,43 +131,66 @@ module PatchDiff =
             ]
         ]
 
-    let assocDiffStr (diff: AssocDiff<string, string>): XmlNode option = 
+    // Don't generate this for AssocSame(_, _)
+    // Generates a list of td
+    let assocDiffTds (diff: AssocDiff<string, string>) : XmlNode list =        
         match diff with
-        | AssocInLeft(name, value) -> sprintf "%s: missing in after '%s'" name value |> str |> Some
-        | AssocInRight(name, value) -> sprintf "%s: missing in before '%s'" name value |> str |> Some
-        | AssocSame(_,_) -> None
-        | AssocDiff(name, v1, v2) -> sprintf "%s: '%s' => '%s'" name v1 v2 |> str |> Some
+        | AssocInLeft(name, value) -> 
+            [ 
+                td [] ["ERROR:" |> str]
+                td [] [sprintf "Field %s missing in 'after' file" name |> str]
+            ]
+        | AssocInRight(name, value) -> 
+            [
+                td [] ["ERROR:" |> str]
+                td [] [sprintf "Field %s missing in 'before' file" name |> str]
+            ]
+        | AssocSame(_,_) -> failwith "Coding error: filter to remove AssocSame"
+        | AssocDiff(name, v1, v2) -> 
+            [
+                td [] [str name]
+                td [] [str v1]
+                td [] [str v2]
+            ]
 
-    let rowChangesTd (diffs: AssocDiff<string, string> list) : XmlNode = 
-        let texts = 
-            diffs 
-                |> List.map assocDiffStr
-                |> List.choose id
 
-        td [] texts
+    let changesForRowInBoth (key: string) (diffs: AssocDiff<string, string> list) : XmlNode list =         
+        let diffs1 = removeAssocSame diffs
+        match List.map assocDiffTds diffs1 with
+        | d1 :: ds ->         
+            [
+                tr [] [ 
+                    th [_rowspan (string <| 1 + List.length ds)] [str key]
+                    yield! d1
+                ] 
+                yield! (List.map (fun tds -> tr [] tds) ds)
+            ]
+        | [] -> []
+            
         
+            
 
-    let rowDiffTr (diff1: RowDiff<string>) : XmlNode = 
+       
+    let rowDiffTrs (diff1: RowDiff<string>) : XmlNode list = 
         match diff1 with
-        | RowInLeft key -> 
-            tr [] [
-                td [] [
-                    sprintf "Error: Row %s missing after changes" key |> str
+        | RowInLeft key ->
+            [
+                tr [] [
+                    td [] [
+                        sprintf "Error: Row %s missing after changes" key |> str
+                    ]
                 ]
             ]
         | RowInRight key -> 
-            tr [] [
-                td [] [
-                    sprintf "Error: Row %s added after changes" key |> str
+            [
+                tr [] [
+                    td [] [
+                        sprintf "Error: Row %s added after changes" key |> str
+                    ]
                 ]
             ]
         | RowInBoth(key, diffs) -> 
-            tr [] [
-                td [] [
-                    sprintf "%s" key |> str
-                ] 
-                rowChangesTd diffs
-            ]
+            changesForRowInBoth key diffs
 
     
     let private diffsTableStats (diffs: RowDiff<string> list): XmlNode = 
@@ -174,7 +199,7 @@ module PatchDiff =
 
     let private diffsTable (diffs: RowDiff<string> list): XmlNode = 
         table [] [
-            tbody [] (List.map rowDiffTr diffs)
+            tbody [] (List.map rowDiffTrs diffs |> List.concat)
         ]
 
 
