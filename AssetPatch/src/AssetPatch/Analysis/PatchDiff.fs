@@ -154,13 +154,20 @@ module PatchDiff =
             ]
 
 
-    let changesForRowInBoth (key: string) (diffs: AssocDiff<string, string> list) : XmlNode list =         
+    let changesForRowInBoth (ix: int) (key: string) (diffs: AssocDiff<string, string> list) : XmlNode list =         
         let diffs1 = removeAssocSame diffs
         match List.map assocDiffTds diffs1 with
         | d1 :: ds ->         
             [
                 tr [] [ 
-                    th [_rowspan (string <| 1 + List.length ds)] [str key]
+                    th [_rowspan (string <| 1 + List.length ds)] 
+                        [
+                            ix |> string |> str
+                        ]
+                    th [_rowspan (string <| 1 + List.length ds)] 
+                        [
+                            str key
+                        ]
                     yield! d1
                 ] 
                 yield! (List.map (fun tds -> tr [] tds) ds)
@@ -171,11 +178,13 @@ module PatchDiff =
             
 
        
-    let rowDiffTrs (diff1: RowDiff<string>) : XmlNode list = 
+    let rowDiffTrs (ix: int) (diff1: RowDiff<string>) : XmlNode list = 
+        let index = ix + 1
         match diff1 with
         | RowInLeft key ->
             [
                 tr [] [
+                    td [] [ index |> string |> str ]
                     td [] [
                         sprintf "Error: Row %s missing after changes" key |> str
                     ]
@@ -184,13 +193,14 @@ module PatchDiff =
         | RowInRight key -> 
             [
                 tr [] [
+                    td [] [ index |> string |> str ]
                     td [] [
                         sprintf "Error: Row %s added after changes" key |> str
                     ]
                 ]
             ]
         | RowInBoth(key, diffs) -> 
-            changesForRowInBoth key diffs
+            changesForRowInBoth index key diffs
 
     
     let private diffsTableStats (diffs: RowDiff<string> list): XmlNode = 
@@ -199,7 +209,7 @@ module PatchDiff =
 
     let private diffsTable (diffs: RowDiff<string> list): XmlNode = 
         table [] [
-            tbody [] (List.map rowDiffTrs diffs |> List.concat)
+            tbody [] (List.mapi rowDiffTrs diffs |> List.concat)
         ]
 
 
