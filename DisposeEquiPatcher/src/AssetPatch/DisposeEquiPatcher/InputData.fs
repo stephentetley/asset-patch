@@ -2,7 +2,7 @@
 // License: BSD 3 Clause
 
 
-namespace DisposeEquiPatcher
+namespace AssetPatch.DisposeEquiPatcher
 
 module InputData =
     
@@ -12,7 +12,7 @@ module InputData =
 
 
     [<Literal>]
-    let PROVIDERSOURCE = __SOURCE_DIRECTORY__ + @"\..\excel-sample\Dispose_Equi_Worklist_Sample.xlsx"
+    let PROVIDERSOURCE = __SOURCE_DIRECTORY__ + @"\..\..\..\excel-sample\Dispose_Equi_Worklist_Sample.xlsx"
 
     type WorkListTable = 
         ExcelFile< FileName = PROVIDERSOURCE,

@@ -2,7 +2,7 @@
 // License: BSD 3 Clause
 
 
-namespace EdcPatcher
+namespace AssetPatch.EdcPatcher
 
 module EdcTemplate =
     
@@ -17,7 +17,7 @@ module EdcTemplate =
     open AssetPatch.TemplateCatalogue.Smon
 
 
-    open EdcPatcher.InputData
+    open AssetPatch.EdcPatcher.InputData
 
     let private optString (source : string) : string option = 
         match source with

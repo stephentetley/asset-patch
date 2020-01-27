@@ -45,10 +45,10 @@
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\AssetCondition.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Lstn.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Smon.fs"
-#load "EdcPatcher\InputData.fs"
-#load "EdcPatcher\EdcTemplate.fs"
-#load "EdcPatcher\EdcPatcher.fs"
-open EdcPatcher.EdcPatcher
+#load "src\AssetPatch\EdcPatcher\InputData.fs"
+#load "src\AssetPatch\EdcPatcher\EdcTemplate.fs"
+#load "src\AssetPatch\EdcPatcher\EdcPatcher.fs"
+open AssetPatch.EdcPatcher
 
 
 

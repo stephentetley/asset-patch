@@ -2,8 +2,9 @@
 // License: BSD 3 Clause
 
 
-namespace OutstationPatcher
+namespace AssetPatch.OutstationPatcher
 
+[<AutoOpen>]
 module OutstationPatcher =
     
     open System.IO
@@ -14,8 +15,8 @@ module OutstationPatcher =
     open AssetPatch.TemplatePatcher.Emitter
     open AssetPatch.TemplatePatcher.PatchCompiler
 
-    open OutstationPatcher.InputData
-    open OutstationPatcher.OutstationTemplate
+    open AssetPatch.OutstationPatcher.InputData
+    open AssetPatch.OutstationPatcher.OutstationTemplate
 
 
     type OsPatcherOptions = 

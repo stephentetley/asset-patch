@@ -2,8 +2,9 @@
 // License: BSD 3 Clause
 
 
-namespace EdcPatcher
+namespace AssetPatch.EdcPatcher
 
+[<AutoOpen>]
 module EdcPatcher =
     
     open System.IO
@@ -14,8 +15,8 @@ module EdcPatcher =
     open AssetPatch.TemplatePatcher.Emitter
     open AssetPatch.TemplatePatcher.PatchCompiler
 
-    open EdcPatcher.InputData
-    open EdcPatcher.EdcTemplate
+    open AssetPatch.EdcPatcher.InputData
+    open AssetPatch.EdcPatcher.EdcTemplate
 
 
     type EdcPatcherOptions = 

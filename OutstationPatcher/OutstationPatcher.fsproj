@@ -6,9 +6,9 @@
 
   <ItemGroup>
     <None Include="excel-sample\OS_Worklist_Sample.xlsx" />
-    <Compile Include="OutstationPatcher\InputData.fs" />
-    <Compile Include="OutstationPatcher\OutstationTemplate.fs" />
-    <Compile Include="OutstationPatcher\OutstationPatcher.fs" />
+    <Compile Include="src\AssetPatch\OutstationPatcher\InputData.fs" />
+    <Compile Include="src\AssetPatch\OutstationPatcher\OutstationTemplate.fs" />
+    <Compile Include="src\AssetPatch\OutstationPatcher\OutstationPatcher.fs" />
     <None Include="RunOutstationPatcher.fsx" />
   </ItemGroup>
 

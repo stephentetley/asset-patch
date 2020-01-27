@@ -6,9 +6,9 @@
 
   <ItemGroup>
     <None Include="excel-sample\EDC_Worklist_Sample.xlsx" />
-    <Compile Include="EdcPatcher\InputData.fs" />
-    <Compile Include="EdcPatcher\EdcTemplate.fs" />
-    <Compile Include="EdcPatcher\EdcPatcher.fs" />
+    <Compile Include="src\AssetPatch\EdcPatcher\InputData.fs" />
+    <Compile Include="src\AssetPatch\EdcPatcher\EdcTemplate.fs" />
+    <Compile Include="src\AssetPatch\EdcPatcher\EdcPatcher.fs" />
     <None Include="RunEdcPatcher.fsx" />
   </ItemGroup>
 

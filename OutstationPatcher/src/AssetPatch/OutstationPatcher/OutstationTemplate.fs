@@ -2,7 +2,7 @@
 // License: BSD 3 Clause
 
 
-namespace OutstationPatcher
+namespace AssetPatch.OutstationPatcher
 
 module OutstationTemplate =
     
@@ -15,7 +15,7 @@ module OutstationTemplate =
     open AssetPatch.TemplateCatalogue.Netw
     open AssetPatch.Lib.Common
 
-    open OutstationPatcher.InputData
+    open AssetPatch.OutstationPatcher.InputData
 
 
     /// Note - this is very flaky as ExcelProvider seems to have difficulty 

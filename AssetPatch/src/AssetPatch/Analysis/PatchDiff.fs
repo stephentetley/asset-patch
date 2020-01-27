@@ -102,7 +102,10 @@ module PatchDiff =
         table [] [
             tbody [] [
                 tr [] [
-                    td [] [str tableTitle]
+                    th [ _colspan "2"
+                         _style "text-align: left"
+                       ] 
+                        [str tableTitle]
                 ]
                 tr [] [
                     td [] [str "Data Model:"]
@@ -137,13 +140,13 @@ module PatchDiff =
         match diff with
         | AssocInLeft(name, value) -> 
             [ 
-                td [] ["ERROR:" |> str]
-                td [] [sprintf "Field %s missing in 'after' file" name |> str]
+                td [_style "color:red"] ["ERROR:" |> str]
+                td [_style "color:red"] [sprintf "Field %s missing in 'after' file" name |> str]
             ]
         | AssocInRight(name, value) -> 
             [
-                td [] ["ERROR:" |> str]
-                td [] [sprintf "Field %s missing in 'before' file" name |> str]
+                td [_style "color:red"] ["ERROR:" |> str]
+                td [_style "color:red"] [sprintf "Field %s missing in 'before' file" name |> str]
             ]
         | AssocSame(_,_) -> failwith "Coding error: filter to remove AssocSame"
         | AssocDiff(name, v1, v2) -> 
@@ -175,16 +178,16 @@ module PatchDiff =
         | [] -> 
             [
                 tr [] [ 
-                    th [_rowspan "1"] 
+                    th [_rowspan "1"; _style "color:red"] 
                         [
                             ix |> string |> str
                         ]
-                    th [_rowspan "1"] 
+                    th [_rowspan "1"; _style "color:red"] 
                         [
                             str key
                         ]
-                    td [] ["WARNING:" |> str]
-                    td [_colspan "2"] ["No differences" |> str]
+                    td [_style "color:red"] ["WARNING:" |> str]
+                    td [_colspan "2"; _style "color:red"] ["No differences" |> str]
                 ]
             ]
             

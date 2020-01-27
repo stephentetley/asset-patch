@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
-namespace DisposeEquiPatcher
+namespace AssetPatch.DisposeEquiPatcher
 
+[<AutoOpen>]
 module DisposeEquiPatcher =
 
     open System
@@ -12,7 +13,7 @@ module DisposeEquiPatcher =
     open AssetPatch.Base.Acronyms
     open AssetPatch.Base.Printer
     open AssetPatch.Base.FuncLocPath
-    open DisposeEquiPatcher.InputData
+    open AssetPatch.DisposeEquiPatcher.InputData
 
 
     let private makeAssocs (items : (string * string * string) list) : AssocList<string,string> = 

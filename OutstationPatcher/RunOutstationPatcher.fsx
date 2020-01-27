@@ -44,10 +44,10 @@
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\AssetCondition.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Ctos.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Netw.fs"
-#load "OutstationPatcher\InputData.fs"
-#load "OutstationPatcher\OutstationTemplate.fs"
-#load "OutstationPatcher\OutstationPatcher.fs"
-open OutstationPatcher.OutstationPatcher
+#load "src\AssetPatch\OutstationPatcher\InputData.fs"
+#load "src\AssetPatch\OutstationPatcher\OutstationTemplate.fs"
+#load "src\AssetPatch\OutstationPatcher\OutstationPatcher.fs"
+open AssetPatch.OutstationPatcher
 
 
 let options : OsPatcherOptions = 
