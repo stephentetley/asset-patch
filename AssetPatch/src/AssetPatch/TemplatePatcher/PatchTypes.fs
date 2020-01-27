@@ -203,38 +203,22 @@ module PatchTypes =
 
         member x.ToAssocs() : AssocList<string, string> =         
             makeAssocs
-                // [ ("ABCK_EILO",     "ABC Indicator",                    "") 
-                // ; ("GSBE_EILO",     "Business Area",                    "")
                 [ ("BUKR_EILO",     "Company Code",                     x.CommonProps.CompanyCode.ToString())
                 ; ("BAUMM_EQI",     "Construction month",               (sprintf "%02i" x.ConstructionMonth))
                 ; ("BAUJJ",         "Construction year",                x.ConstructionYear.ToString())
-
                 ; ("KOKR_EILO",     "Controlling Area",                 x.CommonProps.ControllingArea.ToString())
-                // ; ("KOST_EILO",     "Cost Center",                      "150008")   /// <--- This should be a param
                 ; ("WAERS",         "Currency",                         x.Currency)
                 ; ("TXTMI",         "Description (medium text)",        x.Description)  
                 ; ("USTA_EQUI",     "Display lines for user status",    x.CommonProps.UserStatus)
-            
                 ; ("EQTYP",         "Equipment category",               x.Category)   
                 ; ("TPLN_EILO",     "Functional Location",              x.FuncLoc.ToString())
-                // ; ("STOR_EILO",     "Location",                         "")
-                // ; ("STORTI",        "Location origin",                  "")
-                // ; ("ARBP_EEQZ",     "Main work center",                 "DEFAULT")
-                // ; ("INGR_EEQZ",     "Maint. Planner Group",             "")
-                // ; ("SWER_EILO",     "Maintenance Plant",                equi.MaintenancePlant.ToString()) 
                 ; ("SERGE",         "ManufSerialNumber",                x.SerialNumber)
                 ; ("HERST",         "Manufacturer",                     x.Manufacturer)
                 ; ("TYPBZ",         "Model number",                     x.Model)
                 ; ("OBJT_EQUI",     "Object Type",                      "")
                 ; ("EQART_EQU",     "Object Type",                      x.ObjectType)
-                // ; ("PPLA_EEQZ",     "Planning Plant",                   "2100")
-                // ; ("BEBE_EILO",     "Plant Section",                    "")
-                // ; ("WERGW_EQI",     "Plant for WorkCenter",             "2100")
                 ; ("INBDT",         "Start-up date",                    x.StartupDate |> showS4Date)
-                //; ("STATTEXT",      "Status",                           "CRTE")
                 ; ("USTW_EQUI",     "Status of an object",              "UCON")
-                // ; ("USWO_EQUI",     "Status without status number",     "")
-                // ; ("PROI_EILO",     "WBS Element",                      "")
                 ]
 
     // ************************************************************************

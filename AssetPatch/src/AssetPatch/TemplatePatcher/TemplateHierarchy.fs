@@ -31,10 +31,6 @@ module TemplateHierarchy =
           Characteristics : S4Characteristic list
         }
 
-
-    
-
-
     type FuncLocProperties = 
         { StartupDate : DateTime 
           ObjectStatus : string         
@@ -45,10 +41,10 @@ module TemplateHierarchy =
           Currency : string
         }
 
-    /// EquipmentId may be a dollar number
+    /// This represents new equipment so it does not have a 
+    /// (system generated) EquipmentId
     type S4Equipment = 
-        { EquipmentId : string option
-          FuncLoc : FuncLocPath
+        { FuncLoc : FuncLocPath
           FlocProperties : FuncLocProperties
           Description : string       
           Category : string

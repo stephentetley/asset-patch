@@ -35,37 +35,51 @@ module EdcTemplate =
             | None -> new DateTime(year=1970, month=1, day=1)
 
 
+    let private whenNotBlank (fn : string -> Characteristic) (str: string) : Characteristic option = 
+        if String.IsNullOrWhiteSpace str then None else Some (str.Trim() |> fn)
+        
+    let private whenDecimal (fn : decimal -> Characteristic) (str: string) : Characteristic option = 
+        try 
+            if String.IsNullOrWhiteSpace str then None else Some (str |> decimal |> fn)
+        with
+        | _ -> None
 
     let private lstnut_leaf_instance (parameters : WorkListRow) : Class = 
         lstnut
             [ uniclass_code ()
               uniclass_desc ()
-              optional <| lstn_transducer_model         parameters.``Transducer Model``
-              optional <| lstn_transducer_serial_no     parameters.``Transducer Serial Number``
-              applyOptional (lstn_relay_function 1) (tryGetNonBlank parameters.``Relay 1 Function``)
-              applyOptional (lstn_relay_on_level 1) (tryGetDecimal parameters.``Relay 1 On``)
-              applyOptional (lstn_relay_off_level 1) (tryGetDecimal parameters.``Relay 1 Off``)
+              yield!
+                (List.choose id
+                    [ whenNotBlank lstn_transducer_model        parameters.``Transducer Model``
+                      whenNotBlank lstn_transducer_serial_no    parameters.``Transducer Serial Number``
               
-              applyOptional (lstn_relay_function 2) (tryGetNonBlank parameters.``Relay 2 Function``)
-              applyOptional (lstn_relay_on_level 2) (tryGetDecimal parameters.``Relay 2 On``)
-              applyOptional (lstn_relay_off_level 2) (tryGetDecimal parameters.``Relay 2 Off``)
+                      whenNotBlank (lstn_relay_function 1)      parameters.``Relay 1 Function``
+                      whenDecimal (lstn_relay_on_level 1)       parameters.``Relay 1 On``
+                      whenDecimal (lstn_relay_off_level 1)      parameters.``Relay 1 Off``
               
-              applyOptional (lstn_relay_function 3) (tryGetNonBlank parameters.``Relay 3 Function``)
-              applyOptional (lstn_relay_on_level 3) (tryGetDecimal parameters.``Relay 3 On``)
-              applyOptional (lstn_relay_off_level 3) (tryGetDecimal parameters.``Relay 3 Off``)
+                      whenNotBlank (lstn_relay_function 2)      parameters.``Relay 2 Function``
+                      whenDecimal (lstn_relay_on_level 2)       parameters.``Relay 2 On``
+                      whenDecimal (lstn_relay_off_level 2)      parameters.``Relay 2 Off``
               
-              applyOptional (lstn_relay_function 4) (tryGetNonBlank parameters.``Relay 4 Function``)
-              applyOptional (lstn_relay_on_level 4) (tryGetDecimal parameters.``Relay 4 On``)
-              applyOptional (lstn_relay_off_level 4) (tryGetDecimal parameters.``Relay 4 Off``)
+                      whenNotBlank (lstn_relay_function 3)      parameters.``Relay 3 Function``
+                      whenDecimal (lstn_relay_on_level 3)       parameters.``Relay 3 On``
+                      whenDecimal (lstn_relay_off_level 3)      parameters.``Relay 3 Off``
               
-              applyOptional (lstn_relay_function 5) (tryGetNonBlank parameters.``Relay 5 Function``)
-              applyOptional (lstn_relay_on_level 5) (tryGetDecimal parameters.``Relay 5 On``)
-              applyOptional (lstn_relay_off_level 5) (tryGetDecimal parameters.``Relay 5 Off``)
+                      whenNotBlank (lstn_relay_function 4)      parameters.``Relay 4 Function``
+                      whenDecimal (lstn_relay_on_level 4)       parameters.``Relay 4 On``
+                      whenDecimal (lstn_relay_off_level 4)      parameters.``Relay 4 Off``
+              
+                      whenNotBlank (lstn_relay_function 5)      parameters.``Relay 5 Function``
+                      whenDecimal (lstn_relay_on_level 5)       parameters.``Relay 5 On``
+                      whenDecimal (lstn_relay_off_level 5)      parameters.``Relay 5 Off``
 
-              applyOptional (lstn_relay_function 6) (tryGetNonBlank parameters.``Relay 6 Function``)
-              applyOptional (lstn_relay_on_level 6) (tryGetDecimal parameters.``Relay 6 On``)
-              applyOptional (lstn_relay_off_level 6) (tryGetDecimal parameters.``Relay 6 Off``)
-            ]
+                      whenNotBlank (lstn_relay_function 6)      parameters.``Relay 6 Function``
+                      whenDecimal (lstn_relay_on_level 6)       parameters.``Relay 6 On``
+                      whenDecimal (lstn_relay_off_level 6)      parameters.``Relay 6 Off``
+              
+                    ] )
+
+              ]
 
    
     let private startupDateTrafo (parameters: {| InstallDate: string |}) : EnvTransformer = 

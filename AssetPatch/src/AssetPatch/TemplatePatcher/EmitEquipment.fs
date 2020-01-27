@@ -139,20 +139,16 @@ module EmitEquipment =
                 | [] -> mreturn []
                 | (x :: xs) -> 
                     compile {
-                        match x.EquipmentId with 
-                        | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (source.FuncLoc.ToString()) source.Description)
-                        | Some equiNum -> 
-                            let! v1 = equipmentToPhase2EquiData1 equiNum x.Description x.MemoLine x.Classes
-                            return! work kids (fun vs -> let ans = (v1 :: vs) in cont ans)
+                        let! equiNum = getEquiNumber x.Description x.FuncLoc
+                        let! v1 = equipmentToPhase2EquiData1 equiNum x.Description x.MemoLine x.Classes
+                        return! work kids (fun vs -> let ans = (v1 :: vs) in cont ans)
                     }
 
             compile {
-                match source.EquipmentId with
-                | None -> return! throwError (sprintf "Missing equipment for %s '%s'" (source.FuncLoc.ToString()) source.Description)
-                | Some equiNum -> 
-                    let! equiResult1 = equipmentToPhase2EquiData1 equiNum source.Description source.MemoLine source.Classes
-                    let! kids = work source.SuboridnateEquipment id
-                    return (equiResult1 :: kids |> Phase2EquiData.Concat)
+                let! equiNum = getEquiNumber source.Description source.FuncLoc
+                let! equiResult1 = equipmentToPhase2EquiData1 equiNum source.Description source.MemoLine source.Classes
+                let! kids = work source.SuboridnateEquipment id
+                return (equiResult1 :: kids |> Phase2EquiData.Concat)
             }
     
 

@@ -19,21 +19,23 @@ module CompilerMonad =
 
     // May get extended...
     type CompilerEnv = 
-        { UserName : string 
+        { UserName : string
+          EquiLookups : EquiMap
           TemplateEnv : TemplateEnv
           FlocVariant : string option
           EquiVariant : string option
          }
 
             
-    let defaultCompilerEnv (userName : string) (templateEnv : TemplateEnv) : CompilerEnv = 
+    let defaultCompilerEnv (userName : string) (equiLookups: EquiMap) (templateEnv : TemplateEnv) : CompilerEnv = 
         { UserName = userName
+          EquiLookups = equiLookups
           TemplateEnv = templateEnv
           FlocVariant = None
           EquiVariant = None }
     
 
-    /// CompilerMonad is a Reader-Error-State(name supply) monad.
+    /// CompilerMonad is a Reader-Error monad.
     type CompilerMonad<'a> = 
         private | CompilerMonad of (CompilerEnv -> Result<'a, ErrMsg>)
 
@@ -86,15 +88,12 @@ module CompilerMonad =
             match equiIndexFile with 
             | None -> Ok emptyEquiMap
             | Some path -> readEquiDownload path
-        let env1  = 
-            Result.map (fun ans -> 
-                        { CurrentFloc = FuncLocPath.Create("*****")
-                          Properties = defaultEnvProperties ()
-                          EquipmentIndices = ans }) indices     
+        let env1  = { CurrentFloc = FuncLocPath.Create("*****")
+                      Properties = defaultEnvProperties () }
         
-        match env1 with
+        match indices with
         | Error msg -> Error msg
-        | Ok env -> apply1 action (defaultCompilerEnv options.UserName env) 
+        | Ok indices1 -> apply1 action (defaultCompilerEnv options.UserName indices1 env1) 
 
     
 
@@ -246,6 +245,13 @@ module CompilerMonad =
 
     let local (modify : CompilerEnv -> CompilerEnv) (ma : CompilerMonad<'ans>) : CompilerMonad<'ans> = 
         CompilerMonad <| fun env -> apply1 ma (modify env)
+
+    let getEquiNumber (description: string) (funcLoc: FuncLocPath) : CompilerMonad<string> = 
+        CompilerMonad <| fun env -> 
+            match tryFindEquiNum description funcLoc env.EquiLookups with
+            | None -> Error (sprintf "Missing equipment - %s '%s'" (funcLoc.ToString()) description)
+            | Some a -> Ok a
+
 
 
     // ************************************************************************
@@ -482,7 +488,7 @@ module CompilerMonad =
     let evalTemplate (rootFloc : FuncLocPath) (code : Template<'a>) : CompilerMonad<'a> = 
         CompilerMonad <| fun env ->
             let env1 = { env.TemplateEnv with CurrentFloc = rootFloc }
-            match runTemplate env1 code with
+            match runTemplate env.EquiLookups env1 code with
             | Ok a -> Ok a
             | Error msg -> Error msg
 
