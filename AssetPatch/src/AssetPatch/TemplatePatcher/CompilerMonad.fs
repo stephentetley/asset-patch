@@ -488,7 +488,7 @@ module CompilerMonad =
     let evalTemplate (rootFloc : FuncLocPath) (code : Template<'a>) : CompilerMonad<'a> = 
         CompilerMonad <| fun env ->
             let env1 = { env.TemplateEnv with CurrentFloc = rootFloc }
-            match runTemplate env.EquiLookups env1 code with
+            match runTemplate env1 code with
             | Ok a -> Ok a
             | Error msg -> Error msg
 

@@ -66,5 +66,5 @@ let main01 () =
 // once it has been activated and downloaded...
 let main02 () = 
     let equiFile = @"G:\work\Projects\assets\asset_patch\env_discharge_worklist1_mocked_download.txt"
-    runEdcPatcherPhase2 options equiFile  
+    runEdcPatcherPhase2 options equiFile
 

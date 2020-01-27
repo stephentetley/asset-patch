@@ -49,23 +49,21 @@ module Template =
     /// Reader + Error 
     /// Error is essential for reconciling EQUI numbers
     type Template<'a> = 
-        | Template of (EquiMap -> TemplateEnv -> Result<'a, ErrMsg>)
+        | Template of (TemplateEnv -> Result<'a, ErrMsg>)
 
-    let inline private apply1 (ma : Template<'a>) 
-                              (equiMap: EquiMap)
-                              (env : TemplateEnv) : Result<'a, ErrMsg> = 
-        let (Template fn) = ma in fn equiMap env
+    let inline private apply1 (ma : Template<'a>)(env : TemplateEnv) : Result<'a, ErrMsg> = 
+        let (Template fn) = ma in fn env
 
     let mreturn (x:'a) : Template<'a> = 
-        Template <| fun _ _ -> Ok x
+        Template <| fun _ -> Ok x
 
 
     let inline private bindM (ma : Template<'a>) 
                              (fn : 'a -> Template<'b>) : Template<'b> =
-        Template <| fun equiMap env -> 
-            match apply1 ma equiMap env with
+        Template <| fun env -> 
+            match apply1 ma env with
             | Error msg -> Error msg 
-            | Ok a -> apply1 (fn a) equiMap env
+            | Ok a -> apply1 (fn a) env
          
     let inline private delayM (fn : unit -> Template<'a>) : Template<'a> = 
         bindM (mreturn ()) fn 
@@ -80,26 +78,26 @@ module Template =
     let (template : TemplateBuilder) = new TemplateBuilder()
 
 
-    let runTemplate (equiMap: EquiMap)  (env : TemplateEnv) (code : Template<'a>) : Result<'a, ErrMsg> = 
-        apply1 code equiMap env
+    let runTemplate (env : TemplateEnv) (code : Template<'a>) : Result<'a, ErrMsg> = 
+        apply1 code env
     
         
     let private ( |>> ) (ma : Template<'a>) (fn : 'a -> 'b) : Template<'b> = 
-        Template <| fun equiMap env -> 
-            match apply1 ma equiMap env with
+        Template <| fun env ->
+            match apply1 ma env with
             | Ok a -> Ok (fn a)
             | Error msg -> Error msg
     
     let templateError (msg: string) : Template<'a> = 
-        Template <| fun _ _ -> Error msg
+        Template <| fun _ -> Error msg
 
     let private unlistM (source: Template<'x> list) : Template<'x list> = 
-        Template <| fun equiMap env -> 
+        Template <| fun env -> 
             let rec work xs fk sk = 
                 match xs with 
                 | [] -> sk []
                 | x :: rest -> 
-                    match apply1 x equiMap env with
+                    match apply1 x env with
                     | Error msg -> fk msg
                     | Ok a -> 
                         work rest fk (fun vs -> sk (a :: vs))
@@ -107,17 +105,17 @@ module Template =
 
 
     let rootFloc (floc : FuncLocPath) (ma : Template<'a>) : Template<'a> = 
-        Template <| fun equiMap env -> 
-            apply1 ma equiMap { env with CurrentFloc = floc } 
+        Template <| fun env -> 
+            apply1 ma { env with CurrentFloc = floc } 
 
     let private asks () : Template<TemplateEnv> = 
-        Template <| fun _ env -> Ok env
+        Template <| fun env -> Ok env
         
     let asksFloc () : Template<FuncLocPath> = 
-        Template <| fun _ env -> Ok (env.CurrentFloc)
+        Template <| fun env -> Ok (env.CurrentFloc)
 
     let asksFuncLocProperties () : Template<FuncLocProperties> = 
-        Template <| fun _ env -> 
+        Template <| fun env -> 
             let props : FuncLocProperties = 
                 { StartupDate = env.Properties.StartupDate
                   StructureIndicator = env.Properties.StructureIndicator
@@ -127,20 +125,20 @@ module Template =
                   CompanyCode = env.Properties.CompanyCode
                   Currency = env.Properties.Currency
                 }
-            Ok (props)
+            Ok props
 
     type EnvTransformer = EnvProperties -> EnvProperties
 
     let local (modify : EnvTransformer) (ma : Template<'a>) : Template<'a> = 
-        Template <| fun equiMap env -> 
+        Template <| fun env -> 
             let props = env.Properties
-            apply1 ma equiMap { env with Properties = modify props }
+            apply1 ma { env with Properties = modify props }
 
     let locals (modifications : EnvTransformer list) (ma : Template<'a>) : Template<'a> = 
         let trafo = List.foldBack (fun f acc -> acc >> f) modifications id
-        Template <| fun equiMap env -> 
+        Template <| fun env -> 
             let props = env.Properties
-            apply1 ma equiMap { env with Properties = trafo props } 
+            apply1 ma { env with Properties = trafo props } 
 
             
     let startupDate (date : DateTime) : EnvTransformer = 
@@ -148,9 +146,9 @@ module Template =
 
 
     let internal extendFloc (levelCode  : string) (ma : Template<'a>) : Template<'a> = 
-        Template <| fun equiMap env -> 
+        Template <| fun env -> 
             let floc = env.CurrentFloc
-            apply1 ma equiMap { env with CurrentFloc = extend levelCode floc } 
+            apply1 ma { env with CurrentFloc = extend levelCode floc } 
     
 
     type Characteristic = Template<S4Characteristic>
@@ -182,25 +180,16 @@ module Template =
     type EquipmentAttribute = Template<S4Equipment -> S4Equipment>
 
     let private setAttribute (e1 : Equipment) (attrib : EquipmentAttribute) : Equipment = 
-        Template <| fun equiMap env -> 
-            match apply1 e1 equiMap env with
+        Template <| fun env -> 
+            match apply1 e1 env with
             | Ok a -> 
-                match apply1 attrib equiMap env with
+                match apply1 attrib env with
                 | Ok f -> Ok (f a)
                 | Error msg -> Error msg
             | Error msg -> Error msg
 
     let private setAttributes (e1 : Equipment) (attribs : EquipmentAttribute list) : Equipment = 
         List.fold setAttribute e1 attribs
-    
-
-
-    let private getEquipmentIndex (description : string) : Template<string> = 
-        Template <| fun equiMap env -> 
-            let floc = env.CurrentFloc
-            match tryFindEquiNum description floc equiMap with
-            | Some num -> Ok num
-            | None -> Error (sprintf "Equipment lookup failed %s '%s'" (floc.ToString()) description)
     
 
     let _equipment (description : string) 
@@ -238,7 +227,7 @@ module Template =
 
 
     let internal equipmentAttribute (update : S4Equipment -> S4Equipment) : EquipmentAttribute =
-        Template <| fun _ _ -> Ok update
+        Template <| fun _ -> Ok update
             
     
 
