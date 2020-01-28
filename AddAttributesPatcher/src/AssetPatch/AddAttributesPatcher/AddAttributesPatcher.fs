@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
-namespace AssetPatch
+namespace AssetPatch.AddAttributesPatcher
 
-module AddClassPatcher =
+[<AutoOpen>]
+module AddAttributesPatcher =
 
     let hello name =
         printfn "Hello %s" name

@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="src\AssetPatch\AddClassPatcher\AddClassPatcher.fs" />
-    <None Include="RunAddClassPatcher.fsx" />
+    <Compile Include="src\AssetPatch\AddAttributesPatcher\AddAttributesPatcher.fs" />
+    <None Include="RunAddAttributesPatcher.fsx" />
   </ItemGroup>
 
   <ItemGroup />
