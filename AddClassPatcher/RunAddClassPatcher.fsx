@@ -22,10 +22,8 @@
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Template.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\CompilerMonad.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\PatchWriter.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitCommon.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitEquipment.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitFuncLoc.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Emitter.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitPhase1.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitPhase2.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\PatchCompiler.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\OSGB36.fs"
@@ -43,7 +41,7 @@ open AssetPatch.AddClassPatcher
 
 // let addPODEUP (equiNumber: string) : Class = 
     
-let addNETWTL (equiNumber: string) : Class = 
+let addNETWTL () : Class = 
     netwtl [ 
         uniclass_code ()
         uniclass_desc ()

@@ -22,15 +22,6 @@ module PatchWriter =
 
   
 
-    let private genFileName (directory : string) 
-                            (filePrefix : string) 
-                            (namePart : string) : CompilerMonad<string> = 
-        compile {
-            let name1 = 
-                sprintf "%s_%s.txt" (safeName filePrefix) (safeName namePart)
-            return Path.Combine(directory, name1)
-        }      
-
 
     /// At least one row exists 
     let private getHeaderRow (rows : AssocList<string, string> list) : CompilerMonad<HeaderRow> = 
@@ -87,15 +78,13 @@ module PatchWriter =
             |> makeChangeFile FuncLoc "Asset Patch Create FuncLocs"
 
     /// Write a list of new FuncLocs to a ChangeFile
-    let writeNewFuncLocsFile (directory : string) 
-                                (filePrefix : string) 
+    let writeNewFuncLocsFile (outPath: string) 
                                 (funcLocs : NewFuncLoc list) : CompilerMonad<unit> = 
         compile { 
             match funcLocs with
             | [] -> return ()
             | _ -> 
                 let! changes = makeNewFuncLocsFile funcLocs
-                let! outPath = genFileName directory filePrefix "01_create_flocs"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -111,15 +100,13 @@ module PatchWriter =
             |> makeChangeFile FuncLoc "Asset Patch Link FuncLocs"
 
     /// Write a list of FuncLoc hierarchy changes to a ChangeFile
-    let writeLinkFuncLocsFile (directory : string) 
-                                (filePrefix : string) 
+    let writeLinkFuncLocsFile (outPath : string) 
                                 (funcLocs : LinkFuncLoc list) : CompilerMonad<unit> = 
         compile { 
             match funcLocs with
             | [] -> return ()
             | _ -> 
                 let! changes = makeLinkFuncLocsFile funcLocs
-                let! outPath = genFileName directory filePrefix "02_link_flocs"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -135,15 +122,13 @@ module PatchWriter =
             |> makeChangeFile ClassFloc "Asset Patch Create ClassFlocs"
 
     /// Write a list of new ClassFlocs to a ChangeFile
-    let writeNewClassFlocsFile (directory : string) 
-                                (filePrefix : string) 
+    let writeNewClassFlocsFile (outPath : string) 
                                 (classFlocs : NewClassFloc list) : CompilerMonad<unit> = 
         compile { 
             match classFlocs with
             | [] -> return ()
             | _ -> 
                 let! changes = makeNewClassFlocsFile classFlocs
-                let! outPath = genFileName directory filePrefix "03_create_classflocs"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -160,15 +145,13 @@ module PatchWriter =
 
 
     /// Write a list of new ValuaFloc to a ChangeFile
-    let writeNewValuaFlocsFile (directory : string) 
-                            (filePrefix : string) 
-                            (valuaFlocs : NewValuaFloc list) : CompilerMonad<unit> = 
+    let writeNewValuaFlocsFile (outPath: string) 
+                                    (valuaFlocs : NewValuaFloc list) : CompilerMonad<unit> = 
         compile { 
             match valuaFlocs with
             | [] -> return ()
             | _ -> 
                 let! changes = makeNewValuaFlocsFile valuaFlocs
-                let! outPath = genFileName directory filePrefix "04_create_valuaflocs"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -185,15 +168,12 @@ module PatchWriter =
             |> makeChangeFile Equi "Asset Patch Create Equis"
 
     /// Write a list of new Equis to a ChangeFile
-    let writeNewEquisFile (directory : string) 
-                            (filePrefix : string) 
-                            (equis : NewEqui list) : CompilerMonad<unit> = 
+    let writeNewEquisFile (outPath: string) (equis : NewEqui list) : CompilerMonad<unit> = 
         compile { 
             match equis with
             | [] -> return ()
             | _ -> 
                 let! changes = makeNewEquisFile equis
-                let! outPath = genFileName directory filePrefix "05_create_equipment"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -211,15 +191,13 @@ module PatchWriter =
             |> makeChangeFile ClassEqui "Asset Patch Create ClassEquis"
 
     /// Write a list of new ClassEquis to a ChangeFile
-    let writeNewClassEquisFile (directory : string) 
-                                (filePrefix : string) 
+    let writeNewClassEquisFile (outPath: string) 
                                 (classEquis : NewClassEqui list) : CompilerMonad<unit> = 
         compile { 
             match classEquis with
             | [] -> return ()
             | _ -> 
                 let! changes = makeNewClassEquisFile classEquis
-                let! outPath = genFileName directory filePrefix "06_create_classequis"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -235,15 +213,13 @@ module PatchWriter =
             |> makeChangeFile ValuaEqui "Asset Patch Create ValuaEquis"
 
     /// Write a list of new ValuaEquis to a ChangeFile
-    let writeNewValuaEquisFile (directory : string) 
-                            (filePrefix : string) 
-                            (valuaEquis : NewValuaEqui list) : CompilerMonad<unit> = 
+    let writeNewValuaEquisFile (outPath: string) 
+                                (valuaEquis : NewValuaEqui list) : CompilerMonad<unit> = 
         compile { 
             match valuaEquis with
             | [] -> return ()
             | _ ->       
                 let! changes = makeNewValuaEquisFile valuaEquis
-                let! outPath = genFileName directory filePrefix "07_create_valuaequis"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }
@@ -261,15 +237,13 @@ module PatchWriter =
 
 
     /// Write a list of new ValuaEquis to a ChangeFile
-    let writeNewEqmltxtsFile (directory : string) 
-                            (filePrefix : string) 
+    let writeNewEqmltxtsFile (outPath: string) 
                             (eqmltxts : NewEqmltxt list) : CompilerMonad<unit> = 
         compile { 
             match eqmltxts with
             | [] -> return ()
             | _ ->       
                 let! changes = makeNewEqmltxtsFile eqmltxts
-                let! outPath = genFileName directory filePrefix "08_create_eqmltxts"
                 do! writeChangesAndHeaders outPath changes
                 return ()
             }

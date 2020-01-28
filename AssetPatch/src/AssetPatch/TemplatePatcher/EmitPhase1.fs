@@ -47,8 +47,47 @@ module EmitPhase1 =
             }
 
     // ************************************************************************
-    // Translation
+    // Translation - Classifications and characteristics
     
+    
+    let makeNewValuaFloc (funcLoc : FuncLocPath)
+                            (count : int) 
+                            (charac : S4Characteristic) : NewValuaFloc = 
+        { FuncLoc = funcLoc
+          ClassType = IntegerString.OfString "003"
+          CharacteristicID = charac.Name
+          ValueCount = count
+          Value = charac.Value
+        }
+    
+    
+    let makeNewValuaFlocs (flocPath : FuncLocPath)
+                            (characteristics : S4Characteristic list) : NewValuaFloc list =       
+        let makeGrouped (chars : S4Characteristic list) : NewValuaFloc list = 
+            chars |> List.mapi (fun i x -> makeNewValuaFloc flocPath (i+1) x)
+     
+        let chars = sortedCharacteristics characteristics
+        List.map makeGrouped chars |> List.concat
+
+    
+    
+    let makeNewClassFloc (funcLoc : FuncLocPath)  
+                                    (clazz : S4Class) : NewClassFloc = 
+        { FuncLoc = funcLoc
+          Class = clazz.ClassName
+          Status = 1
+        }
+
+    /// ClassFloc and ValuaFloc
+    let makeClassAndValuaFlocPatches  (flocPath : FuncLocPath)
+                                    (clazz : S4Class) : NewClassFloc * NewValuaFloc list = 
+        let ce = makeNewClassFloc flocPath clazz
+        let vs = makeNewValuaFlocs flocPath clazz.Characteristics
+        (ce, vs)
+
+
+    // ************************************************************************
+    // Equipment and larger
 
     let private makeNewEqui1 (equipment : S4Equipment) : NewEqui = 
         let commonProps : CommonProperties = 
@@ -88,49 +127,6 @@ module EmitPhase1 =
             work source.SuboridnateEquipment (fun xs -> ans1 :: xs)
                 
             
-
-
-    let private makeNewValuaFloc (funcLoc : FuncLocPath)
-                                    (count : int) 
-                                    (charac : S4Characteristic) : NewValuaFloc = 
-        {   
-            FuncLoc = funcLoc
-            ClassType = IntegerString.OfString "003"
-            CharacteristicID = charac.Name
-            ValueCount = count
-            Value = charac.Value
-        }
-    
-
-    let private makeNewValuaFlocs (flocPath : FuncLocPath)
-                                        (characteristics : S4Characteristic list) : NewValuaFloc list =  
- 
-        let makeGrouped (chars : S4Characteristic list) : NewValuaFloc list = 
-            chars |> List.mapi (fun i x -> makeNewValuaFloc flocPath (i+1) x)
- 
-        let chars = sortedCharacteristics characteristics
-        List.map makeGrouped chars |> List.concat
-        
-
-    
-    let private makeNewClassFloc (funcLoc : FuncLocPath)  
-                            (clazz : S4Class) : NewClassFloc = 
-        { 
-            FuncLoc = funcLoc
-            Class = clazz.ClassName
-            Status = 1
-        }
-    
-    
-    /// ClassFloc and ValuaFloc
-    let private makeClassAndValuaFlocPatches  (flocPath : FuncLocPath)
-                                    (clazz : S4Class) : NewClassFloc * NewValuaFloc list = 
-        let ce = makeNewClassFloc flocPath clazz
-        let vs = makeNewValuaFlocs flocPath clazz.Characteristics
-        (ce, vs)
-
-
-
 
     let makeNewFuncLoc (path : FuncLocPath) 
                     (props : FuncLocProperties)

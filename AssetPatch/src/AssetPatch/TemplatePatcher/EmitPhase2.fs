@@ -31,28 +31,21 @@ module EmitPhase2 =
             List.foldBack add source { ClassEquis = []; ValuaEquis = []; Eqmltxts = []}
 
     // ************************************************************************
-    // Translation
+    // Translation - Classifications and characteristics
 
-    let private makeNewValuaEqui (equiId : string) 
-                                (count : int) 
-                                (charac : S4Characteristic) : NewValuaEqui = 
+    let makeNewValuaEqui (equiId : string) 
+                            (count : int) 
+                            (charac : S4Characteristic) : NewValuaEqui = 
         { EquipmentId = equiId
           ClassType = IntegerString.OfString "002"
           CharacteristicID = charac.Name
           ValueCount = count
           Value = charac.Value
         }
-    
-    
-    let private makeNewClassEqui (equiId : string)
-                                    (s4Class : S4Class) : NewClassEqui = 
-        { EquipmentId = equiId
-          Class = s4Class.ClassName
-          Status = 1
-        }
 
-    let private makeNewValuaEquis (equiId : string)
-                        (characteristics : S4Characteristic list) : NewValuaEqui list =  
+
+    let makeNewValuaEquis (equiId : string)
+                            (characteristics : S4Characteristic list) : NewValuaEqui list =  
 
         let makeGrouped (chars : S4Characteristic list) : NewValuaEqui list = 
             chars |> List.mapi (fun i x -> makeNewValuaEqui equiId (i+1) x)
@@ -62,13 +55,22 @@ module EmitPhase2 =
         
 
 
+    let makeNewClassEqui (equiId : string) (s4Class : S4Class) : NewClassEqui = 
+        { EquipmentId = equiId
+          Class = s4Class.ClassName
+          Status = 1
+        }
+
     /// equiId may be a dollar number
-    let private makeClassAndValuaFlocPatches (equiId : string)
+    let makeClassAndValuaEquiPatches (equiId : string)
                                     (clazz : S4Class) : NewClassEqui * NewValuaEqui list = 
         let ce = makeNewClassEqui equiId clazz
         let vs = makeNewValuaEquis equiId clazz.Characteristics
         (ce, vs)
 
+
+    // ************************************************************************
+    // Translation - phase 2 data
 
     /// equiId may be a dollar number
     let makePhase2EquiData1 (equiId : string) 
@@ -76,7 +78,7 @@ module EmitPhase2 =
                                      (memoLine: string)
                                      (classes : S4Class list) : Phase2Data = 
         let collect xs = List.foldBack (fun (c1, vs1)  (cs,vs) -> (c1 ::cs, vs1 @ vs)) xs ([],[])
-        let (cs, vs) = List.map (makeClassAndValuaFlocPatches equiId) classes |> collect
+        let (cs, vs) = List.map (makeClassAndValuaEquiPatches equiId) classes |> collect
         let eqmltxt = 
                 { EquipmentId = equiId
                   Description = equiDescription

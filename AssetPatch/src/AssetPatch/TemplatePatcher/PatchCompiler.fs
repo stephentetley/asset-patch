@@ -16,6 +16,20 @@ module PatchCompiler =
     open AssetPatch.TemplatePatcher.PatchWriter
     open AssetPatch.TemplatePatcher.EmitPhase1
     open AssetPatch.TemplatePatcher.EmitPhase2
+    open AssetPatch.TemplatePatcher.EmitNewAttributes
+
+
+    // ************************************************************************/
+    // Gen file name
+
+    let private genFileName (directory : string) 
+                            (filePrefix : string) 
+                            (namePart : string) : CompilerMonad<string> = 
+        compile {
+            let name1 = 
+                sprintf "%s_%s.txt" (safeName filePrefix) (safeName namePart)
+            return Path.Combine(directory, name1)
+        }    
 
 
     // ************************************************************************
@@ -46,25 +60,34 @@ module PatchCompiler =
         
         if funcLocResults.IsEmpty then
             mreturn ()
-        else
+        else            
             compile {
-                do! writeNewFuncLocsFile directory filePrefix funcLocResults.FuncLocs
-                do! writeLinkFuncLocsFile directory filePrefix funcLocResults.FuncLocLinks
-                do! writeNewClassFlocsFile directory filePrefix funcLocResults.ClassFlocs
-                do! writeNewValuaFlocsFile directory filePrefix funcLocResults.ValuaFlocs
+                let! outPath01 = genFileName directory filePrefix "01_create_flocs"
+                do! writeNewFuncLocsFile outPath01 funcLocResults.FuncLocs
+                let! outPath02 = genFileName directory filePrefix "02_link_flocs"
+                do! writeLinkFuncLocsFile outPath02 funcLocResults.FuncLocLinks
+                let! outPath03 = genFileName directory filePrefix "03_create_classflocs"
+                do! writeNewClassFlocsFile outPath03 funcLocResults.ClassFlocs
+                let! outPath04 = genFileName directory filePrefix "04_create_valuaflocs"
+                do! writeNewValuaFlocsFile outPath04 funcLocResults.ValuaFlocs
                 return ()
             }
 
    
     
     // Write an Equi patch file
+    // ___05_create_equipment
     let writePhase1EquiData (directory : string) 
                         (filePrefix : string) 
                         (equiData : NewEqui list) : CompilerMonad<unit> = 
         if List.isEmpty equiData then
             mreturn ()
         else
-            writeNewEquisFile directory filePrefix equiData
+            compile { 
+                let! fileName = genFileName directory filePrefix "05_create_equipment"
+                do! writeNewEquisFile fileName equiData
+                return()
+            }
 
 
     /// This just writes a List of equipment, not a patch
@@ -98,28 +121,56 @@ module PatchCompiler =
             return ()
         }
             
-            
+         
 
 
-    // Write ClassEqui and ValuaEqui patch files
-    let writePhase2EquiData (directory : string) 
-                                (filePrefix : string) 
-                                (equiData : Phase2Data) : CompilerMonad<unit> = 
+    // Write ClassEqui and ValuaEqui and Eqmltext patch files
+    let writePhase2Data (directory : string) 
+                        (filePrefix : string) 
+                        (equiData : Phase2Data) : CompilerMonad<unit> = 
         if equiData.IsEmpty then
             mreturn ()
         else
             compile {
-                do! writeNewClassEquisFile directory filePrefix equiData.ClassEquis
-                do! writeNewValuaEquisFile directory filePrefix equiData.ValuaEquis
-                do! writeNewEqmltxtsFile directory filePrefix equiData.Eqmltxts
+                let! outPath06 = genFileName directory filePrefix "06_create_classequis"
+                do! writeNewClassEquisFile outPath06 equiData.ClassEquis
+                let! outPath07 = genFileName directory filePrefix "07_create_valuaequis"
+                do! writeNewValuaEquisFile outPath07 equiData.ValuaEquis
+                let! outPath08 = genFileName directory filePrefix "08_create_eqmltxts"
+                do! writeNewEqmltxtsFile outPath08 equiData.Eqmltxts
                 return ()
             }
 
-    // Write ClassEqui and ValuaEqui patch files
-    let writePhase2Data (directory : string) 
-                                (filePrefix : string) 
-                                (phase2Data : Phase2Data) : CompilerMonad<unit> = 
-        writePhase2EquiData directory filePrefix phase2Data
+    // ************************************************************************
+    // New Floc Attributes (add to existing floc)
 
 
-    
+
+    /// Write new ClassFloc and ValuaFloc patches
+    let writeFlocAttributes (directory : string) 
+                        (filePrefix : string) 
+                        (flocAttrs : FlocAttributes) : CompilerMonad<unit> =         
+        compile {
+            let! outPath01 = genFileName directory filePrefix "01_add_classflocs"
+            do! writeNewClassFlocsFile outPath01 flocAttrs.ClassFlocs
+            let! outPath02 = genFileName directory filePrefix "02_add_valuaflocs"
+            do! writeNewValuaFlocsFile outPath02 flocAttrs.ValuaFlocs
+            return ()
+        }
+
+    // ************************************************************************
+    // New Equi Attributes (add to existing equipment)
+
+
+
+    /// Write new ClassEqui and ValuaEqui patches
+    let writeEquiAttributes (directory : string) 
+                        (filePrefix : string) 
+                        (equiAttrs : EquiAttributes) : CompilerMonad<unit> =         
+        compile {
+            let! outPath01 = genFileName directory filePrefix "01_add_classequis"
+            do! writeNewClassEquisFile outPath01 equiAttrs.ClassEquis
+            let! outPath02 = genFileName directory filePrefix "02_add_valuaequis"
+            do! writeNewValuaEquisFile outPath02 equiAttrs.ValuaEquis
+            return ()
+        }

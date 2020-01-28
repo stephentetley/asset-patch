@@ -234,9 +234,9 @@ module Template =
     type Component = Template<S4Component>
 
 
-    let _component (token : string) (description : string) (objectType : string)
+    let _component (flocToken : string) (description : string) (objectType : string)
                    (classes : Class list) (equipment : Equipment list) : Component = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
                 let! props = asksFuncLocProperties ()
@@ -254,10 +254,10 @@ module Template =
 
     type Item = Template<S4Item>
     
-    let _item (token : string) (description : string) (objectType : string)
+    let _item (flocToken : string) (description : string) (objectType : string)
                 (classes : Class list) 
                 (components : Component list) (equipment : Equipment list) : Item = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
                 let! props = asksFuncLocProperties ()
@@ -277,10 +277,10 @@ module Template =
 
     type Assembly = Template<S4Assembly>
     
-    let _assembly (token : string) (description : string) (objectType : string)
+    let _assembly (flocToken : string) (description : string) (objectType : string)
                     (classes : Class list) 
                     (items : Item list) (equipment : Equipment list) : Assembly = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
                 let! props = asksFuncLocProperties ()
@@ -300,10 +300,10 @@ module Template =
 
     type System = Template<S4System>
     
-    let _system (token : string) (description : string) (objectType : string)
+    let _system (flocToken : string) (description : string) (objectType : string)
                 (classes : Class list) 
                 (assemblies : Assembly list) (equipment : Equipment list) : System = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc =  asksFloc ()
                 let! props = asksFuncLocProperties ()
@@ -323,10 +323,10 @@ module Template =
 
     type Process = Template<S4Process>
     
-    let _process (token : string) (description : string) (objectType : string)
+    let _process (flocToken : string) (description : string) (objectType : string)
                     (classes : Class list) 
                     (systems : System list) : Process = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
                 let! props = asksFuncLocProperties ()
@@ -344,10 +344,10 @@ module Template =
 
     type ProcessGroup = Template<S4ProcessGroup>
     
-    let _processGroup (token : string) (description : string) (objectType : string)    
+    let _processGroup (flocToken : string) (description : string) (objectType : string)    
                         (classes : Class list) 
                         (processes : Process list) : ProcessGroup = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
                 let! props = asksFuncLocProperties ()               
@@ -365,10 +365,10 @@ module Template =
 
     type Function = Template<S4Function>
     
-    let _function (token : string) (description : string) (objectType : string)
+    let _function (flocToken : string) (description : string) (objectType : string)
                   (classes : Class list) 
                   (processGroups : ProcessGroup list) : Function = 
-        extendFloc token
+        extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
                 let! props = asksFuncLocProperties ()

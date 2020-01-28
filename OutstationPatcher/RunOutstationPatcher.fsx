@@ -35,6 +35,7 @@
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\PatchWriter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitPhase1.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitPhase2.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\EmitNewAttributes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\PatchCompiler.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\OSGB36.fs"

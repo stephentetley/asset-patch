@@ -45,6 +45,7 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplatePatcher\PatchWriter.fs"
 #load "..\src\AssetPatch\TemplatePatcher\EmitPhase1.fs"
 #load "..\src\AssetPatch\TemplatePatcher\EmitPhase2.fs"
+#load "..\src\AssetPatch\TemplatePatcher\EmitNewAttributes.fs"
 #load "..\src\AssetPatch\TemplatePatcher\PatchCompiler.fs"
 #load "..\src\AssetPatch\Lib\Common.fs"
 #load "..\src\AssetPatch\Lib\OSGB36.fs"
@@ -208,12 +209,4 @@ let test02 () =
                 return ()
             }
 
-
-//let test02b () = 
-//    let opts : CompilerOptions = 
-//        { UserName = "TETLEYS"
-//          UseInterimFlocIds = false
-//        }
-//    runCompiler opts
-//       <| materializeEquiClassValuaPatches (outputDirectory "caa-patches")
 
