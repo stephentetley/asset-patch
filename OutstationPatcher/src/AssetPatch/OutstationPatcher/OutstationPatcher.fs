@@ -10,9 +10,10 @@ module OutstationPatcher =
     open System.IO
 
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.TemplatePatcher.PatchTypes
     open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.EmitCommon
-    open AssetPatch.TemplatePatcher.Emitter
+    open AssetPatch.TemplatePatcher.EmitPhase1
+    open AssetPatch.TemplatePatcher.EmitPhase2
     open AssetPatch.TemplatePatcher.PatchCompiler
 
     open AssetPatch.OutstationPatcher.InputData
@@ -35,13 +36,16 @@ module OutstationPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase1Data> = 
+    let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase1FlocData * NewEqui list> = 
         match path.Level with
-        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= function1EmitPhase1
-        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroup1EmitPhase1
-        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= process1EmitPhase1
-        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= system1EmitPhase1
-        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= equipment1EmitPhase1
+        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitPhase1
+        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase1
+        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase1
+        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase1
+        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
+               equipmentEmitNewEquis eq1 >>= fun equiPatches -> 
+               mreturn (Phase1FlocData.Empty (), equiPatches)
+
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runOutstationPatcherPhase1 (opts : OsPatcherOptions) : Result<unit, string> = 
@@ -52,18 +56,18 @@ module OutstationPatcher =
                 let! worklist = 
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 
                         |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
-                let! phase1Data = mapM phase1ProcessRow worklist |>> Phase1Data.Concat
-                do! writePhase1Data opts.OutputDirectory "outstation_patch" phase1Data
+                let! (flocData, equis) = unzipMapM phase1ProcessRow worklist
+                do! writePhase1All opts.OutputDirectory "outstation_patch" (Phase1FlocData.Concat flocData) (List.concat equis)
                 return ()
             }
 
     let private phase2ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase2Data> = 
         match path.Level with
-        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= function1EmitPhase2
-        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroup1EmitPhase2
-        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= process1EmitPhase2
-        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= system1EmitPhase2
-        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= equipment1EmitPhase2
+        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitPhase2
+        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase2
+        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase2
+        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase2
+        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= equipmentEmitPhase2
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
 

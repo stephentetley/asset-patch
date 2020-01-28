@@ -10,9 +10,10 @@ module EdcPatcher =
     open System.IO
 
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.TemplatePatcher.PatchTypes
     open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.EmitCommon
-    open AssetPatch.TemplatePatcher.Emitter
+    open AssetPatch.TemplatePatcher.EmitPhase1
+    open AssetPatch.TemplatePatcher.EmitPhase2
     open AssetPatch.TemplatePatcher.PatchCompiler
 
     open AssetPatch.EdcPatcher.InputData
@@ -35,24 +36,27 @@ module EdcPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private phase1ProcessRow (row : WorkListRow) : CompilerMonad<Phase1Data> = 
+    let private phase1ProcessRow (row : WorkListRow) : CompilerMonad<Phase1FlocData * NewEqui list> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= function1EmitPhase1
-        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroup1EmitPhase1
-        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= process1EmitPhase1
-        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= system1EmitPhase1
-        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= equipment1EmitPhase1
+        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= functionEmitPhase1
+        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroupEmitPhase1
+        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= processEmitPhase1
+        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= systemEmitPhase1
+        | x when x > 4 && x < 8 -> 
+            applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= fun eq1 -> 
+            equipmentEmitNewEquis eq1 >>= fun equiPatches ->
+            mreturn (Phase1FlocData.Empty (), equiPatches)
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
     let private phase2ProcessRow (row : WorkListRow) : CompilerMonad<Phase2Data> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= function1EmitPhase2
-        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroup1EmitPhase2
-        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= process1EmitPhase2
-        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= system1EmitPhase2
-        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= equipment1EmitPhase2
+        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= functionEmitPhase2
+        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroupEmitPhase2
+        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= processEmitPhase2
+        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= systemEmitPhase2
+        | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= equipmentEmitPhase2
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
@@ -62,8 +66,8 @@ module EdcPatcher =
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
                 let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
-                let! phase1Data = mapM phase1ProcessRow worklist |>> Phase1Data.Concat
-                do! writePhase1Data opts.OutputDirectory "edc_patch" phase1Data
+                let! (flocData, equis) = unzipMapM phase1ProcessRow worklist 
+                do! writePhase1All opts.OutputDirectory "edc_patch" (Phase1FlocData.Concat flocData) (List.concat equis)
                 return ()
             }
 

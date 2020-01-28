@@ -14,7 +14,8 @@ module PatchCompiler =
     open AssetPatch.TemplatePatcher.PatchTypes
     open AssetPatch.TemplatePatcher.CompilerMonad
     open AssetPatch.TemplatePatcher.PatchWriter
-    open AssetPatch.TemplatePatcher.EmitCommon
+    open AssetPatch.TemplatePatcher.EmitPhase1
+    open AssetPatch.TemplatePatcher.EmitPhase2
 
 
     // ************************************************************************
@@ -59,15 +60,17 @@ module PatchCompiler =
     // Write an Equi patch file
     let writePhase1EquiData (directory : string) 
                         (filePrefix : string) 
-                        (equiData : Phase1EquiData) : CompilerMonad<unit> = 
-        if equiData.IsEmpty then
+                        (equiData : NewEqui list) : CompilerMonad<unit> = 
+        if List.isEmpty equiData then
             mreturn ()
         else
-            writeNewEquisFile directory filePrefix equiData.Equis
+            writeNewEquisFile directory filePrefix equiData
 
+
+    /// This just writes a List of equipment, not a patch
     let writePhase1EquipmentList (directory: string) 
                                 (filePrefix: string) 
-                                (equiData: Phase1EquiData) : CompilerMonad<Unit> =
+                                (equiData: NewEqui list) : CompilerMonad<Unit> =
         let makeRow (equi: NewEqui): string = 
             sprintf "%s\t%s" equi.Description (equi.FuncLoc.ToString())
 
@@ -76,20 +79,22 @@ module PatchCompiler =
             let path = Path.Combine(directory, name1)
             let sw = new StreamWriter(path = path)
             do sw.WriteLine "TXTMI\tTPLN_EILO"
-            do List.iter (fun (row: NewEqui) -> sw.WriteLine (makeRow row)) equiData.Equis
+            do List.iter (fun (row: NewEqui) -> sw.WriteLine (makeRow row)) equiData
             do sw.Close()
             return ()
         }
 
-    let writePhase1Data (directory : string) 
+    /// Write Phase1 Floc Data patches and NewEqui patches
+    let writePhase1All (directory : string) 
                         (filePrefix : string) 
-                        (phase1Data : Phase1Data) : CompilerMonad<unit> = 
+                        (phase1FlocData : Phase1FlocData) 
+                        (phase1Equipment: NewEqui list) : CompilerMonad<unit> = 
         
         compile {
-            let source = phase1Data.RemoveDups ()
-            do! writePhase1FlocData directory filePrefix source.FlocData
-            do! writePhase1EquiData directory filePrefix source.EquiData
-            do! writePhase1EquipmentList directory filePrefix source.EquiData
+            let source = phase1FlocData.RemoveDups ()
+            do! writePhase1FlocData directory filePrefix source
+            do! writePhase1EquiData directory filePrefix phase1Equipment
+            do! writePhase1EquipmentList directory filePrefix phase1Equipment
             return ()
         }
             
@@ -99,7 +104,7 @@ module PatchCompiler =
     // Write ClassEqui and ValuaEqui patch files
     let writePhase2EquiData (directory : string) 
                                 (filePrefix : string) 
-                                (equiData : Phase2EquiData) : CompilerMonad<unit> = 
+                                (equiData : Phase2Data) : CompilerMonad<unit> = 
         if equiData.IsEmpty then
             mreturn ()
         else

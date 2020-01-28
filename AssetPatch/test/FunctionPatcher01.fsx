@@ -43,10 +43,8 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplatePatcher\Template.fs"
 #load "..\src\AssetPatch\TemplatePatcher\CompilerMonad.fs"
 #load "..\src\AssetPatch\TemplatePatcher\PatchWriter.fs"
-#load "..\src\AssetPatch\TemplatePatcher\EmitCommon.fs"
-#load "..\src\AssetPatch\TemplatePatcher\EmitEquipment.fs"
-#load "..\src\AssetPatch\TemplatePatcher\EmitFuncLoc.fs"
-#load "..\src\AssetPatch\TemplatePatcher\Emitter.fs"
+#load "..\src\AssetPatch\TemplatePatcher\EmitPhase1.fs"
+#load "..\src\AssetPatch\TemplatePatcher\EmitPhase2.fs"
 #load "..\src\AssetPatch\TemplatePatcher\PatchCompiler.fs"
 #load "..\src\AssetPatch\Lib\Common.fs"
 #load "..\src\AssetPatch\Lib\OSGB36.fs"
@@ -56,7 +54,7 @@ open FSharp.Core
 open AssetPatch.Base.FuncLocPath
 open AssetPatch.TemplatePatcher.Template
 open AssetPatch.TemplatePatcher.CompilerMonad
-open AssetPatch.TemplatePatcher.Emitter
+open AssetPatch.TemplatePatcher.EmitPhase1
 open AssetPatch.TemplatePatcher.PatchCompiler
 open AssetPatch.TemplateCatalogue
 
@@ -132,8 +130,8 @@ let test01 () =
     runCompiler opts None
         <| compile {
                  let! worklist1 = applyFlocTemplate worklist edcTemplate
-                 let! phase1Data = functionListEmitPhase1 worklist1
-                 do! writePhase1Data (outputDirectory "discharge") "env_discharge" phase1Data
+                 let! (phase1Data, newEquis) = functionListEmitPhase1 worklist1
+                 do! writePhase1All (outputDirectory "discharge") "env_discharge" phase1Data newEquis
                  return ()
              }
 
@@ -178,8 +176,9 @@ let caaTemplate (parameters : RowParams) : Site =
                                 [ east_north_common
                                   aib_reference                             
                                     [ s4_aib_reference ()
-                                      applyOptional ai2_aib_reference parameters.EquiFlocSaiNumber
-                                      applyOptional ai2_aib_reference parameters.EquiPliNumber
+                                        // See elsewhere how to deal with optionals...
+                                      // applyOptional ai2_aib_reference parameters.EquiFlocSaiNumber
+                                      // applyOptional ai2_aib_reference parameters.EquiPliNumber
                                     ]
                                 ]
                                 _no_subordinate_equipment_
@@ -204,8 +203,8 @@ let test02 () =
     runCompiler opts None
        <| compile {
                 let! worklist1 = applyFlocTemplate worklist caaTemplate
-                let! phase1Data = siteListEmitPhase1 worklist1
-                do! writePhase1Data (outputDirectory "caa-patches") "control_automation" phase1Data
+                let! (phase1Data, newEquis) = siteListEmitPhase1 worklist1
+                do! writePhase1All (outputDirectory "caa-patches") "control_automation" phase1Data newEquis
                 return ()
             }
 

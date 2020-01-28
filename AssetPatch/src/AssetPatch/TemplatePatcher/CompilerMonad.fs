@@ -682,3 +682,10 @@ module CompilerMonad =
                         sk vs1)
             work source (fun msg -> Error msg) (fun a -> Ok a)
 
+    let unzipMapM (mf: 'a -> CompilerMonad<'b * 'c>) (source: 'a list): CompilerMonad<'b list * 'c list> = 
+        compile {
+            let! xs = mapM mf source
+            return (List.map fst xs, List.map snd xs)
+        }
+
+

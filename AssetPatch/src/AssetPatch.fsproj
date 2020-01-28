@@ -25,10 +25,8 @@
     <Compile Include="AssetPatch\TemplatePatcher\Template.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\CompilerMonad.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\PatchWriter.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\EmitCommon.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\EmitEquipment.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\EmitFuncLoc.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Emitter.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\EmitPhase1.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\EmitPhase2.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\PatchCompiler.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Datatypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\RewriteMonad.fs" />
