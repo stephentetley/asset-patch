@@ -46,3 +46,15 @@ let addNETWTL () : Class =
         uniclass_code ()
         uniclass_desc ()
     ]
+
+let demo01() = 
+    let input = [ ("FLA01-CAA-NET-TEL-SYS01", "101208938")] |> List.map (fun (x,y) -> makeEquiRow x y)
+    let opts = 
+        { UserName = "TETLEYS"
+          FilePrefix = "SAMPLE_add_netwtl_attributes"
+          OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\patch_output"
+        }
+    generateEquipmentAttibutes opts input [addNETWTL ()]
+
+
+
