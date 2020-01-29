@@ -22,8 +22,39 @@ module AddAttributesPatcher =
     let private makeCompilerOptions (opts : AddAttributesPatcherOptions) : CompilerOptions = 
         { UserName = opts.UserName }
 
+    // ************************************************************************
+    // Add Floc attributes
 
-    let private genEquipmentAttributes1 (funcLoc: FuncLocPath) (equiId: string) (classes: Class list): CompilerMonad<EquiAttributes> = 
+    let private genFuncLocAttributes1 (funcLoc: FuncLocPath) 
+                                        (classes: Class list): CompilerMonad<FlocAttributes> = 
+        compile {
+            let! s4classes = mapM (evalTemplate funcLoc) classes
+            let! attrs = generateFlocAttributes funcLoc s4classes
+            return attrs
+        }
+
+    let private genFuncLocAttributes (items: FuncLocPath list) (classes: Class list): CompilerMonad<FlocAttributes> = 
+        compile {
+            let! attrs = mapM (fun floc -> genFuncLocAttributes1 floc classes) items
+            return FlocAttributes.Concat attrs
+        }
+
+    let generateFuncLocAttibutes (opts: AddAttributesPatcherOptions) 
+                                    (inputList: FuncLocPath list)
+                                    (classTemplates: Class list) : Result<unit, string> = 
+        runCompiler (makeCompilerOptions opts) None
+            <| compile { 
+                    let! attrs = genFuncLocAttributes inputList classTemplates
+                    do! writeFlocAttributes opts.OutputDirectory opts.FilePrefix attrs
+                    return ()
+                }
+
+    // ************************************************************************
+    // Add Equipment attributes
+
+    let private genEquipmentAttributes1 (funcLoc: FuncLocPath) 
+                                        (equiId: string) 
+                                        (classes: Class list): CompilerMonad<EquiAttributes> = 
         compile {
             let! s4classes = mapM (evalTemplate funcLoc) classes
             let! attrs = generateEquiAttributes equiId s4classes

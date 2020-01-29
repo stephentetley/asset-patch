@@ -13,10 +13,14 @@
     <Compile Include="AssetPatch\Base\AbsChangeFile.fs" />
     <Compile Include="AssetPatch\Base\Parser.fs" />
     <Compile Include="AssetPatch\Base\Printer.fs" />
-    <Compile Include="AssetPatch\Base\CsvExport.fs" />
     <Compile Include="AssetPatch\Base\FuncLocPath.fs" />
+    <Compile Include="AssetPatch\Lib\Common.fs" />
+    <Compile Include="AssetPatch\Lib\WriteCsv.fs" />
+    <Compile Include="AssetPatch\Lib\OSGB36.fs" />
     <Compile Include="AssetPatch\Analysis\Utilities\ChangeFileReport.fs" />
     <Compile Include="AssetPatch\Analysis\Utilities\TidyChangeFile.fs" />
+    <Compile Include="AssetPatch\Analysis\Utilities\CsvExport.fs" />
+    <Compile Include="AssetPatch\Analysis\Utilities\ReadErrorLog.fs" />
     <Compile Include="AssetPatch\Analysis\PatchDiff.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\CommonTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\PatchTypes.fs" />
@@ -31,8 +35,6 @@
     <Compile Include="AssetPatch\TemplatePatcher\PatchCompiler.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Datatypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\RewriteMonad.fs" />
-    <Compile Include="AssetPatch\Lib\Common.fs" />
-    <Compile Include="AssetPatch\Lib\OSGB36.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Base.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\AssetCondition.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Smon.fs" />
