@@ -64,9 +64,7 @@ module PatchTypes =
       }
         member x.Level with get () : int = x.FunctionLocation.Level
 
-        member x.ToAssocs() : AssocList<string, string> =  
-            let installationAllowed = 
-                if x.FunctionLocation.Level >= 5 then "X" else ""
+        member x.ToAssocs() : AssocList<string, string> =              
             makeAssocs
                 [ ("ABCKZFLOC",     "ABC Indicator",                    "")
                 ; ("GSBE_FLOC",     "Business Area",                    "")
@@ -77,7 +75,7 @@ module PatchTypes =
                 ; ("USTA_FLOC",     "Display lines for user status",    x.CommonProps.UserStatus)
                 ; ("FLTYP",         "FuncLocCategory",                  x.Category.ToString())
                 ; ("FUNCLOC",       "Function Location",                "")     // Must be blank
-                ; ("IEQUI",         "Installation allowed",             installationAllowed)
+                ; ("IEQUI",         "Installation allowed",             "")
                 ; ("STOR_FLOC",     "Location",                         "")
                 ; ("GEWRKFLOC",     "Main work center",                 "DEFAULT")
                 ; ("INGR_FLOC",     "Maint Planner Group",              "")
@@ -112,9 +110,11 @@ module PatchTypes =
           ObjectStatus : string
           StartupDate : DateTime
           StructureIndicator : string
+          InstallationAllowed : bool
         }
 
         member x.ToAssocs() : AssocList<string, string> = 
+            let boolValue bool = if bool then "X" else ""
             let parent1 = 
                 match x.FunctionLocation |> parent with
                 | None -> ""
@@ -123,6 +123,7 @@ module PatchTypes =
                 [ ("FUNCLOC",       "Function Location",                x.FunctionLocation.ToString())
                 ; ("TXTMI",         "Description (medium text)",        x.Description)
                 ; ("FLTYP",         "FuncLocCategory",                  x.Category.ToString())
+                ; ("IEQUI",         "Installation allowed",             boolValue x.InstallationAllowed)
                 ; ("OBJTYFLOC",     "Object Type",                      "")
                 ; ("EQART",         "Object Type",                      x.ObjectType)
                 ; ("INBDT",         "Start-up date",                    x.StartupDate |> showS4Date)

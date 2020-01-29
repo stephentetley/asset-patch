@@ -161,6 +161,7 @@ module EmitPhase1 =
               ObjectStatus = props.ObjectStatus
               StartupDate = props.StartupDate
               StructureIndicator = props.StructureIndicator
+              InstallationAllowed = if path.Level >= 5 then true else false
             } |> Some
         else  None
 
