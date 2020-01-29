@@ -42,7 +42,7 @@ module Template =
     // FuncLocPath should not be directly visible to client code
 
     type TemplateEnv = 
-        { CurrentFloc : FuncLocPath
+        { CurrentFloc : FuncLocPath option
           Properties : EnvProperties
         }
 
@@ -106,13 +106,16 @@ module Template =
 
     let rootFloc (floc : FuncLocPath) (ma : Template<'a>) : Template<'a> = 
         Template <| fun env -> 
-            apply1 ma { env with CurrentFloc = floc } 
+            apply1 ma { env with CurrentFloc = Some floc } 
 
     let private asks () : Template<TemplateEnv> = 
         Template <| fun env -> Ok env
         
     let asksFloc () : Template<FuncLocPath> = 
-        Template <| fun env -> Ok (env.CurrentFloc)
+        Template <| fun env -> 
+            match env.CurrentFloc with
+            | None -> Error "askFloc - no CurrentFloc "
+            | Some a -> Ok a
 
     let asksFuncLocProperties () : Template<FuncLocProperties> = 
         Template <| fun env -> 
@@ -146,9 +149,10 @@ module Template =
 
 
     let internal extendFloc (levelCode  : string) (ma : Template<'a>) : Template<'a> = 
+        let optExtend optFloc = Option.map (extend levelCode) optFloc        
         Template <| fun env -> 
             let floc = env.CurrentFloc
-            apply1 ma { env with CurrentFloc = extend levelCode floc } 
+            apply1 ma { env with CurrentFloc = optExtend floc } 
     
 
     type Characteristic = Template<S4Characteristic>

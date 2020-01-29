@@ -51,8 +51,8 @@ open AssetPatch.OutstationPatcher
 
 let options : OsPatcherOptions = 
     {   UserName = "TETLEYS"
-        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\patch_output"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MMIM_upgrade_2019_worklist1.xlsx" 
+        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_upgrade_2019_worklist1.xlsx" 
+        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output"        
     }
 
 let main01 () = 

@@ -29,8 +29,8 @@ open AssetPatch.Analysis.PatchDiff
 
 
 let reportDiffs01 () = 
-    let src1=  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\preprod+outstation_retire+before_download+attempt03.txt"
-    let src2 = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\preprod+outstation_retire+after_download+attempt03.txt"
-    let dest = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\html\preprod+outstation-retire-changes+attempt03.html"
+    let src1=  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\preprod+outstation_retire+01_before_download+attempt05.txt"
+    let src2 = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\preprod+outstation_retire+02_after_download+attempt05.txt"
+    let dest = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\html\preprod+outstation-retire-changes+attempt05.html"
     reportRowDiffs "EQUI" src1 src2 dest
          

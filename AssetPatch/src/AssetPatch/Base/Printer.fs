@@ -112,8 +112,7 @@ module Printer =
                 |> vcat 
         render d1
 
-    let writeChangeFile (outpath : string) 
-                        (changeFile : ChangeFile) : unit = 
+    let writeChangeFile (changeFile : ChangeFile) (outpath : string)  : unit = 
         let text = changeFileToString changeFile
         IO.File.WriteAllText(path=outpath, contents=text)
 
@@ -135,9 +134,8 @@ module Printer =
 
 
 
-    let writePatchAndVariantHeaders (outpath : string) 
-                                    (changeFile : ChangeFile) : unit = 
+    let writePatchAndVariantHeaders (changeFile : ChangeFile) (outpath : string)  : unit = 
         let name1 = IO.Path.GetFileNameWithoutExtension(outpath) + ".variant.txt"
         let variantPath = IO.Path.Combine(IO.Path.GetDirectoryName(outpath), name1)        
         writeVariantHeaders variantPath changeFile
-        writeChangeFile outpath changeFile
+        writeChangeFile changeFile outpath 

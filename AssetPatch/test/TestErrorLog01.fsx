@@ -20,11 +20,13 @@ open System.Text.RegularExpressions
 
 open FSharp.Core
 
-
+#load "..\..\AssetPatch\src\AssetPatch\Lib\WriteCsv.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\ReadErrorLog.fs"
+open AssetPatch.Lib.WriteCsv
 open AssetPatch.Anaylsis.Utilities.ReadErrorLog
 
 let sampleLog = @"G:\work\Projects\assets\asset_patch\error_logs\preprod-errors-stopping-retire.txt"
+let sampleOut = @"G:\work\Projects\assets\asset_patch\error_logs\COLLECT_preprod-errors-stopping-retire.csv"
 
 let sampleLine = "Equipment 000000000101016676:Assignment of Obj. Type NETW specific Classification is mandatory for 000000000101016676"
 
@@ -45,4 +47,9 @@ let demo02() =
     else
         Error("no match")
 
-
+let demo03() = 
+    let makeRow (i: int64, s: string) = [| i.ToString(); s|]
+    match File.ReadAllLines(sampleLog) |> choose getEquiIdAndType with
+    | Error msg -> printfn "FATAL:\n%s" msg
+    | Ok vals -> 
+        writeCsv [| "EquiId"; "ClassType"|] csvDefaults (List.map makeRow vals) sampleOut

@@ -63,13 +63,13 @@ module PatchCompiler =
         else            
             compile {
                 let! outPath01 = genFileName directory filePrefix "01_create_flocs"
-                do! writeNewFuncLocsFile outPath01 funcLocResults.FuncLocs
+                do! writeNewFuncLocsFile funcLocResults.FuncLocs outPath01
                 let! outPath02 = genFileName directory filePrefix "02_link_flocs"
-                do! writeLinkFuncLocsFile outPath02 funcLocResults.FuncLocLinks
+                do! writeLinkFuncLocsFile funcLocResults.FuncLocLinks outPath02
                 let! outPath03 = genFileName directory filePrefix "03_create_classflocs"
-                do! writeNewClassFlocsFile outPath03 funcLocResults.ClassFlocs
+                do! writeNewClassFlocsFile funcLocResults.ClassFlocs outPath03
                 let! outPath04 = genFileName directory filePrefix "04_create_valuaflocs"
-                do! writeNewValuaFlocsFile outPath04 funcLocResults.ValuaFlocs
+                do! writeNewValuaFlocsFile funcLocResults.ValuaFlocs outPath04
                 return ()
             }
 
@@ -85,7 +85,7 @@ module PatchCompiler =
         else
             compile { 
                 let! fileName = genFileName directory filePrefix "05_create_equipment"
-                do! writeNewEquisFile fileName equiData
+                do! writeNewEquisFile equiData fileName
                 return()
             }
 
@@ -133,11 +133,11 @@ module PatchCompiler =
         else
             compile {
                 let! outPath06 = genFileName directory filePrefix "06_create_classequis"
-                do! writeNewClassEquisFile outPath06 equiData.ClassEquis
+                do! writeNewClassEquisFile equiData.ClassEquis outPath06
                 let! outPath07 = genFileName directory filePrefix "07_create_valuaequis"
-                do! writeNewValuaEquisFile outPath07 equiData.ValuaEquis
+                do! writeNewValuaEquisFile equiData.ValuaEquis outPath07
                 let! outPath08 = genFileName directory filePrefix "08_create_eqmltxts"
-                do! writeNewEqmltxtsFile outPath08 equiData.Eqmltxts
+                do! writeNewEqmltxtsFile equiData.Eqmltxts outPath08
                 return ()
             }
 
@@ -152,9 +152,9 @@ module PatchCompiler =
                         (flocAttrs : FlocAttributes) : CompilerMonad<unit> =         
         compile {
             let! outPath01 = genFileName directory filePrefix "01_add_classflocs"
-            do! writeNewClassFlocsFile outPath01 flocAttrs.ClassFlocs
+            do! writeNewClassFlocsFile flocAttrs.ClassFlocs outPath01
             let! outPath02 = genFileName directory filePrefix "02_add_valuaflocs"
-            do! writeNewValuaFlocsFile outPath02 flocAttrs.ValuaFlocs
+            do! writeNewValuaFlocsFile flocAttrs.ValuaFlocs outPath02
             return ()
         }
 
@@ -169,8 +169,8 @@ module PatchCompiler =
                         (equiAttrs : EquiAttributes) : CompilerMonad<unit> =         
         compile {
             let! outPath01 = genFileName directory filePrefix "01_add_classequis"
-            do! writeNewClassEquisFile outPath01 equiAttrs.ClassEquis
+            do! writeNewClassEquisFile equiAttrs.ClassEquis outPath01
             let! outPath02 = genFileName directory filePrefix "02_add_valuaequis"
-            do! writeNewValuaEquisFile outPath02 equiAttrs.ValuaEquis
+            do! writeNewValuaEquisFile equiAttrs.ValuaEquis outPath02
             return ()
         }

@@ -41,6 +41,7 @@
     <Compile Include="AssetPatch\TemplateCatalogue\Lstn.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Ctos.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Netw.fs" />
+    <Compile Include="AssetPatch\TemplateCatalogue\Pode.fs" />
   </ItemGroup>
 
   <ItemGroup>

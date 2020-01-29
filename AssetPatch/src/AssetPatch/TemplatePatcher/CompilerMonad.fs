@@ -88,7 +88,7 @@ module CompilerMonad =
             match equiIndexFile with 
             | None -> Ok emptyEquiMap
             | Some path -> readEquiDownload path
-        let env1  = { CurrentFloc = FuncLocPath.Create("*****")
+        let env1  = { CurrentFloc = None
                       Properties = defaultEnvProperties () }
         
         match indices with
@@ -487,7 +487,14 @@ module CompilerMonad =
 
     let evalTemplate (rootFloc : FuncLocPath) (code : Template<'a>) : CompilerMonad<'a> = 
         CompilerMonad <| fun env ->
-            let env1 = { env.TemplateEnv with CurrentFloc = rootFloc }
+            let env1 = { env.TemplateEnv with CurrentFloc = Some rootFloc }
+            match runTemplate env1 code with
+            | Ok a -> Ok a
+            | Error msg -> Error msg
+
+    let evalTemplateNoFloc (code : Template<'a>) : CompilerMonad<'a> = 
+        CompilerMonad <| fun env ->
+            let env1 = { env.TemplateEnv with CurrentFloc = None }
             match runTemplate env1 code with
             | Ok a -> Ok a
             | Error msg -> Error msg

@@ -52,34 +52,26 @@ module AddAttributesPatcher =
     // ************************************************************************
     // Add Equipment attributes
 
-    let private genEquipmentAttributes1 (funcLoc: FuncLocPath) 
-                                        (equiId: string) 
+    let private genEquipmentAttributes1 (equiId: string) 
                                         (classes: Class list): CompilerMonad<EquiAttributes> = 
         compile {
-            let! s4classes = mapM (evalTemplate funcLoc) classes
+            let! s4classes = mapM evalTemplateNoFloc classes
             let! attrs = generateEquiAttributes equiId s4classes
             return attrs
         }
 
 
-    type EquiRow = 
-      { FunctionalLocation: FuncLocPath
-        EquipmentId: string
-      }
-
-    let makeEquiRow (funcloc: string) (equiId: string): EquiRow = 
-        { FunctionalLocation = FuncLocPath.Create funcloc
-          EquipmentId = equiId
-        }
+    type EquipmentId = string
+      
     
-    let private genEquipmentAttributes (items: EquiRow list) (classes: Class list): CompilerMonad<EquiAttributes> = 
+    let private genEquipmentAttributes (items: EquipmentId list) (classes: Class list): CompilerMonad<EquiAttributes> = 
         compile {
-            let! attrs = mapM (fun item -> genEquipmentAttributes1 item.FunctionalLocation item.EquipmentId classes) items
+            let! attrs = mapM (fun item -> genEquipmentAttributes1 item classes) items
             return EquiAttributes.Concat attrs
         }
 
     let generateEquipmentAttibutes (opts: AddAttributesPatcherOptions) 
-                                    (inputList: EquiRow list)
+                                    (inputList: EquipmentId list)
                                     (classTemplates: Class list) : Result<unit, string> = 
         runCompiler (makeCompilerOptions opts) None
             <| compile { 

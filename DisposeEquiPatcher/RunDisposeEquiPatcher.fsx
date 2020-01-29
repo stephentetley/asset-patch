@@ -33,12 +33,12 @@
 open AssetPatch.DisposeEquiPatcher
 
 
-
+// TODO - derive filename from input file?
 let retireMm3x01 () = 
     let opts = 
-        { UserName = "TETLEYS"
-          WorkListPath = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\MM3X_preprod_2019_worklist1.xlsx"
-          OutputFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\patch_output\MM3X_preprod_retire_2019_file_upload.txt"
+        { UserName          = "TETLEYS"
+          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MM3X_preprod_2019_retire_worklist1.xlsx"
+          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\"
           }
     runDisposeEquiPatcher opts
 

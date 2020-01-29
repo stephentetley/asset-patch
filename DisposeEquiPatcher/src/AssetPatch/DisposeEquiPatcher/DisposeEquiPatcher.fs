@@ -7,6 +7,7 @@ namespace AssetPatch.DisposeEquiPatcher
 module DisposeEquiPatcher =
 
     open System
+    open System.IO
 
     open AssetPatch.Base
     open AssetPatch.Base.ChangeFile
@@ -84,10 +85,12 @@ module DisposeEquiPatcher =
     type DisposeEquiPatcherOptions = 
         { UserName : string 
           WorkListPath : string
-          OutputFile : string
+          OutputDirectory : string
           }
 
     let runDisposeEquiPatcher (opts : DisposeEquiPatcherOptions) : Result<unit, string> = 
         let worklist = readWorkList opts.WorkListPath |> List.map inputRowToDisposeEqui
+        let name1 = Path.GetFileNameWithoutExtension(opts.WorkListPath) + "_retire_upload.txt"
+        let outputPath = Path.Combine(opts.OutputDirectory, name1)
         let changeFile = makeChangeFile opts.UserName worklist
-        writeChangeFile opts.OutputFile changeFile |> Ok
+        writeChangeFile changeFile outputPath |> Ok

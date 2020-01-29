@@ -42,6 +42,15 @@ let outputCsv1 (destDir: string) (sourcePath: string) : Result<Unit, string> =
         exportCsv ans outfile |> Ok
 
 
+let outputAsCsv (sourcePath: string) : Result<Unit, string> = 
+    match readChangeFile sourcePath with
+    | Error msg -> Error msg
+    | Ok ans -> 
+        let filename = Path.GetFileName sourcePath
+        let outfile = Path.ChangeExtension(path = sourcePath, extension = "csv")
+        exportCsv ans outfile |> Ok
+
+
 let exportCsvFiles (srcDir: string) (destDir: string): Unit = 
     let sources = 
         System.IO.Directory.GetFiles( path = srcDir, searchPattern = "*.txt")
@@ -51,4 +60,10 @@ let exportCsv01 () =
     let src =  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\"
     let dest = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\workings\csv"
     exportCsvFiles src dest
+
+
+
+let exportCsv02 () = 
+    let src =  @"G:\work\Projects\assets\asset_patch\error_logs\preprod_equipment_file_download_for_funclocs_lookup.txt"
+    outputAsCsv src
 

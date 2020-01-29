@@ -29,14 +29,24 @@ module WriteCsv =
         let body = fromLines [ headings; dummy ]
         CsvFile.Parse(text = body, hasHeaders = true, quote = quote, separators = separators)
     
+
+    type CsvOptions = 
+        { Separator: char
+          Quote: char
+        }
     
-    let writeCsv (headers : string []) (sep: char) (quote: char) (rows: seq<string []>) (outputPath: string) : unit = 
+    let csvDefaults : CsvOptions = 
+        { Separator = ','
+          Quote = '"'
+        }
+
+    let writeCsv (headers : string []) (csvOptions: CsvOptions) (rows: seq<string []>) (outputPath: string) : unit = 
         let makeCsvRow (parent:CsvFile) (row:string []) : CsvRow = new CsvRow(parent=parent, columns = row)
-        let parent:CsvFile = makeDummyHeaders headers sep quote
+        let parent:CsvFile = makeDummyHeaders headers csvOptions.Separator csvOptions.Quote
         let rows:seq<CsvRow> = rows |> Seq.map (makeCsvRow parent)
         let csv1 = parent.Skip 1
         let csv2 = csv1.Append rows
-        csv2.Save(path = outputPath, separator = sep, quote = quote)
+        csv2.Save(path = outputPath, separator = csvOptions.Separator, quote = csvOptions.Quote)
 
 
     
