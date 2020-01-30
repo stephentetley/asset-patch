@@ -164,20 +164,24 @@ module PatchTypes =
           Value : ValuaValue
         }
 
-
         /// Note - Numeric values print TEXTBEZ and ATFLV
         /// textual values print ATWRT and TEXTBEZ
+        /// ... This may not be wise - TEXTBEZ seems inconsistent
+        /// in the target system.
         member x.ToAssocs() : AssocList<string, string> =   
+            let atwrt = x.Value.CharacteristicValue |> Option.defaultValue ""         
+            let atflv = x.Value.NumericValueFrom |> Option.defaultValue ""
+            let atflb = x.Value.NumericValueTo |> Option.defaultValue ""
             makeAssocs
                 [ ("FUNCLOC",       "Function Location",                x.FuncLoc.ToString())
                 ; ("CLASSTYPE",     "Class Type",                       x.ClassType.Number)
                 ; ("CHARID",        "Characteristic ID",                x.CharacteristicID)
-                ; ("ATWRT",         "Characteristic Value",             characteristicValueOutput x.Value)
+                ; ("ATWRT",         "Characteristic Value",             atwrt)
                 ; ("ATCOD",         "Code",                             "1")        // Always 1 "EQ"
-                ; ("TEXTBEZ",       "Description",                      x.Value.ToString())
+                ; ("TEXTBEZ",       "Description",                      x.Value.DescriptionValue)
                 ; ("VALCNT",        "Int count values",                 sprintf "%04i" x.ValueCount)
-                ; ("ATFLV",         "Value from",                       valueFromOutput x.Value)
-                ; ("ATFLB",         "Value to",                         valueToOutput x.Value)
+                ; ("ATFLV",         "Value from",                       atflv)
+                ; ("ATFLB",         "Value to",                         atflb)
                 ]
 
 
@@ -258,17 +262,22 @@ module PatchTypes =
     
 
         /// Note - CharacteristicValue is used twice.
+        /// Be careful about TEXTBEZ - it is inconsistent in the 
+        /// target system
         member x.ToAssocs() : AssocList<string, string> = 
+            let atwrt = x.Value.CharacteristicValue |> Option.defaultValue ""         
+            let atflv = x.Value.NumericValueFrom |> Option.defaultValue ""
+            let atflb = x.Value.NumericValueTo |> Option.defaultValue ""
             makeAssocs
                 [ ("EQUI",          "Equipment",                x.EquipmentId.ToString())
                 ; ("CLASSTYPE",     "Class Type",               x.ClassType.Number)
                 ; ("CHARID",        "Characteristic ID",        x.CharacteristicID)
-                ; ("ATWRT",         "Characteristic Value",     characteristicValueOutput x.Value)
+                ; ("ATWRT",         "Characteristic Value",     atwrt)
                 ; ("ATCOD",         "Code",                     "1")        // Always 1 "EQ"
-                ; ("TEXTBEZ",       "Description",              x.Value.ToString())
+                ; ("TEXTBEZ",       "Description",              x.Value.DescriptionValue)
                 ; ("VALCNT",        "Int counter values",       sprintf "%04i" x.ValueCount)
-                ; ("ATFLV",         "Value from",               valueFromOutput x.Value)
-                ; ("ATFLB",         "Value to",                 valueToOutput x.Value)
+                ; ("ATFLV",         "Value from",               atflv)
+                ; ("ATFLB",         "Value to",                 atflb)
                 ]
             
 

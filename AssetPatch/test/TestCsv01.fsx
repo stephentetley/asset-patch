@@ -64,6 +64,6 @@ let exportCsv01 () =
 
 
 let exportCsv02 () = 
-    let src =  @"G:\work\Projects\assets\asset_patch\error_logs\preprod_equipment_file_download_for_funclocs_lookup.txt"
+    let src =  @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\sample_SURVEY_DATE_on_NETW_file_download.txt"
     outputAsCsv src
 

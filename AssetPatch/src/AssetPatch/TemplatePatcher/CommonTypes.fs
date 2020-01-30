@@ -14,12 +14,47 @@ module CommonTypes =
         | IntValue of bigint
         | DecimalValue of decimal
         | TextValue of string
-        override x.ToString() : string = 
-            match x with
-            | NullValue -> ""
-            | IntValue i -> i.ToString()
-            | DecimalValue d -> d.ToString()
-            | TextValue s -> s
+        | DateValue of DateTime
+        
+
+        member x.DescriptionValue 
+            with get(): string = 
+                match x with
+                | NullValue -> ""
+                | IntValue i -> i.ToString()
+                | DecimalValue d -> d.ToString()
+                | TextValue s -> s
+                | DateValue dt -> dt.ToString(format="dd.MM.yyyy")
+
+
+        member x.CharacteristicValue 
+            with get(): string option = 
+                match x with
+                | NullValue -> None
+                | IntValue _ -> None
+                | DecimalValue _ -> None
+                | TextValue s -> Some s
+                | DateValue _ -> None
+
+
+        member x.NumericValueFrom
+            with get(): string option = 
+                match x with
+                | NullValue -> None
+                | IntValue i -> i.ToString() |> Some
+                | DecimalValue d -> d.ToString() |> Some
+                | TextValue _ -> None
+                | DateValue dt -> dt.ToString(format = "yyyyMMdd") |> Some
+
+        member x.NumericValueTo
+            with get(): string option = 
+                match x with
+                | NullValue -> None
+                | IntValue _ -> Some "0"
+                | DecimalValue _ -> Some "0"
+                | TextValue _ -> None
+                | DateValue _ -> Some "0"
+
 
     let intValue (i : int) : ValuaValue = 
         IntValue (bigint i)
@@ -33,27 +68,7 @@ module CommonTypes =
     let textUpperCase (s : string) : ValuaValue = 
         TextValue <| s.ToUpper().Trim()
 
-    let valueFromOutput (v : ValuaValue) : string = 
-        match v with
-        | NullValue -> ""
-        | IntValue i -> i.ToString()
-        | DecimalValue d -> d.ToString()
-        | TextValue s -> ""
-
-    let valueToOutput (v : ValuaValue) : string = 
-        match v with
-        | NullValue -> ""
-        | IntValue i -> "0"
-        | DecimalValue d -> "0"
-        | TextValue s -> ""
     
-    let characteristicValueOutput (v : ValuaValue) : string = 
-        match v with
-        | NullValue -> ""
-        | IntValue i -> ""
-        | DecimalValue d -> ""
-        | TextValue s -> s
-
 
     // ************************************************************************
     // Other helpers

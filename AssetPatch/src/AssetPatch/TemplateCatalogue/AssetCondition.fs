@@ -131,8 +131,10 @@ module AssetCondition =
 
 
     /// ASSET_CONDITION:SURVEY_DATE
-    let survey_date (year : int) : Characteristic = 
-        _characteristic "SURVEY_DATE" (intValue <| year)
+    let survey_date (year : int) : Characteristic =
+        printfn "Warning: survey_date temporarily is a date (dd.MM.yyyy) not a year"
+        let dt = new System.DateTime(year = year, month= 1, day = 1)
+        _characteristic "SURVEY_DATE" (DateValue <| dt)
 
     /// Emit ASSET_CONDITION with defaults for new
     let asset_condition_common (year : int) : Class = 

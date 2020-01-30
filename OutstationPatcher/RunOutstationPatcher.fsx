@@ -15,8 +15,6 @@
 #r "FParsecCS"
 
 
-
-
 #load "..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
@@ -51,7 +49,7 @@ open AssetPatch.OutstationPatcher
 
 let options : OsPatcherOptions = 
     {   UserName = "TETLEYS"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist1.xlsx" 
+        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist_part2.xlsx" 
         OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output"        
     }
 
@@ -63,7 +61,7 @@ let main01 () =
 // once it has been activated and downloaded...
 // Note - parsing the equi file is currently far from robust.
 let main02 () = 
-    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING.txt"
+    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_initial02.txt"
     runOutstationPatcherPhase2 options equiFile  
 
 
