@@ -43,8 +43,10 @@ module OutstationPatcher =
         | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase1
         | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase1
         | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
-               equipmentEmitNewEquis eq1 >>= fun equiPatches -> 
-               mreturn (Phase1FlocData.Empty (), equiPatches)
+               applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
+               equipmentEmitNewEquis eq1 >>= fun equiPatches1 -> 
+               equipmentEmitNewEquis eq2 >>= fun equiPatches2 -> 
+               mreturn (Phase1FlocData.Empty (), equiPatches1 @ equiPatches2)
 
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
@@ -67,7 +69,13 @@ module OutstationPatcher =
         | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase2
         | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase2
         | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase2
-        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= equipmentEmitPhase2
+        | 5 -> 
+            applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
+            applyFlocTemplate1 (path, row) makeModem >>= fun eq2 ->     
+            equipmentEmitPhase2 eq1 >>= fun d1 -> 
+            equipmentEmitPhase2 eq2 >>= fun d2 -> 
+            mreturn (Phase2Data.Concat [d1; d2])
+
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
 
