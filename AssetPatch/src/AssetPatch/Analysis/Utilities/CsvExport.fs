@@ -8,9 +8,9 @@ module CsvExport =
 
     open AssetPatch.Base
     open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.CsvFile
     open AssetPatch.Base.Acronyms
-    open AssetPatch.Lib.WriteCsv
-
+    
 
   
     let private translateHeaders (entityType: EntityType) (codes: string []): string [] = 

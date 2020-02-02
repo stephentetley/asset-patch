@@ -13,7 +13,6 @@ module PatchWriter =
     open FSharp.Core
 
     open AssetPatch.Base
-    open AssetPatch.Base.Common
     open AssetPatch.Base.ChangeFile
     open AssetPatch.Base.Acronyms
     open AssetPatch.Base.Printer

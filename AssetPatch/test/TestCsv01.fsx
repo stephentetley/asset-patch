@@ -23,10 +23,9 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\CsvFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Lib\WriteCsv.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\CsvExport.fs"
 open AssetPatch.Base.Parser
 open AssetPatch.Analysis.Utilities.CsvExport

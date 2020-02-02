@@ -6,10 +6,10 @@ namespace AssetPatch.Anaylsis.Utilities
 
 module TidyChangeFile = 
     
-    open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.Parser
     open AssetPatch.Base.Printer
+    open AssetPatch.Analysis
 
     let tidyChangeFile (priorities : string list) 
                         (removes : string list)

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
-namespace AssetPatch.Lib
+namespace AssetPatch.Base
 
-module WriteCsv = 
+module CsvFile = 
 
     open FSharp.Data
 
