@@ -3,7 +3,7 @@
 
 namespace AssetPatch.TemplatePatcher.Aiw
 
-// This module is a workaround because we don't know Equipment number (EQUI)
+// EquiIndex is a workaround because we don't know Equipment number (EQUI)
 // until we have activated the Equi patch and downloaded the generated EQUI numbers.
 
 module Base =

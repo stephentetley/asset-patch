@@ -33,6 +33,8 @@
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchTypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Datatypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\RewriteMonad.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Root.fs" />
