@@ -8,7 +8,10 @@ module PatchTypes =
     
     open System
 
+    open AssetPatch.Base
     open AssetPatch.Base.FuncLocPath
+
+
 
     type MmopChangeRequest = 
         { Description: string
@@ -18,11 +21,18 @@ module PatchTypes =
           ProcessRequestor: string
         }
 
-    type MmopNewFloc = 
+    type MmopNewFuncLoc = 
         { FunctionalLocation: FuncLocPath
           Description: string 
           FunLocCategory: int
         }
+        member x.ToAssocs() = 
+            [ ("Functional Location",           x.FunctionalLocation.ToString())
+            ; ("Masked Func Loc",               x.FunctionalLocation.ToString())
+            ; ("Active Inactive Stat",          "")
+            ; ("Description (medium)",          x.Description)    
+            ] |> AssocList.ofList
+
 
     type MmopNewFlocMultilingualText = 
         { FunctionalLocation: FuncLocPath

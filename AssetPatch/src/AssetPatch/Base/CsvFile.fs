@@ -7,6 +7,11 @@ module CsvFile =
 
     open FSharp.Data
 
+    /// FSharp.Data has already claimed `CsvFile`.
+    type CsvFileWithHeaders = 
+        { Headers: string []
+          Rows: seq<string []>
+        }
     
     /// Joins with Environment.NewLine
     let private fromLines (source:string list) : string = 
@@ -40,10 +45,10 @@ module CsvFile =
           Quote = '"'
         }
 
-    let writeCsv (headers : string []) (csvOptions: CsvOptions) (rows: seq<string []>) (outputPath: string) : unit = 
+    let writeCsvFile (csvOptions: CsvOptions) (csvChanges: CsvFileWithHeaders) (outputPath: string) : unit = 
         let makeCsvRow (parent:CsvFile) (row:string []) : CsvRow = new CsvRow(parent=parent, columns = row)
-        let parent:CsvFile = makeDummyHeaders headers csvOptions.Separator csvOptions.Quote
-        let rows:seq<CsvRow> = rows |> Seq.map (makeCsvRow parent)
+        let parent:CsvFile = makeDummyHeaders csvChanges.Headers csvOptions.Separator csvOptions.Quote
+        let rows:seq<CsvRow> = csvChanges.Rows |> Seq.map (makeCsvRow parent)
         let csv1 = parent.Skip 1
         let csv2 = csv1.Append rows
         csv2.Save(path = outputPath, separator = csvOptions.Separator, quote = csvOptions.Quote)

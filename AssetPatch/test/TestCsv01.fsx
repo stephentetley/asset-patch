@@ -5,7 +5,7 @@
 #r "System.Text.Encoding.dll"
 open System.IO
 
-// Use FSharp.Data for CSV reading
+// Use FSharp.Data for CSV reading and writing
 #I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.3.3\lib\netstandard2.0"
 #r @"FSharp.Data.dll"
 

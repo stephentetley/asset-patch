@@ -27,4 +27,4 @@ module CsvExport =
         | Some a ->             
             let headers = AssocList.keys a |> translateHeaders changeFile.Header.EntityType
             let rows = List.map AssocList.values assocs
-            writeCsv headers csvDefaults rows outputPath
+            writeCsvFile csvDefaults { Headers = headers; Rows = rows } outputPath

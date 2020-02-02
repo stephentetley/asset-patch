@@ -1,5 +1,11 @@
 ﻿#r "netstandard"
+#r "System.Xml.Linq.dll"
 #r "System.Text.Encoding.dll"
+
+// Use FSharp.Data for CSV reading and writing
+#I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.3.3\lib\netstandard2.0"
+#r @"FSharp.Data.dll"
+
 
 #I @"C:\Users\stephen\.nuget\packages\ExcelProvider\1.0.1\lib\netstandard2.0"
 #r "ExcelProvider.Runtime.dll"
@@ -19,8 +25,8 @@
 #load "..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\AssetPatch\src\AssetPatch\Base\CsvFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\FuncLocPath.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Printer.fs"
@@ -35,6 +41,11 @@
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchTypes.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchWriter.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\OSGB36.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Root.fs"
@@ -43,18 +54,18 @@
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Netw.fs"
 #load "src\AssetPatch\OutstationPatcher\InputData.fs"
 #load "src\AssetPatch\OutstationPatcher\OutstationTemplate.fs"
-#load "src\AssetPatch\OutstationPatcher\OutstationPatcher.fs"
-open AssetPatch.OutstationPatcher
+#load "src\AssetPatch\OutstationPatcher\AiwPatcher.fs"
+open AssetPatch.OutstationPatcher.AiwPatcher
 
 
-let options : OsPatcherOptions = 
+let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
         WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist_part3.xlsx" 
         OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output"        
     }
 
 let main01 () = 
-    runOutstationPatcherPhase1 options 
+    runAiwOutstationPatcherPhase1 aiwOptions 
 
 
 // Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
@@ -62,7 +73,7 @@ let main01 () =
 // Note - parsing the equi file is currently far from robust.
 let main02 () = 
     let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
-    runOutstationPatcherPhase2 options equiFile  
+    runAiwOutstationPatcherPhase2 aiwOptions equiFile  
 
 
 

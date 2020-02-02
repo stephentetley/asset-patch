@@ -4,8 +4,8 @@
 
 namespace AssetPatch.OutstationPatcher
 
-[<AutoOpen>]
-module OutstationPatcher =
+
+module AiwPatcher =
     
     open System.IO
 
@@ -21,13 +21,13 @@ module OutstationPatcher =
     open AssetPatch.OutstationPatcher.OutstationTemplate
 
 
-    type OsPatcherOptions = 
+    type AiwOptions = 
         { UserName : string 
           OutputDirectory : string
           WorkListPath : string
         }
 
-    let private makeCompilerOptions (opts : OsPatcherOptions) : CompilerOptions = 
+    let private makeCompilerOptions (opts : AiwOptions) : CompilerOptions = 
         { UserName = opts.UserName }
 
     let internal makeOutputDirectory (dirName : string) : unit = 
@@ -51,7 +51,7 @@ module OutstationPatcher =
 
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
-    let runOutstationPatcherPhase1 (opts : OsPatcherOptions) : Result<unit, string> = 
+    let runAiwOutstationPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
         let compilerOpts : CompilerOptions = makeCompilerOptions opts           
         runCompiler compilerOpts None
             <| compile { 
@@ -82,8 +82,8 @@ module OutstationPatcher =
 
     /// Phase 2 materializes ClassEqui and ValuaEqui patches
     /// Equipment download must have *EQUI, TXTMI & TPLN_EILO
-    let runOutstationPatcherPhase2 (opts : OsPatcherOptions) 
-                            (equipmentDownloadPath : string)  : Result<unit, string> = 
+    let runAiwOutstationPatcherPhase2 (opts : AiwOptions) 
+                                        (equipmentDownloadPath : string)  : Result<unit, string> = 
         match readEquiDownload equipmentDownloadPath with
         | Error msg -> Error msg
         | Ok equiMap -> 
