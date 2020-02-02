@@ -1,19 +1,22 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
-// This module is a hack because we don't know Equipment number (EQUI)
-// until we have activated the Equi patch and downloaded the generated
-// EQUI numbers.
+// This module is a workaround because we don't know Equipment number (EQUI)
+// until we have activated the Equi patch and downloaded the generated EQUI numbers.
 
-module EquiIndexing =
+module Base =
     
     open System.IO
+    
     open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.Parser
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+
+
 
     /// Equi could be a dollar number
     type EquiIndex = 
@@ -61,3 +64,19 @@ module EquiIndexing =
                 (funcLoc : FuncLocPath) 
                 (indices : EquiMap) : string option = 
         Map.tryFind { Description = description; FuncLoc = funcLoc } indices
+
+
+
+    type AiwCompilerMonad<'a> = CompilerMonad<'a, EquiMap option>
+
+    
+    let getEquiNumber (description: string) (funcLoc: FuncLocPath) : AiwCompilerMonad<string> = 
+        compile {
+            let! uenv = askUserEnv ()
+            match uenv with
+            | None -> return! throwError "No EquiMap set up. This is required for equipment."
+            | Some equiMap ->             
+                match tryFindEquiNum description funcLoc equiMap with
+                 | None -> return! throwError (sprintf "Missing equipment - %s '%s'" (funcLoc.ToString()) description)
+                 | Some a -> return a
+        }

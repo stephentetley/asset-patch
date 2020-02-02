@@ -7,8 +7,8 @@ namespace AssetPatch.TemplateCatalogue
 
 module Netw =
     
-    open AssetPatch.TemplatePatcher.CommonTypes
-    open AssetPatch.TemplatePatcher.Template
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.Template
 
 
     let telemetry_outstation (name : string) (memoLine : string)

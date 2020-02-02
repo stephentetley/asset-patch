@@ -7,10 +7,11 @@ namespace AssetPatch.AddAttributesPatcher
 module AddAttributesPatcher =
 
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.Template
-    open AssetPatch.TemplatePatcher.EmitNewAttributes
-    open AssetPatch.TemplatePatcher.PatchCompiler
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.Template
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.EmitNewAttributes
+    open AssetPatch.TemplatePatcher.Aiw.PatchCompiler
 
     type AddAttributesPatcherOptions = 
         { UserName : string 
@@ -26,14 +27,14 @@ module AddAttributesPatcher =
     // Add Floc attributes
 
     let private genFuncLocAttributes1 (funcLoc: FuncLocPath) 
-                                        (classes: Class list): CompilerMonad<FlocAttributes> = 
+                                        (classes: Class list): AiwCompilerMonad<FlocAttributes> = 
         compile {
             let! s4classes = mapM (evalTemplate funcLoc) classes
             let! attrs = generateFlocAttributes funcLoc s4classes
             return attrs
         }
 
-    let private genFuncLocAttributes (items: FuncLocPath list) (classes: Class list): CompilerMonad<FlocAttributes> = 
+    let private genFuncLocAttributes (items: FuncLocPath list) (classes: Class list): AiwCompilerMonad<FlocAttributes> = 
         compile {
             let! attrs = mapM (fun floc -> genFuncLocAttributes1 floc classes) items
             return FlocAttributes.Concat attrs
@@ -53,7 +54,7 @@ module AddAttributesPatcher =
     // Add Equipment attributes
 
     let private genEquipmentAttributes1 (equiId: string) 
-                                        (classes: Class list): CompilerMonad<EquiAttributes> = 
+                                        (classes: Class list): AiwCompilerMonad<EquiAttributes> = 
         compile {
             let! s4classes = mapM evalTemplateNoFloc classes
             let! attrs = generateEquiAttributes equiId s4classes
@@ -64,7 +65,7 @@ module AddAttributesPatcher =
     type EquipmentId = string
       
     
-    let private genEquipmentAttributes (items: EquipmentId list) (classes: Class list): CompilerMonad<EquiAttributes> = 
+    let private genEquipmentAttributes (items: EquipmentId list) (classes: Class list): AiwCompilerMonad<EquiAttributes> = 
         compile {
             let! attrs = mapM (fun item -> genEquipmentAttributes1 item classes) items
             return EquiAttributes.Concat attrs

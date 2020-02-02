@@ -8,7 +8,7 @@ module OutstationTemplate =
     
     open System
 
-    open AssetPatch.TemplatePatcher.Template
+    open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.TemplateCatalogue
     open AssetPatch.TemplateCatalogue.AssetCondition
     open AssetPatch.TemplateCatalogue.Ctos

@@ -7,8 +7,8 @@ namespace AssetPatch.TemplateCatalogue
 
 module Lstn =
     
-    open AssetPatch.TemplatePatcher.CommonTypes
-    open AssetPatch.TemplatePatcher.Template
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.Template
 
     let lstn_level_transmitter (name : string) (memoLine : string)
                 : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 

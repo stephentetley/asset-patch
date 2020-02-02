@@ -10,11 +10,12 @@ module EdcPatcher =
     open System.IO
 
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.PatchTypes
-    open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.EmitPhase1
-    open AssetPatch.TemplatePatcher.EmitPhase2
-    open AssetPatch.TemplatePatcher.PatchCompiler
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase1
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase2
+    open AssetPatch.TemplatePatcher.Aiw.PatchCompiler
 
     open AssetPatch.EdcPatcher.InputData
     open AssetPatch.EdcPatcher.EdcTemplate
@@ -36,7 +37,7 @@ module EdcPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private phase1ProcessRow (row : WorkListRow) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let private phase1ProcessRow (row : WorkListRow) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
         | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= functionEmitPhase1
@@ -49,7 +50,7 @@ module EdcPatcher =
             mreturn (Phase1FlocData.Empty (), equiPatches)
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
-    let private phase2ProcessRow (row : WorkListRow) : CompilerMonad<Phase2Data> = 
+    let private phase2ProcessRow (row : WorkListRow) : AiwCompilerMonad<Phase2Data> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
         | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= functionEmitPhase2
@@ -75,14 +76,17 @@ module EdcPatcher =
     /// with materialized Equipment numbers
     let runEdcPatcherPhase2 (opts : EdcPatcherOptions) 
                             (equipmentDownloadPath : string) : Result<unit, string> = 
-        let compilerOpts : CompilerOptions = makeCompilerOptions opts  
-        runCompiler compilerOpts (Some equipmentDownloadPath)
-            <| compile { 
-                do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
-                let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
-                let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
-                do! writePhase2Data opts.OutputDirectory "edc_patch" phase2Data
-                return ()
-            }
+        match readEquiDownload equipmentDownloadPath with
+        | Error msg -> Error msg
+        | Ok equiMap -> 
+            let compilerOpts : CompilerOptions = makeCompilerOptions opts  
+            runCompiler compilerOpts (Some equiMap)
+                <| compile { 
+                    do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
+                    let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
+                    let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
+                    do! writePhase2Data opts.OutputDirectory "edc_patch" phase2Data
+                    return ()
+                }
 
     

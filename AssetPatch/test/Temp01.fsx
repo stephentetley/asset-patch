@@ -22,10 +22,14 @@ open FSharp.Core
 #load "..\src\AssetPatch\Base\Parser.fs"
 #load "..\src\AssetPatch\Base\Printer.fs"
 #load "..\src\AssetPatch\Base\FuncLocPath.fs"
-#load "..\src\AssetPatch\TemplatePatcher\EquiIndexing.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Base\CommonTypes.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Base\Template.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Base\CompilerMonad.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Aiw\Base.fs"
 open AssetPatch.Base
 open AssetPatch.Base.Parser
-open AssetPatch.TemplatePatcher.EquiIndexing
+open AssetPatch.TemplatePatcher.Aiw.Base
 
 type EquiIndex = 
     { Equi : uint32 

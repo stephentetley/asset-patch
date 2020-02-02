@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Base
 
 
 
@@ -10,7 +10,7 @@ module TemplateHierarchy =
     open System
 
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
     
 
     type S4Characteristic = 

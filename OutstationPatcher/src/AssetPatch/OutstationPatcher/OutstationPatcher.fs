@@ -10,11 +10,12 @@ module OutstationPatcher =
     open System.IO
 
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.PatchTypes
-    open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.EmitPhase1
-    open AssetPatch.TemplatePatcher.EmitPhase2
-    open AssetPatch.TemplatePatcher.PatchCompiler
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase1
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase2
+    open AssetPatch.TemplatePatcher.Aiw.PatchCompiler
 
     open AssetPatch.OutstationPatcher.InputData
     open AssetPatch.OutstationPatcher.OutstationTemplate
@@ -36,7 +37,7 @@ module OutstationPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         match path.Level with
         | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitPhase1
         | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase1
@@ -63,7 +64,7 @@ module OutstationPatcher =
                 return ()
             }
 
-    let private phase2ProcessRow (path : FuncLocPath, row : WorkListRow) : CompilerMonad<Phase2Data> = 
+    let private phase2ProcessRow (path : FuncLocPath, row : WorkListRow) : AiwCompilerMonad<Phase2Data> = 
         match path.Level with
         | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitPhase2
         | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase2
@@ -83,16 +84,19 @@ module OutstationPatcher =
     /// Equipment download must have *EQUI, TXTMI & TPLN_EILO
     let runOutstationPatcherPhase2 (opts : OsPatcherOptions) 
                             (equipmentDownloadPath : string)  : Result<unit, string> = 
-        let compilerOpts : CompilerOptions = makeCompilerOptions opts  
-        runCompiler compilerOpts (Some equipmentDownloadPath)
-            <| compile { 
-                do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
-                let! worklist = 
-                    liftAction (fun _ -> readWorkList opts.WorkListPath)
-                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
-                let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
-                do! writePhase2Data opts.OutputDirectory "outstation_patch" phase2Data
-                return ()
-            }
+        match readEquiDownload equipmentDownloadPath with
+        | Error msg -> Error msg
+        | Ok equiMap -> 
+            let compilerOpts : CompilerOptions = makeCompilerOptions opts  
+            runCompiler compilerOpts (Some equiMap)
+                <| compile { 
+                    do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
+                    let! worklist = 
+                        liftAction (fun _ -> readWorkList opts.WorkListPath)
+                            |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
+                    let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
+                    do! writePhase2Data opts.OutputDirectory "outstation_patch" phase2Data
+                    return ()
+                }
 
     

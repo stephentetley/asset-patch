@@ -1,16 +1,18 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
 
 module EmitPhase2 =
     
     open AssetPatch.Base.ChangeFile
-    open AssetPatch.TemplatePatcher.PatchTypes
-    open AssetPatch.TemplatePatcher.TemplateHierarchy
-    open AssetPatch.TemplatePatcher.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes
+    
 
     type Phase2Data = 
         { ClassEquis : NewClassEqui list
@@ -90,7 +92,7 @@ module EmitPhase2 =
         } 
 
     /// Recursive version of equipmentToNewEqui1
-    let equipmentToPhase2EquiData (source : S4Equipment) : CompilerMonad<Phase2Data> = 
+    let equipmentToPhase2EquiData (source : S4Equipment) : AiwCompilerMonad<Phase2Data> = 
             let rec work (kids : S4Equipment list) cont = 
                 match kids with
                 | [] -> cont []
@@ -110,7 +112,7 @@ module EmitPhase2 =
     
 
     /// This recurses to sub-equipment
-    let equipmentsToPhase2EquiData (source : S4Equipment list) : CompilerMonad<Phase2Data> = 
+    let equipmentsToPhase2EquiData (source : S4Equipment list) : AiwCompilerMonad<Phase2Data> = 
         compile { 
             let! xss = mapM equipmentToPhase2EquiData source 
             return (Phase2Data.Concat xss)
@@ -120,19 +122,19 @@ module EmitPhase2 =
     // ************************************************************************
     // User API
 
-    let equipmentEmitPhase2 (source : S4Equipment) : CompilerMonad<Phase2Data> = 
+    let equipmentEmitPhase2 (source : S4Equipment) : AiwCompilerMonad<Phase2Data> = 
         equipmentsToPhase2EquiData [source]
 
-    let equipmentListEmitPhase2 (source : S4Equipment list) : CompilerMonad<Phase2Data> = 
+    let equipmentListEmitPhase2 (source : S4Equipment list) : AiwCompilerMonad<Phase2Data> = 
         equipmentsToPhase2EquiData source
 
-    let componentEmitPhase2 (source : S4Component) : CompilerMonad<Phase2Data> = 
+    let componentEmitPhase2 (source : S4Component) : AiwCompilerMonad<Phase2Data> = 
         equipmentsToPhase2EquiData source.Equipment
 
-    let componentListEmitPhase2 (source : S4Component list) : CompilerMonad<Phase2Data> = 
+    let componentListEmitPhase2 (source : S4Component list) : AiwCompilerMonad<Phase2Data> = 
         mapM componentEmitPhase2 source |>> Phase2Data.Concat
 
-    let itemEmitPhase2 (source : S4Item) : CompilerMonad<Phase2Data> = 
+    let itemEmitPhase2 (source : S4Item) : AiwCompilerMonad<Phase2Data> = 
         compile { 
             let! x1 = equipmentsToPhase2EquiData source.Equipment
             let! x2 = componentListEmitPhase2 source.Components
@@ -140,10 +142,10 @@ module EmitPhase2 =
         }
 
 
-    let itemListEmitPhase2 (source : S4Item list) : CompilerMonad<Phase2Data> = 
+    let itemListEmitPhase2 (source : S4Item list) : AiwCompilerMonad<Phase2Data> = 
         mapM itemEmitPhase2 source |>> Phase2Data.Concat
 
-    let assemblyEmitPhase2 (source : S4Assembly) : CompilerMonad<Phase2Data> = 
+    let assemblyEmitPhase2 (source : S4Assembly) : AiwCompilerMonad<Phase2Data> = 
         compile { 
             let! x1 = equipmentsToPhase2EquiData source.Equipment
             let! x2 = itemListEmitPhase2 source.Items
@@ -151,41 +153,41 @@ module EmitPhase2 =
         }
 
 
-    let assemblyListEmitPhase2 (source : S4Assembly list) : CompilerMonad<Phase2Data> = 
+    let assemblyListEmitPhase2 (source : S4Assembly list) : AiwCompilerMonad<Phase2Data> = 
         mapM assemblyEmitPhase2 source |>> Phase2Data.Concat
             
 
-    let systemEmitPhase2 (source : S4System) : CompilerMonad<Phase2Data> = 
+    let systemEmitPhase2 (source : S4System) : AiwCompilerMonad<Phase2Data> = 
         compile { 
             let! x1 = equipmentsToPhase2EquiData source.Equipment
             let! x2 = assemblyListEmitPhase2 source.Assemblies
             return Phase2Data.Concat [x1; x2]
         }
 
-    let systemListEmitPhase2 (source : S4System list) : CompilerMonad<Phase2Data> = 
+    let systemListEmitPhase2 (source : S4System list) : AiwCompilerMonad<Phase2Data> = 
         mapM systemEmitPhase2 source |>> Phase2Data.Concat
             
-    let processEmitPhase2 (source : S4Process) : CompilerMonad<Phase2Data> = 
+    let processEmitPhase2 (source : S4Process) : AiwCompilerMonad<Phase2Data> = 
         systemListEmitPhase2 source.Systems
 
-    let processListEmitPhase2 (source : S4Process list) : CompilerMonad<Phase2Data> = 
+    let processListEmitPhase2 (source : S4Process list) : AiwCompilerMonad<Phase2Data> = 
         mapM processEmitPhase2 source |>> Phase2Data.Concat 
         
-    let processGroupEmitPhase2 (source : S4ProcessGroup) : CompilerMonad<Phase2Data> = 
+    let processGroupEmitPhase2 (source : S4ProcessGroup) : AiwCompilerMonad<Phase2Data> = 
         processListEmitPhase2 source.Processes
 
-    let processGroupListEmitPhase2 (source : S4ProcessGroup list) : CompilerMonad<Phase2Data> = 
+    let processGroupListEmitPhase2 (source : S4ProcessGroup list) : AiwCompilerMonad<Phase2Data> = 
         mapM processGroupEmitPhase2 source |>> Phase2Data.Concat
 
-    let functionEmitPhase2 (source : S4Function) : CompilerMonad<Phase2Data> = 
+    let functionEmitPhase2 (source : S4Function) : AiwCompilerMonad<Phase2Data> = 
         processGroupListEmitPhase2 source.ProcessGroups
 
-    let functionListEmitPhase2 (source : S4Function list) : CompilerMonad<Phase2Data> = 
+    let functionListEmitPhase2 (source : S4Function list) : AiwCompilerMonad<Phase2Data> = 
         mapM functionEmitPhase2 source |>> Phase2Data.Concat
 
-    let siteEmitPhase2 (source : S4Site) : CompilerMonad<Phase2Data> = 
+    let siteEmitPhase2 (source : S4Site) : AiwCompilerMonad<Phase2Data> = 
         functionListEmitPhase2 source.Functions
 
-    let siteListEmitPhase2 (source : S4Site list) : CompilerMonad<Phase2Data> = 
+    let siteListEmitPhase2 (source : S4Site list) : AiwCompilerMonad<Phase2Data> = 
         mapM siteEmitPhase2 source |>> Phase2Data.Concat
 

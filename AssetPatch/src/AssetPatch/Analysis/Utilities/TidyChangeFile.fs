@@ -23,7 +23,7 @@ module TidyChangeFile =
         try 
             readChangeFile sourceFile
                 |> Result.bind transform
-                |> Result.map (writeChangeFile destFile)
+                |> Result.map (fun changes -> writeChangeFile changes destFile)
         with
         | ex -> Error (ex.Message)
     

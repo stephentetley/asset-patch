@@ -5,10 +5,10 @@ namespace AssetPatch.TemplateCatalogue
 
 
 [<AutoOpen>]
-module Base =
+module Root =
     
-    open AssetPatch.TemplatePatcher.CommonTypes
-    open AssetPatch.TemplatePatcher.Template
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.Lib.OSGB36
 
     // ************************************************************************

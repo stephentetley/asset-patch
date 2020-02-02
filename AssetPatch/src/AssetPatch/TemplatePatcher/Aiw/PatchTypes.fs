@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
 
@@ -14,7 +14,7 @@ module PatchTypes =
     open AssetPatch.Base.ChangeFile
     open AssetPatch.Base.FuncLocPath
    
-    open AssetPatch.TemplatePatcher.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
 
 
     let private makeAssocs (items : (string * string * string) list) : AssocList<string,string> = 

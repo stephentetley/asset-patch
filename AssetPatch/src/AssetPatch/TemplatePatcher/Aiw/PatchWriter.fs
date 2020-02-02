@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
 
@@ -17,14 +17,16 @@ module PatchWriter =
     open AssetPatch.Base.ChangeFile
     open AssetPatch.Base.Acronyms
     open AssetPatch.Base.Printer
-    open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.PatchTypes
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes
+
 
   
 
 
     /// At least one row exists 
-    let private getHeaderRow (rows : AssocList<string, string> list) : CompilerMonad<HeaderRow> = 
+    let private getHeaderRow (rows : AssocList<string, string> list) : AiwCompilerMonad<HeaderRow> = 
         match rows with
         | [] -> throwError "getHeaderRow - empty list"
         | row1 :: _ -> row1 |> AssocList.keys |> HeaderRow |> mreturn
@@ -33,7 +35,7 @@ module PatchWriter =
     let private makeHeader (entityType : EntityType) 
                             (user : string) 
                             (variantName : string)
-                            (timestamp : DateTime) : CompilerMonad<FileHeader> = 
+                            (timestamp : DateTime) : AiwCompilerMonad<FileHeader> = 
         compile {
             return { 
                 FileType = Upload 
@@ -47,7 +49,7 @@ module PatchWriter =
 
     let private makeChangeFile (entityType : EntityType) 
                                 (variantName : string)
-                                (rows : AssocList<string, string> list) : CompilerMonad<ChangeFile> = 
+                                (rows : AssocList<string, string> list) : AiwCompilerMonad<ChangeFile> = 
         compile {
             let! user = asks (fun x -> x.UserName)
             let timestamp = DateTime.Now
@@ -63,7 +65,7 @@ module PatchWriter =
         }
 
     let private writeChangesAndHeaders (changeFile : ChangeFile)  
-                                        (outputPath: string) : CompilerMonad<unit> =
+                                        (outputPath: string) : AiwCompilerMonad<unit> =
         liftAction (fun () -> writePatchAndVariantHeaders changeFile outputPath)
         
 
@@ -71,7 +73,7 @@ module PatchWriter =
     // New FuncLocs file
 
     /// Render a list of new FuncLocs into a ChangeFile
-    let private makeNewFuncLocsFile (rows : NewFuncLoc list) : CompilerMonad<ChangeFile> = 
+    let private makeNewFuncLocsFile (rows : NewFuncLoc list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FunctionLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())      
@@ -79,7 +81,7 @@ module PatchWriter =
 
     /// Write a list of new FuncLocs to a ChangeFile
     let writeNewFuncLocsFile (funcLocs : NewFuncLoc list)
-                                (outPath: string) : CompilerMonad<unit> = 
+                                (outPath: string) : AiwCompilerMonad<unit> = 
         compile { 
             match funcLocs with
             | [] -> return ()
@@ -93,7 +95,7 @@ module PatchWriter =
     // Link FuncLocs file
 
     /// Render a list of FuncLoc hierarchy changes into a ChangeFile
-    let private makeLinkFuncLocsFile (rows : LinkFuncLoc list) : CompilerMonad<ChangeFile> = 
+    let private makeLinkFuncLocsFile (rows : LinkFuncLoc list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FunctionLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())     
@@ -101,7 +103,7 @@ module PatchWriter =
 
     /// Write a list of FuncLoc hierarchy changes to a ChangeFile
     let writeLinkFuncLocsFile (funcLocs : LinkFuncLoc list)
-                                (outPath : string)  : CompilerMonad<unit> = 
+                                (outPath : string)  : AiwCompilerMonad<unit> = 
         compile { 
             match funcLocs with
             | [] -> return ()
@@ -115,7 +117,7 @@ module PatchWriter =
     // New ClassFloc file
 
     /// Render a list of new ClassFlocs into a ChangeFile
-    let private makeNewClassFlocsFile (rows : NewClassFloc list) : CompilerMonad<ChangeFile> = 
+    let private makeNewClassFlocsFile (rows : NewClassFloc list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FuncLoc.ToString() + "!!" + row.Class)
             |> List.map (fun x -> x.ToAssocs())    
@@ -123,7 +125,7 @@ module PatchWriter =
 
     /// Write a list of new ClassFlocs to a ChangeFile
     let writeNewClassFlocsFile (classFlocs : NewClassFloc list) 
-                                (outPath : string)  : CompilerMonad<unit> = 
+                                (outPath : string)  : AiwCompilerMonad<unit> = 
         compile { 
             match classFlocs with
             | [] -> return ()
@@ -137,7 +139,7 @@ module PatchWriter =
     // New ValuaFloc file
 
     /// Render a list of new ValuaFloc into a ChangeFile
-    let private makeNewValuaFlocsFile (rows : NewValuaFloc list) : CompilerMonad<ChangeFile> = 
+    let private makeNewValuaFlocsFile (rows : NewValuaFloc list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FuncLoc.ToString() + "!!" + row.CharacteristicID)
             |> List.map (fun x -> x.ToAssocs())       
@@ -146,7 +148,7 @@ module PatchWriter =
 
     /// Write a list of new ValuaFloc to a ChangeFile
     let writeNewValuaFlocsFile (valuaFlocs : NewValuaFloc list)
-                                (outPath: string)  : CompilerMonad<unit> = 
+                                (outPath: string)  : AiwCompilerMonad<unit> = 
         compile { 
             match valuaFlocs with
             | [] -> return ()
@@ -161,7 +163,7 @@ module PatchWriter =
     // New Equi file
 
     /// Render a list of new equipment into a ChangeFile
-    let private makeNewEquisFile (rows : NewEqui list) : CompilerMonad<ChangeFile> = 
+    let private makeNewEquisFile (rows : NewEqui list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FuncLoc.ToString())
             |> List.map (fun x -> x.ToAssocs())       
@@ -169,7 +171,7 @@ module PatchWriter =
 
     /// Write a list of new Equis to a ChangeFile
     let writeNewEquisFile (equis : NewEqui list)  
-                            (outPath: string) : CompilerMonad<unit> = 
+                            (outPath: string) : AiwCompilerMonad<unit> = 
         compile { 
             match equis with
             | [] -> return ()
@@ -185,7 +187,7 @@ module PatchWriter =
 
 
     /// Render a list of new ClassEquis into a ChangeFile
-    let private makeNewClassEquisFile (rows : NewClassEqui list) : CompilerMonad<ChangeFile> = 
+    let private makeNewClassEquisFile (rows : NewClassEqui list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> (sprintf "%s" row.EquipmentId) + row.Class)
             |> List.map (fun x -> x.ToAssocs())       
@@ -193,7 +195,7 @@ module PatchWriter =
 
     /// Write a list of new ClassEquis to a ChangeFile
     let writeNewClassEquisFile (classEquis : NewClassEqui list) 
-                                (outPath: string) : CompilerMonad<unit> = 
+                                (outPath: string) : AiwCompilerMonad<unit> = 
         compile { 
             match classEquis with
             | [] -> return ()
@@ -207,7 +209,7 @@ module PatchWriter =
     // New ValuaEqui file
 
     /// Render a list of new ValuaEquis into a ChangeFile
-    let private makeNewValuaEquisFile (rows : NewValuaEqui list) : CompilerMonad<ChangeFile> = 
+    let private makeNewValuaEquisFile (rows : NewValuaEqui list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.EquipmentId)
             |> List.map (fun x -> x.ToAssocs())       
@@ -215,7 +217,7 @@ module PatchWriter =
 
     /// Write a list of new ValuaEquis to a ChangeFile
     let writeNewValuaEquisFile (valuaEquis : NewValuaEqui list) 
-                                (outPath: string)  : CompilerMonad<unit> = 
+                                (outPath: string)  : AiwCompilerMonad<unit> = 
         compile { 
             match valuaEquis with
             | [] -> return ()
@@ -230,7 +232,7 @@ module PatchWriter =
 
 
     /// Render a list of new ValuaEquis into a ChangeFile
-    let private makeNewEqmltxtsFile (rows : NewEqmltxt list) : CompilerMonad<ChangeFile> = 
+    let private makeNewEqmltxtsFile (rows : NewEqmltxt list) : AiwCompilerMonad<ChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.EquipmentId)
             |> List.map (fun x -> x.ToAssocs())       
@@ -239,7 +241,7 @@ module PatchWriter =
 
     /// Write a list of new ValuaEquis to a ChangeFile
     let writeNewEqmltxtsFile (eqmltxts : NewEqmltxt list) 
-                                (outPath: string) : CompilerMonad<unit> = 
+                                (outPath: string) : AiwCompilerMonad<unit> = 
         compile { 
             match eqmltxts with
             | [] -> return ()

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Base
 
 
 
@@ -12,10 +12,8 @@ module Template =
     open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.CommonTypes
-    open AssetPatch.TemplatePatcher.TemplateHierarchy
-    open AssetPatch.TemplatePatcher.EquiIndexing
-    
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.TemplateHierarchy    
 
 
     type EnvProperties = 

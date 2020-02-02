@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
 
@@ -9,9 +9,10 @@ module EmitPhase1 =
     
     open AssetPatch.Base.ChangeFile
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.PatchTypes
-    open AssetPatch.TemplatePatcher.TemplateHierarchy
-    open AssetPatch.TemplatePatcher.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes
 
     type Phase1FlocData = 
         { FuncLocs : NewFuncLoc list
@@ -169,7 +170,7 @@ module EmitPhase1 =
                                 (props : FuncLocProperties)
                                 (description : string) 
                                 (objectType : string)
-                                (classes : S4Class list) : CompilerMonad<Phase1FlocData> = 
+                                (classes : S4Class list) : AiwCompilerMonad<Phase1FlocData> = 
         let collect xs = List.foldBack (fun (c1, vs1)  (cs,vs) -> (c1 ::cs, vs1 @ vs)) xs ([],[])
         compile {
             let floc = makeNewFuncLoc path props description objectType
@@ -189,14 +190,14 @@ module EmitPhase1 =
     // ************************************************************************
     // User API
 
-    let equipmentEmitNewEquis (source : S4Equipment) : CompilerMonad<NewEqui list> = 
+    let equipmentEmitNewEquis (source : S4Equipment) : AiwCompilerMonad<NewEqui list> = 
         mreturn (makeNewEqui source)
 
-    let equipmentListEmitNewEquis (source : S4Equipment list) : CompilerMonad<NewEqui list> = 
+    let equipmentListEmitNewEquis (source : S4Equipment list) : AiwCompilerMonad<NewEqui list> = 
         mapM equipmentEmitNewEquis source |>> List.concat
 
 
-    let componentEmitPhase1 (source : S4Component) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let componentEmitPhase1 (source : S4Component) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -204,13 +205,13 @@ module EmitPhase1 =
             return (flocPatches, equiPatches) 
         }
 
-    let componentListEmitPhase1 (source : S4Component list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let componentListEmitPhase1 (source : S4Component list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM componentEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
 
-    let itemEmitPhase1 (source : S4Item) : CompilerMonad<Phase1FlocData * NewEqui list> =  
+    let itemEmitPhase1 (source : S4Item) : AiwCompilerMonad<Phase1FlocData * NewEqui list> =  
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -219,13 +220,13 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches @ equiPatches2)
         }
 
-    let itemListEmitPhase1 (source : S4Item list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let itemListEmitPhase1 (source : S4Item list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM itemEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
 
-    let assemblyEmitPhase1 (source : S4Assembly) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let assemblyEmitPhase1 (source : S4Assembly) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -234,13 +235,13 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches @ equiPatches2)
         }
 
-    let assemblyListEmitPhase1 (source : S4Assembly list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let assemblyListEmitPhase1 (source : S4Assembly list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM assemblyEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
 
-    let systemEmitPhase1 (source : S4System) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let systemEmitPhase1 (source : S4System) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -249,13 +250,13 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches @ equiPatches2)
         }
 
-    let systemListEmitPhase1 (source : S4System list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let systemListEmitPhase1 (source : S4System list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM systemEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
 
-    let processEmitPhase1 (source : S4Process) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let processEmitPhase1 (source : S4Process) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -263,13 +264,13 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches2)
         }
 
-    let processListEmitPhase1 (source : S4Process list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let processListEmitPhase1 (source : S4Process list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM processEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
 
-    let processGroupEmitPhase1 (source : S4ProcessGroup) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let processGroupEmitPhase1 (source : S4ProcessGroup) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -277,13 +278,13 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches2)
         }
 
-    let processGroupListEmitPhase1 (source : S4ProcessGroup list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let processGroupListEmitPhase1 (source : S4ProcessGroup list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM processGroupEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
 
-    let functionEmitPhase1 (source : S4Function) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let functionEmitPhase1 (source : S4Function) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -291,13 +292,13 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches2)
         }
 
-    let functionListEmitPhase1 (source : S4Function list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let functionListEmitPhase1 (source : S4Function list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM functionEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)
         }
         
-    let siteEmitPhase1 (source : S4Site) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let siteEmitPhase1 (source : S4Site) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! flocPatches = 
                 funclocToPhase1FlocData source.FuncLoc source.FlocProperties source.Description source.ObjectType source.Classes
@@ -305,7 +306,7 @@ module EmitPhase1 =
             return (Phase1FlocData.Concat [flocPatches; flocPatches2], equiPatches2)
         }
 
-    let siteListEmitPhase1 (source : S4Site list) : CompilerMonad<Phase1FlocData * NewEqui list> = 
+    let siteListEmitPhase1 (source : S4Site list) : AiwCompilerMonad<Phase1FlocData * NewEqui list> = 
         compile {
             let! (xss, yss) = unzipMapM siteEmitPhase1 source
             return (Phase1FlocData.Concat xss, List.concat yss)

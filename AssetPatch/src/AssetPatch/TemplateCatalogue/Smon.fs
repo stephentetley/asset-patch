@@ -7,8 +7,8 @@ namespace AssetPatch.TemplateCatalogue
 
 module Smon =
     
-    open AssetPatch.TemplatePatcher.CommonTypes
-    open AssetPatch.TemplatePatcher.Template
+    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.TemplatePatcher.Base.Template
 
 
     /// Class:SMONSY

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
 module PatchCompiler =
@@ -10,13 +10,15 @@ module PatchCompiler =
 
 
     open AssetPatch.Base.Common
-    open AssetPatch.Base.FuncLocPath 
-    open AssetPatch.TemplatePatcher.PatchTypes
-    open AssetPatch.TemplatePatcher.CompilerMonad
-    open AssetPatch.TemplatePatcher.PatchWriter
-    open AssetPatch.TemplatePatcher.EmitPhase1
-    open AssetPatch.TemplatePatcher.EmitPhase2
-    open AssetPatch.TemplatePatcher.EmitNewAttributes
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes
+    open AssetPatch.TemplatePatcher.Aiw.PatchWriter
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase1
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase2
+    open AssetPatch.TemplatePatcher.Aiw.EmitNewAttributes
+
+
 
 
     // ************************************************************************/
@@ -24,7 +26,7 @@ module PatchCompiler =
 
     let private genFileName (directory : string) 
                             (filePrefix : string) 
-                            (namePart : string) : CompilerMonad<string> = 
+                            (namePart : string) : AiwCompilerMonad<string> = 
         compile {
             let name1 = 
                 sprintf "%s_%s.txt" (safeName filePrefix) (safeName namePart)
@@ -32,22 +34,7 @@ module PatchCompiler =
         }    
 
 
-    // ************************************************************************
-    // Compile Class * Valua patches to update exting Flocs and Equipment...
-
-
-    let applyTemplate (path : FuncLocPath) 
-                                (xs: ('name * 'b) list ) 
-                                (template: 'b -> Template.Template<'c>) : CompilerMonad<('name * 'c) list> = 
-        forM xs (fun (name, x) -> evalTemplate path (template x) >>=  fun a -> mreturn (name, a))
-
-    let applyFlocTemplate1 (path : FuncLocPath, body : 'a) 
-                            (template: 'a -> Template.Template<'b>) : CompilerMonad<'b> = 
-        evalTemplate path (template body)
-
-    let applyFlocTemplate (xs: (FuncLocPath * 'a) list ) 
-                        (template: 'a -> Template.Template<'b>) : CompilerMonad<'b list> = 
-        forM xs (fun (path, x) -> evalTemplate path (template x))
+    
 
 
     // ************************************************************************
@@ -56,7 +43,7 @@ module PatchCompiler =
 
     let writePhase1FlocData (directory : string) 
                             (filePrefix : string) 
-                            (funcLocResults : Phase1FlocData) : CompilerMonad<unit> = 
+                            (funcLocResults : Phase1FlocData) : AiwCompilerMonad<unit> = 
         
         if funcLocResults.IsEmpty then
             mreturn ()
@@ -79,7 +66,7 @@ module PatchCompiler =
     // ___05_create_equipment
     let writePhase1EquiData (directory : string) 
                         (filePrefix : string) 
-                        (equiData : NewEqui list) : CompilerMonad<unit> = 
+                        (equiData : NewEqui list) : AiwCompilerMonad<unit> = 
         if List.isEmpty equiData then
             mreturn ()
         else
@@ -93,7 +80,7 @@ module PatchCompiler =
     /// This just writes a List of equipment, not a patch
     let writePhase1EquipmentList (directory: string) 
                                 (filePrefix: string) 
-                                (equiData: NewEqui list) : CompilerMonad<Unit> =
+                                (equiData: NewEqui list) : AiwCompilerMonad<unit> =
         let makeRow (equi: NewEqui): string = 
             sprintf "%s\t%s" equi.Description (equi.FuncLoc.ToString())
 
@@ -111,7 +98,7 @@ module PatchCompiler =
     let writePhase1All (directory : string) 
                         (filePrefix : string) 
                         (phase1FlocData : Phase1FlocData) 
-                        (phase1Equipment: NewEqui list) : CompilerMonad<unit> = 
+                        (phase1Equipment: NewEqui list) : AiwCompilerMonad<unit> = 
         
         compile {
             let source = phase1FlocData.RemoveDups ()
@@ -127,7 +114,7 @@ module PatchCompiler =
     // Write ClassEqui and ValuaEqui and Eqmltext patch files
     let writePhase2Data (directory : string) 
                         (filePrefix : string) 
-                        (equiData : Phase2Data) : CompilerMonad<unit> = 
+                        (equiData : Phase2Data) : AiwCompilerMonad<unit> = 
         if equiData.IsEmpty then
             mreturn ()
         else
@@ -149,7 +136,7 @@ module PatchCompiler =
     /// Write new ClassFloc and ValuaFloc patches
     let writeFlocAttributes (directory : string) 
                         (filePrefix : string) 
-                        (flocAttrs : FlocAttributes) : CompilerMonad<unit> =         
+                        (flocAttrs : FlocAttributes) : AiwCompilerMonad<unit> =         
         compile {
             let! outPath01 = genFileName directory filePrefix "01_add_classflocs"
             do! writeNewClassFlocsFile flocAttrs.ClassFlocs outPath01
@@ -166,7 +153,7 @@ module PatchCompiler =
     /// Write new ClassEqui and ValuaEqui patches
     let writeEquiAttributes (directory : string) 
                         (filePrefix : string) 
-                        (equiAttrs : EquiAttributes) : CompilerMonad<unit> =         
+                        (equiAttrs : EquiAttributes) : AiwCompilerMonad<unit> =         
         compile {
             let! outPath01 = genFileName directory filePrefix "01_add_classequis"
             do! writeNewClassEquisFile equiAttrs.ClassEquis outPath01

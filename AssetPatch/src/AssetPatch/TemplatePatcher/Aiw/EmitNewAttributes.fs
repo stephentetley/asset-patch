@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
 // Add Classes / Values to existing equipment of funclocs
@@ -9,11 +9,12 @@ namespace AssetPatch.TemplatePatcher
 module EmitNewAttributes =
     
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.PatchTypes
-    open AssetPatch.TemplatePatcher.TemplateHierarchy
-    open AssetPatch.TemplatePatcher.CompilerMonad    
-    open AssetPatch.TemplatePatcher.EmitPhase1
-    open AssetPatch.TemplatePatcher.EmitPhase2
+    open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad   
+    open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.PatchTypes 
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase1
+    open AssetPatch.TemplatePatcher.Aiw.EmitPhase2
 
     type FlocAttributes = 
         { ClassFlocs : NewClassFloc list
@@ -75,10 +76,10 @@ module EmitNewAttributes =
     // User API
 
     let generateFlocAttributes (flocPath : FuncLocPath) 
-                                    (classes : S4Class list) : CompilerMonad<FlocAttributes> = 
+                                    (classes : S4Class list) : AiwCompilerMonad<FlocAttributes> = 
         makeFlocAttributes flocPath classes |> mreturn
 
     let generateEquiAttributes (equiId : string) 
-                                (classes : S4Class list) : CompilerMonad<EquiAttributes> = 
+                                (classes : S4Class list) : AiwCompilerMonad<EquiAttributes> = 
         makeEquiAttributes equiId classes |> mreturn
 
