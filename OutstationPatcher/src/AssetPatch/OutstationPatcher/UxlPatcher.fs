@@ -6,8 +6,31 @@ namespace AssetPatch.OutstationPatcher
 
 module UxlPatcher =
 
+    open AssetPatch.Base.FuncLocPath
+    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Uxl.Base
+    open AssetPatch.TemplatePatcher.Uxl.Emitter
+    open AssetPatch.OutstationPatcher.InputData
+    open AssetPatch.OutstationPatcher.OutstationTemplate
+
     type UxlOptions = 
-        { ProcessRequester : string 
-          OutputDirectory : string
+        { ProcessRequester : string
           WorkListPath : string
+          OutputDirectory : string
         }
+
+    /// Note - we need to be able to create floc patches at different
+    /// levels in the tree (according to what already exists).
+    let private processRow (path : FuncLocPath, row : WorkListRow) : UxlCompilerMonad<MmopCreateData> = 
+        match path.Level with
+        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitMmopCreate
+        //| 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase1
+        //| 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase1
+        //| 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase1
+        //| 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
+        //       applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
+        //       equipmentEmitNewEquis eq1 >>= fun equiPatches1 -> 
+        //       equipmentEmitNewEquis eq2 >>= fun equiPatches2 -> 
+        //       mreturn (Phase1FlocData.Empty (), equiPatches1 @ equiPatches2)
+
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)

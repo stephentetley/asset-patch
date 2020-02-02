@@ -7,7 +7,9 @@ namespace AssetPatch.Base
 module Common = 
     
     open System
+    open System.IO
     open FSharp.Core
+
 
 
     type ErrMsg = string    
@@ -23,6 +25,11 @@ module Common =
             |> replace bads "_"
             |> replace white "_"
             |> fun x -> x.Trim() 
+
+    let makeOutputDirectory (dirName : string) : unit = 
+        if not <| Directory.Exists(dirName) then
+            Directory.CreateDirectory(dirName) |> ignore
+        else ()
 
 
     let showS4Date (date : DateTime) : string = 

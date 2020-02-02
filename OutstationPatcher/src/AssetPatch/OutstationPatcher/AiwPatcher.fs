@@ -9,6 +9,7 @@ module AiwPatcher =
     
     open System.IO
 
+    open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Aiw.Base
@@ -23,17 +24,14 @@ module AiwPatcher =
 
     type AiwOptions = 
         { UserName : string 
-          OutputDirectory : string
           WorkListPath : string
+          OutputDirectory : string
         }
 
     let private makeCompilerOptions (opts : AiwOptions) : CompilerOptions = 
         { UserName = opts.UserName }
 
-    let internal makeOutputDirectory (dirName : string) : unit = 
-        if not <| Directory.Exists(dirName) then
-            Directory.CreateDirectory(dirName) |> ignore
-        else ()
+
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).

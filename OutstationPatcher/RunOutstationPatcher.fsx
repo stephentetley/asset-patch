@@ -55,8 +55,9 @@
 #load "src\AssetPatch\OutstationPatcher\InputData.fs"
 #load "src\AssetPatch\OutstationPatcher\OutstationTemplate.fs"
 #load "src\AssetPatch\OutstationPatcher\AiwPatcher.fs"
+#load "src\AssetPatch\OutstationPatcher\UxlPatcher.fs"
 open AssetPatch.OutstationPatcher.AiwPatcher
-
+open AssetPatch.OutstationPatcher.UxlPatcher
 
 let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
@@ -75,5 +76,9 @@ let main02 () =
     let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
     runAiwOutstationPatcherPhase2 aiwOptions equiFile  
 
-
+let uxlOptions : UxlOptions = 
+    { ProcessRequester  = "ASSET DATA"
+      WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist_part3.xlsx" 
+      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\csv" 
+    }
 

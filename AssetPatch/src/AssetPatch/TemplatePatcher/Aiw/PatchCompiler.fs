@@ -28,8 +28,7 @@ module PatchCompiler =
                             (filePrefix : string) 
                             (namePart : string) : AiwCompilerMonad<string> = 
         compile {
-            let name1 = 
-                sprintf "%s_%s.txt" (safeName filePrefix) (safeName namePart)
+            let name1 = sprintf "%s_%s.txt" (safeName filePrefix) (safeName namePart)
             return Path.Combine(directory, name1)
         }    
 
