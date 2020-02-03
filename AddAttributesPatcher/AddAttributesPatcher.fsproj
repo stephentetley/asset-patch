@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="src\AssetPatch\AddAttributesPatcher\AddAttributesPatcher.fs" />
+    <Compile Include="src\AssetPatch\AddAttributesPatcher\AiwAddAttributesPatcher.fs" />
     <None Include="RunAddAttributesPatcher.fsx" />
   </ItemGroup>
 

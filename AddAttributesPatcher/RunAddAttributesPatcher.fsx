@@ -18,7 +18,6 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\FuncLocPath.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Printer.fs"
@@ -41,12 +40,12 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Smon.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Netw.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Pode.fs"
-#load "src\AssetPatch\AddAttributesPatcher\AddAttributesPatcher.fs"
+#load "src\AssetPatch\AddAttributesPatcher\AiwAddAttributesPatcher.fs"
 open AssetPatch.TemplatePatcher.Base.Template
 open AssetPatch.TemplateCatalogue.Root
 open AssetPatch.TemplateCatalogue.Netw
 open AssetPatch.TemplateCatalogue.Pode
-open AssetPatch.AddAttributesPatcher
+open AssetPatch.AddAttributesPatcher.AiwAddAttributesPatcher
 
 // This patcher is a bit more general than the other ones
     

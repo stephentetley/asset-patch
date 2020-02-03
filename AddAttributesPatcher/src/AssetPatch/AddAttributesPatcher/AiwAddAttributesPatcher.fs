@@ -3,8 +3,8 @@
 
 namespace AssetPatch.AddAttributesPatcher
 
-[<AutoOpen>]
-module AddAttributesPatcher =
+
+module AiwAddAttributesPatcher =
 
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
@@ -18,10 +18,6 @@ module AddAttributesPatcher =
           FilePrefix: string
           OutputDirectory : string
         }
-
-
-    let private makeCompilerOptions (opts : AddAttributesPatcherOptions) : CompilerOptions = 
-        { UserName = opts.UserName }
 
     // ************************************************************************
     // Add Floc attributes
@@ -43,7 +39,11 @@ module AddAttributesPatcher =
     let generateFuncLocAttibutes (opts: AddAttributesPatcherOptions) 
                                     (inputList: FuncLocPath list)
                                     (classTemplates: Class list) : Result<unit, string> = 
-        runCompiler (makeCompilerOptions opts) None
+        let aiwEnv : AiwEnv = 
+            { UserName = opts.UserName
+              EquiIndices = None
+            }
+        runCompiler aiwEnv
             <| compile { 
                     let! attrs = genFuncLocAttributes inputList classTemplates
                     do! writeFlocAttributes opts.OutputDirectory opts.FilePrefix attrs
@@ -74,7 +74,11 @@ module AddAttributesPatcher =
     let generateEquipmentAttibutes (opts: AddAttributesPatcherOptions) 
                                     (inputList: EquipmentId list)
                                     (classTemplates: Class list) : Result<unit, string> = 
-        runCompiler (makeCompilerOptions opts) None
+        let aiwEnv : AiwEnv = 
+            { UserName = opts.UserName
+              EquiIndices = None
+            }
+        runCompiler aiwEnv
             <| compile { 
                     let! attrs = genEquipmentAttributes inputList classTemplates
                     do! writeEquiAttributes opts.OutputDirectory opts.FilePrefix attrs
