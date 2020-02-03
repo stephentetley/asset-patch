@@ -18,9 +18,9 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Analysis\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\TidyChangeFile.fs"
 open AssetPatch.Base.Parser
 open AssetPatch.Anaylsis.Utilities.TidyChangeFile

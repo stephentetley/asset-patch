@@ -32,7 +32,6 @@ open FSharp.Core
 #load "..\src\AssetPatch\Base\AssocList.fs"
 #load "..\src\AssetPatch\Base\ChangeFile.fs"
 #load "..\src\AssetPatch\Base\Acronyms.fs"
-#load "..\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\src\AssetPatch\Base\FuncLocPath.fs"
 #load "..\src\AssetPatch\Base\Parser.fs"
 #load "..\src\AssetPatch\Base\Printer.fs"
@@ -53,6 +52,7 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplateCatalogue\Lstn.fs"
 #load "..\src\AssetPatch\TemplateCatalogue\Netw.fs"
 open AssetPatch.Base.FuncLocPath
+open AssetPatch.TemplatePatcher.Aiw.Base
 open AssetPatch.TemplatePatcher.Base.Template
 open AssetPatch.TemplatePatcher.Base.CompilerMonad
 open AssetPatch.TemplatePatcher.Aiw.EmitPhase1
@@ -125,10 +125,11 @@ let test01 () =
         [ ("KRI03", {Code = "KRI03"; Name = "Kriddle SPS"; Easting = 492729; Northing = 477323; EquiFlocSaiNumber = Some "SAI00043252"; EquiPliNumber = Some "PLI00002001" } )
         ] 
         |> List.map (fun (name, v) -> (FuncLocPath.Create name, v))
-    let opts : CompilerOptions = 
+    let env : AiwEnv = 
         { UserName = "TETLEYS"
+          EquiIndices = None
         }
-    runCompiler opts None
+    runCompiler env
         <| compile {
                  let! worklist1 = applyFlocTemplate worklist edcTemplate
                  let! (phase1Data, newEquis) = functionListEmitPhase1 worklist1
@@ -198,10 +199,11 @@ let test02 () =
         [ {Code = "SPT60"; Name = "Stephen SPS"; Easting = 492729; Northing = 477323; EquiFlocSaiNumber = Some "SAI00043252"; EquiPliNumber = Some "PLI00002001"} 
         ] |> List.map (fun r1 -> (FuncLocPath.Create r1.Code, r1))
     
-    let opts : CompilerOptions = 
+    let env : AiwEnv = 
         { UserName = "TETLEYS"
+          EquiIndices = None
         }
-    runCompiler opts None
+    runCompiler env
        <| compile {
                 let! worklist1 = applyFlocTemplate worklist caaTemplate
                 let! (phase1Data, newEquis) = siteListEmitPhase1 worklist1

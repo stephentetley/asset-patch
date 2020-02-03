@@ -20,9 +20,9 @@ open System.Text.RegularExpressions
 
 open FSharp.Core
 
-#load "..\..\AssetPatch\src\AssetPatch\Lib\WriteCsv.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\CsvFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\ReadErrorLog.fs"
-open AssetPatch.Lib.WriteCsv
+open AssetPatch.Base.CsvFile
 open AssetPatch.Anaylsis.Utilities.ReadErrorLog
 
 let sampleLog = @"G:\work\Projects\assets\asset_patch\error_logs\preprod-errors-stopping-retire.txt"
@@ -52,4 +52,8 @@ let demo03() =
     match File.ReadAllLines(sampleLog) |> choose getEquiIdAndType with
     | Error msg -> printfn "FATAL:\n%s" msg
     | Ok vals -> 
-        writeCsv [| "EquiId"; "ClassType"|] csvDefaults (List.map makeRow vals) sampleOut
+        let csv : CsvFileWithHeaders = 
+            { Headers = [| "EquiId"; "ClassType"|] 
+              Rows = List.map makeRow vals
+            }
+        writeCsvFile csvDefaults csv sampleOut
