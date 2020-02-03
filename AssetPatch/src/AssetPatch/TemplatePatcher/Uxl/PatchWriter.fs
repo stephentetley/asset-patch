@@ -30,15 +30,11 @@ module PatchWriter =
     // ************************************************************************
     // Change Request Details file
     /// Render a list of new FuncLocs into a ChangeFile
-    
-    let changeRequestKey (row: MmopChangeRequest): string = 
-        let part1 = Option.defaultValue "ZZZZZ" <| Option.map (fun floc -> floc.ToString()) row.FunctionalLocation
-        let part2 = Option.defaultValue "ZZZZZ" row.EquipmentId
-        part1 + "#" + part2
+   
     
     let private makeNewChangeRequestsFile (rows : MmopChangeRequest list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
-            |> List.sortBy changeRequestKey
+            |> List.sortBy (fun (x: MmopChangeRequest) -> x.SortKey)
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
@@ -72,6 +68,28 @@ module PatchWriter =
             | [] -> return ()
             | _ -> 
                 let! changes = makeNewFuncLocsFile funcLocs
+                do! writeChangesAsCsv changes outPath
+                return ()
+            }
+
+    // ************************************************************************
+    // New FuncLocs multilingual text file
+
+    /// Render a list of new FuncLocs into a Csv for the `Functional Location Data` tab
+    let private makeNewFLMultilingualTextsFile (rows : MmopNewFlocMultilingualText list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+        rows
+            |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write a list of new FuncLocs to Csv
+    let writeNewFLMultilingualTextsFile (funcLocMlTexts : MmopNewFlocMultilingualText list)
+                                        (outPath: string) : UxlCompilerMonad<unit> = 
+        compile { 
+            match funcLocMlTexts with
+            | [] -> return ()
+            | _ -> 
+                let! changes = makeNewFLMultilingualTextsFile funcLocMlTexts
                 do! writeChangesAsCsv changes outPath
                 return ()
             }

@@ -31,8 +31,7 @@ module PatchCompiler =
 
     let writeMmopCreateData (directory : string) 
                         (filePrefix : string) 
-                        (mmopData : MmopCreateData) : UxlCompilerMonad<unit> = 
-        
+                        (mmopData : MmopCreateData) : UxlCompilerMonad<unit> =         
         if mmopData.IsEmpty then
             mreturn ()
         else            
@@ -41,6 +40,7 @@ module PatchCompiler =
                 do! writeNewChangeRequestsFile mmopData.ChangeRequests outPath01
                 let! outPath02 = genFileName directory filePrefix "02_function_location_data_tab"
                 do! writeNewFuncLocsFile mmopData.NewFuncLocs outPath02
- 
+                let! outPath03 = genFileName directory filePrefix "03_fl_mulitlingual_text_tab"
+                do! writeNewFLMultilingualTextsFile mmopData.NewFlocMultilingualTexts outPath03
                 return ()
             }

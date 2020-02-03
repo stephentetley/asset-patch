@@ -9,9 +9,12 @@ module Base =
     open AssetPatch.Base.Common
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
 
-    type UxlCompilerMonad<'a> = CompilerMonad<'a, unit>
+    type UxlEnv = 
+        { ProcessRequestor: string }
 
-    let runUxlCompiler (options : CompilerOptions) 
-                        (action : UxlCompilerMonad<'a> ) : Result<'a, ErrMsg> = 
-        runCompiler options () action
+
+    type UxlCompilerMonad<'a> = CompilerMonad<'a, UxlEnv>
+
+    let getProcessRequestor () : UxlCompilerMonad<string> = 
+        asksUserEnv (fun env -> env.ProcessRequestor)
 

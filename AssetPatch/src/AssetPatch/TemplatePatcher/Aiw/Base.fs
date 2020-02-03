@@ -65,19 +65,17 @@ module Base =
                 (indices : EquiMap) : string option = 
         Map.tryFind { Description = description; FuncLoc = funcLoc } indices
 
+    type AiwEnv = 
+        { UserName: string 
+          EquiIndices: EquiMap option }
 
+    type AiwCompilerMonad<'a> = CompilerMonad<'a, AiwEnv>
 
-    type AiwCompilerMonad<'a> = CompilerMonad<'a, EquiMap option>
-    
-    let runAiwCompiler (options : CompilerOptions) 
-                        (equis : EquiMap option)
-                        (action : AiwCompilerMonad<'a> ) : Result<'a, ErrMsg> = 
-        runCompiler options equis action
 
     
     let getEquiNumber (description: string) (funcLoc: FuncLocPath) : AiwCompilerMonad<string> = 
         compile {
-            let! uenv = askUserEnv ()
+            let! uenv = asksUserEnv (fun env -> env.EquiIndices)
             match uenv with
             | None -> return! throwError "No EquiMap set up. This is required for equipment."
             | Some equiMap ->             

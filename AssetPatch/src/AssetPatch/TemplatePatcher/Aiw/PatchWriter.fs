@@ -50,7 +50,7 @@ module PatchWriter =
                                 (variantName : string)
                                 (rows : AssocList<string, string> list) : AiwCompilerMonad<ChangeFile> = 
         compile {
-            let! user = asks (fun x -> x.UserName)
+            let! user = asksUserEnv (fun x -> x.UserName)
             let timestamp = DateTime.Now
             let! headerRow = getHeaderRow rows
             let! header = makeHeader entityType user variantName timestamp 

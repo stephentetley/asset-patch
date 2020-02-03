@@ -16,19 +16,17 @@ module CompilerMonad =
 
  
 
-    // May get extended...
+    // Custom data goes in UserEnv
     type CompilerEnv<'uenv> = 
-        { UserName : string
-          TemplateEnv : TemplateEnv
+        { TemplateEnv : TemplateEnv
           FlocVariant : string option
           EquiVariant : string option
           UserEnv: 'uenv
          }
 
             
-    let defaultCompilerEnv (userName: string) (templateEnv: TemplateEnv) (userEnv: 'uenv) : CompilerEnv<'uenv> = 
-        { UserName = userName
-          TemplateEnv = templateEnv
+    let defaultCompilerEnv (templateEnv: TemplateEnv) (userEnv: 'uenv) : CompilerEnv<'uenv> = 
+        { TemplateEnv = templateEnv
           FlocVariant = None
           EquiVariant = None
           UserEnv = userEnv }
@@ -77,15 +75,12 @@ module CompilerMonad =
 
     let (compile : CompilerMonadBuilder) = new CompilerMonadBuilder()
 
-    type CompilerOptions = 
-        { UserName : string }
 
-    let runCompiler (options : CompilerOptions) 
-                    (userEnv : 'uenv)
+    let runCompiler (userEnv : 'uenv)
                     (action : CompilerMonad<'a, 'uenv> ) : Result<'a, ErrMsg> =         
         let templateEnv  = { CurrentFloc = None
                              Properties = defaultEnvProperties () }
-        apply1 action (defaultCompilerEnv options.UserName templateEnv userEnv) 
+        apply1 action (defaultCompilerEnv templateEnv userEnv) 
 
     
 

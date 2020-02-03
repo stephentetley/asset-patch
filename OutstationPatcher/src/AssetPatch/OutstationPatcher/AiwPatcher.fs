@@ -28,10 +28,6 @@ module AiwPatcher =
           OutputDirectory : string
         }
 
-    let private makeCompilerOptions (opts : AiwOptions) : CompilerOptions = 
-        { UserName = opts.UserName }
-
-
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
@@ -50,8 +46,8 @@ module AiwPatcher =
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runAiwOutstationPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
-        let compilerOpts : CompilerOptions = makeCompilerOptions opts           
-        runCompiler compilerOpts None
+        let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
+        runCompiler userEnv
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
@@ -85,8 +81,8 @@ module AiwPatcher =
         match readEquiDownload equipmentDownloadPath with
         | Error msg -> Error msg
         | Ok equiMap -> 
-            let compilerOpts : CompilerOptions = makeCompilerOptions opts  
-            runAiwCompiler compilerOpts (Some equiMap)
+            let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = Some equiMap }
+            runCompiler userEnv 
                 <| compile { 
                     do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                     let! worklist = 

@@ -34,10 +34,10 @@ module EmitPhase1 =
                     && x.ClassFlocs.IsEmpty && x.ValuaFlocs.IsEmpty
 
         member x.RemoveDups() : Phase1FlocData = 
-            { FuncLocs = x.FuncLocs |> List.distinctBy (fun x -> x.FunctionLocation)
-              FuncLocLinks = x.FuncLocLinks |> List.distinctBy (fun x -> x.FunctionLocation)
-              ClassFlocs = x.ClassFlocs |> List.distinctBy (fun x -> x.FuncLoc.ToString() + "!!" + x.Class)
-              ValuaFlocs = x.ValuaFlocs |> List.distinctBy (fun x -> x.FuncLoc.ToString() + "!!" + x.CharacteristicID + "!!" + x.ValueCount.ToString())
+            { FuncLocs = x.FuncLocs |> List.distinctBy (fun v -> v.FunctionLocation)
+              FuncLocLinks = x.FuncLocLinks |> List.distinctBy (fun v -> v.FunctionLocation)
+              ClassFlocs = x.ClassFlocs |> List.distinctBy (fun v -> v.FuncLoc.ToString() + "!!" + v.Class)
+              ValuaFlocs = x.ValuaFlocs |> List.distinctBy (fun v -> v.FuncLoc.ToString() + "!!" + v.CharacteristicID + "!!" + v.ValueCount.ToString())
             }
 
         static member Concat (source : Phase1FlocData list) : Phase1FlocData = 

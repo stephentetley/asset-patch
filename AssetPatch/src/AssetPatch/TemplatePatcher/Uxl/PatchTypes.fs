@@ -9,10 +9,11 @@ module PatchTypes =
     open System
 
     open AssetPatch.Base
+    open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
 
 
-    // This represents one row
+    /// This represents one row
     type MmopChangeRequest = 
         { Description: string
           ChangeRequestType: string
@@ -20,6 +21,12 @@ module PatchTypes =
           EquipmentId: string option                  // Generally numeric
           ProcessRequestor: string
         }
+        member x.SortKey
+            with get(): string = 
+                let part1 = Option.defaultValue "ZZZZZ" <| Option.map (fun floc -> floc.ToString()) x.FunctionalLocation
+                let part2 = Option.defaultValue "ZZZZZ" x.EquipmentId
+                part1 + "!!" + part2
+
         member x.ToAssocs() = 
             [ ("Description (Long)",            x.Description) 
             ; ("Priority",                      "")
@@ -42,6 +49,7 @@ module PatchTypes =
           Description: string 
           FunLocCategory: int
           StructureIndicator: string
+          StartupDate: DateTime
           ObjectType: string
         }
         member x.ToAssocs() = 
@@ -53,7 +61,7 @@ module PatchTypes =
             ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                    "")
             ; ("Unit of weight",                    "")
-            ; ("Start-up date",                    "")
+            ; ("Start-up date",                 x.StartupDate |> showS4Date)
             ; ("Currency",                    "")
             ; ("Acquistion date",                    "")
             ; ("ConstructYear",                    "")
@@ -80,7 +88,7 @@ module PatchTypes =
             ] |> AssocList.ofList
 
 
-    type MMopFlocClassification = 
+    type MmopFlocClassification = 
         { FunctionalLocation: FuncLocPath
           Class: string
           CharacteristicName: string
@@ -102,6 +110,7 @@ module PatchTypes =
         { EquiId: string
           EquiCategory: string  
           Description: string 
+          StartupDate: DateTime
           FunctionalLocation: FuncLocPath
         }
         member x.ToAssocs() = 
@@ -111,7 +120,7 @@ module PatchTypes =
             ; ("Object type",              "")
             ; ("Gross Weight",              "")
             ; ("Unit of weight",              "")
-            ; ("Start-up date",              "")
+            ; ("Start-up date",                 x.StartupDate |> showS4Date)
             ; ("AcquistnValue",              "")
             ; ("Currency",              "")
             ; ("Acquistion date",              "")
@@ -144,7 +153,7 @@ module PatchTypes =
             ; ("Long Text",                     x.LongText)
             ] |> AssocList.ofList
 
-    type MMopEquiClassification = 
+    type MmopEquiClassification = 
         { EquiId: string
           Class: string
           CharacteristicName: string
