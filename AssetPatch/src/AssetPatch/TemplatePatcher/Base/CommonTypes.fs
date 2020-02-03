@@ -55,6 +55,14 @@ module CommonTypes =
                 | TextValue _ -> None
                 | DateValue _ -> Some "0"
 
+        member x.UxlValue
+            with get(): string = 
+                match x with
+                | NullValue -> ""
+                | IntValue i -> i.ToString()
+                | DecimalValue d -> d.ToString()
+                | TextValue s -> s
+                | DateValue dt -> dt.ToString(format="dd.MM.yyyy")
 
     let intValue (i : int) : ValuaValue = 
         IntValue (bigint i)

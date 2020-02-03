@@ -78,10 +78,11 @@ let main02 () =
 
 let uxlOptions : UxlOptions = 
     { ProcessRequester  = "ASSET DATA"
+      ChangeRequestDescription = "S3953 MMIM Updates"
       WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist_part3.xlsx" 
       OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\csv" 
     }
 
 let main03 () = 
-    runUxlOutstationPatcher uxlOptions  
+    runUxlOutstationPatcher uxlOptions
 

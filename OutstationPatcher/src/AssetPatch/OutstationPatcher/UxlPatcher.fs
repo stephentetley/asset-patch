@@ -16,9 +16,10 @@ module UxlPatcher =
     open AssetPatch.OutstationPatcher.OutstationTemplate
 
     type UxlOptions = 
-        { ProcessRequester : string
-          WorkListPath : string
-          OutputDirectory : string
+        { ProcessRequester: string
+          ChangeRequestDescription: string
+          WorkListPath: string
+          OutputDirectory: string
         }
 
 
@@ -39,7 +40,8 @@ module UxlPatcher =
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runUxlOutstationPatcher (opts : UxlOptions) : Result<unit, string> = 
-        let userEnv = defaultUxlEnv opts.ProcessRequester
+        let userEnv = 
+            { defaultUxlEnv opts.ChangeRequestDescription with ProcessRequester = opts.ProcessRequester }
         runCompiler userEnv
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)

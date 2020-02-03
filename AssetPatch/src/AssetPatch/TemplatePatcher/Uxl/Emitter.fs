@@ -104,7 +104,7 @@ module Emitter =
         { FunctionalLocation = funcLoc
           Class = className
           CharacteristicName = charac.Name
-          CharacteristicValue = Option.defaultValue "" charac.Value.CharacteristicValue
+          CharacteristicValue = charac.Value.UxlValue
         }
 
     let makeMmopFlocClassifications (funcLoc : FuncLocPath)
@@ -127,7 +127,7 @@ module Emitter =
         { EquiId = equiId
           Class = className
           CharacteristicName = charac.Name
-          CharacteristicValue = Option.defaultValue "" charac.Value.CharacteristicValue
+          CharacteristicValue = charac.Value.UxlValue
         }
 
     let makeMmopEquiClassifications (equiId: string)
@@ -139,6 +139,9 @@ module Emitter =
           EquiCategory = equipment.Category
           Description = equipment.Description
           StartupDate = equipment.FlocProperties.StartupDate
+          Manufacturer = Option.defaultValue "TO BE DETERMINED" equipment.Manufacturer
+          Model = Option.defaultValue "TO BE DETERMINED" equipment.Model
+          SerialNumber = Option.defaultValue "UNKNOWN" equipment.SerialNumber
           FunctionalLocation = equipment.FuncLoc
         }
 
@@ -228,7 +231,6 @@ module Emitter =
     // User API
 
     let equipmentEmitMmopCreate (source : S4Equipment) : UxlCompilerMonad<MmopCreateData> = 
-        printfn "Warning - subequipment recursion not handled..."
         equipmentToMmopCreateData source
 
     

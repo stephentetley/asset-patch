@@ -15,8 +15,8 @@ module Base =
           ChangeRequestType: string }
 
     let defaultUxlEnv (changeRequestDescription: string ) = 
-        { ProcessRequester = changeRequestDescription
-          ChangeRequestDescription = "ASSET DATE"
+        { ProcessRequester = "ASSET DATA"
+          ChangeRequestDescription = changeRequestDescription
           ChangeRequestType = "AIWEAM0P" 
         }
           // "AIWEAM0P"
