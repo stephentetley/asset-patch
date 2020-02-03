@@ -39,7 +39,7 @@ module UxlPatcher =
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runUxlOutstationPatcher (opts : UxlOptions) : Result<unit, string> = 
-        let userEnv = { ProcessRequestor = opts.ProcessRequester }
+        let userEnv = defaultUxlEnv opts.ProcessRequester
         runCompiler userEnv
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)

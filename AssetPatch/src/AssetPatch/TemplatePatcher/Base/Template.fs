@@ -49,7 +49,7 @@ module Template =
     type Template<'a> = 
         | Template of (TemplateEnv -> Result<'a, ErrMsg>)
 
-    let inline private apply1 (ma : Template<'a>)(env : TemplateEnv) : Result<'a, ErrMsg> = 
+    let inline private apply1 (ma : Template<'a>) (env : TemplateEnv) : Result<'a, ErrMsg> = 
         let (Template fn) = ma in fn env
 
     let mreturn (x:'a) : Template<'a> = 

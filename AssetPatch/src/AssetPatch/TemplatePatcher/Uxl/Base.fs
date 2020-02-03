@@ -10,11 +10,29 @@ module Base =
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
 
     type UxlEnv = 
-        { ProcessRequestor: string }
+        { ProcessRequester: string
+          ChangeRequestDescription: string 
+          ChangeRequestType: string }
+
+    let defaultUxlEnv (changeRequestDescription: string ) = 
+        { ProcessRequester = changeRequestDescription
+          ChangeRequestDescription = "ASSET DATE"
+          ChangeRequestType = "AIWEAM0P" 
+        }
+          // "AIWEAM0P"
 
 
     type UxlCompilerMonad<'a> = CompilerMonad<'a, UxlEnv>
 
-    let getProcessRequestor () : UxlCompilerMonad<string> = 
-        asksUserEnv (fun env -> env.ProcessRequestor)
+    let getProcessRequester () : UxlCompilerMonad<string> = 
+        asksUserEnv (fun env -> env.ProcessRequester)
+
+    let getChangeRequestDescription () : UxlCompilerMonad<string> = 
+        asksUserEnv (fun env -> env.ChangeRequestDescription)
+
+    let getChangeRequestType () : UxlCompilerMonad<string> = 
+        asksUserEnv (fun env -> env.ChangeRequestType)
+
+    let newEquimentId () : UxlCompilerMonad<string> = 
+        freshName <| fun i -> sprintf "$%i" (i + 2000)
 

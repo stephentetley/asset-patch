@@ -18,7 +18,7 @@ module PatchTypes =
         { Description: string
           ChangeRequestType: string
           FunctionalLocation: FuncLocPath option
-          EquipmentId: string option                  // Generally numeric
+          EquipmentId: string option                  // Generally a "dollar number"
           ProcessRequestor: string
         }
         member x.SortKey

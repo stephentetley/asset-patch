@@ -13,6 +13,12 @@ module Emitter =
     open AssetPatch.TemplatePatcher.Uxl.Base
     open AssetPatch.TemplatePatcher.Uxl.PatchTypes
 
+    type EquiData =
+        { Equipment: MmopNewEqui
+          MultilingualText: MmopNewEquiMultilingualText
+          EquiClassifications: MmopEquiClassification list
+        }
+
     type MmopCreateData = 
         { ChangeRequests : MmopChangeRequest list
           NewFuncLocs: MmopNewFuncLoc list
@@ -59,9 +65,39 @@ module Emitter =
               NewEquiClassifications    = source |> List.map (fun x -> x.NewEquiClassifications) |> List.concat
             }
 
+    
     // ************************************************************************
     // Translation
+
     
+    let makeMmopChangeRequestFloc (floc: FuncLocPath) : UxlCompilerMonad<MmopChangeRequest> = 
+        compile {
+            let! descr = getChangeRequestDescription ()
+            let! changeType = getChangeRequestType ()
+            let! requester = getProcessRequester ()
+            return { 
+                Description = descr
+                ChangeRequestType = changeType
+                FunctionalLocation = Some floc
+                EquipmentId = None
+                ProcessRequestor = requester
+                }
+        }
+
+    let makeMmopChangeRequestEqui (equiId: string) : UxlCompilerMonad<MmopChangeRequest> = 
+        compile {
+            let! descr = getChangeRequestDescription ()
+            let! changeType = getChangeRequestType ()
+            let! requester = getProcessRequester ()
+            return { 
+                Description = descr
+                ChangeRequestType = changeType
+                FunctionalLocation = None
+                EquipmentId = Some equiId
+                ProcessRequestor = requester
+                }
+        }
+
     let makeMmopFlocClassification (funcLoc : FuncLocPath)
                                     (className: string)
                                     (charac : S4Characteristic) : MmopFlocClassification = 
@@ -74,6 +110,16 @@ module Emitter =
     let makeMmopFlocClassifications (funcLoc : FuncLocPath)
                                     (flocClass : S4Class) : MmopFlocClassification list = 
         List.map (makeMmopFlocClassification funcLoc flocClass.ClassName) flocClass.Characteristics
+
+
+    let makeMmopEquiMultilingualText (equiId: string)
+                                     (description: string)
+                                     (longText : string) : MmopNewEquiMultilingualText = 
+        { EquiId = equiId
+          Description = description
+          LongText = longText
+        }
+
 
     let makeMmopEquiClassification (equiId: string)
                                     (className: string)
@@ -88,41 +134,61 @@ module Emitter =
                                     (equiClass : S4Class) : MmopEquiClassification list = 
         List.map (makeMmopEquiClassification equiId equiClass.ClassName) equiClass.Characteristics
 
-    let private makeMmopNewEqui1 (equipment : S4Equipment) : MmopNewEqui = 
-        { EquiId = "///TODO"
+    let private makeMmopNewEqui1 (equiId: string) (equipment : S4Equipment) : MmopNewEqui = 
+        { EquiId = equiId
           EquiCategory = equipment.Category
           Description = equipment.Description
           StartupDate = equipment.FlocProperties.StartupDate
           FunctionalLocation = equipment.FuncLoc
         }
 
+    let private makeEquiData (equiId: string) (source : S4Equipment) : EquiData = 
+        { Equipment = makeMmopNewEqui1 equiId source 
+          MultilingualText = makeMmopEquiMultilingualText equiId "" source.MemoLine
+          EquiClassifications = 
+              List.map (makeMmopEquiClassifications equiId) source.Classes |> List.concat
+        }
 
-    /// Recursive version of equipmentToNewEqui1
-    let makeNewEqui (source : S4Equipment) : MmopNewEqui list = 
+
+
+    /// Recursive version of makeMmopNewEqui1
+    let makeEquiDataWithKids (source : S4Equipment) : UxlCompilerMonad<EquiData list> = 
             let rec work kids cont = 
                 match kids with
                 | [] -> cont []
                 | (x :: xs) -> 
-                    let v1 = makeMmopNewEqui1 x
-                    work kids (fun vs -> cont(v1 :: vs))
-            let ans1 = makeMmopNewEqui1 source
-            work source.SuboridnateEquipment (fun xs -> ans1 :: xs)
+                    newEquimentId () >>= fun equiId -> 
+                    let v1 = makeEquiData equiId x 
+                    work kids (fun vs -> cont (v1 :: vs))
+            newEquimentId () >>= fun equiId -> 
+            let equi = makeEquiData equiId source             
+            work source.SuboridnateEquipment (fun xs -> mreturn (equi :: xs))
 
     let private equipmentToMmopCreateData (source : S4Equipment) : UxlCompilerMonad<MmopCreateData> = 
-        let classChars = 
-            List.map (makeMmopEquiClassifications "TODO") source.Classes |> List.concat
-        mreturn { 
-            ChangeRequests = []
-            NewFuncLocs = []
-            NewFlocMultilingualTexts = []
-            NewFlocClassifications = []
-            NewEquipments = makeNewEqui source
-            NewEquiMultilingualTexts = []
-            NewEquiClassifications = classChars   
+        compile {
+            let! equiData = makeEquiDataWithKids source
+            let equiIds = 
+                equiData|> List.map (fun (x: EquiData) -> x.Equipment.EquiId)
+            let! changeRequests = 
+                mapM makeMmopChangeRequestEqui equiIds
+            return { 
+                ChangeRequests = changeRequests
+                NewFuncLocs = []
+                NewFlocMultilingualTexts = []
+                NewFlocClassifications = []
+                NewEquipments = 
+                    equiData|> List.map (fun (x: EquiData) -> x.Equipment)
+
+                NewEquiMultilingualTexts = 
+                    equiData|> List.map (fun (x: EquiData) -> x.MultilingualText)
+
+                NewEquiClassifications = 
+                    equiData|> List.map (fun (x: EquiData) -> x.EquiClassifications) |> List.concat
+            }
         }
 
 
-    let makeNewFuncLoc (path : FuncLocPath) 
+    let makeMmopNewFuncLoc (path : FuncLocPath) 
                         (props : FuncLocProperties)
                         (description : string) 
                         (objectType : string)  : MmopNewFuncLoc = 
@@ -134,6 +200,8 @@ module Emitter =
           ObjectType = objectType
         }
 
+
+
     let private funclocToMmopCreateData (path : FuncLocPath) 
                                         (props : FuncLocProperties)
                                         (description : string) 
@@ -141,11 +209,12 @@ module Emitter =
                                         (classes : S4Class list) : UxlCompilerMonad<MmopCreateData> = 
         let collect xs = List.foldBack (fun (c1, vs1)  (cs,vs) -> (c1 ::cs, vs1 @ vs)) xs ([],[])
         compile {
-            let floc = makeNewFuncLoc path props description objectType
+            let floc = makeMmopNewFuncLoc path props description objectType
             let classChars : MmopFlocClassification list = 
                 List.map (makeMmopFlocClassifications path) classes |> List.concat
+            let! changeRequest = makeMmopChangeRequestFloc path
             return { 
-                ChangeRequests = []
+                ChangeRequests = [changeRequest]
                 NewFuncLocs = [floc]
                 NewFlocMultilingualTexts = []
                 NewFlocClassifications = classChars
