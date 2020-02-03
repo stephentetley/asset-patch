@@ -71,6 +71,7 @@ module PatchTypes =
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
             ; ("ConstructYear",                 "")
+            ; ("ConstructMth",                  "")
             ; ("Company Code",                  "")
             ; ("Position",                      "")
             ; ("SupFunctLoc.",                  superFlocName)

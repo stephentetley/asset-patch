@@ -4,8 +4,8 @@
 
 namespace AssetPatch.EdcPatcher
 
-[<AutoOpen>]
-module EdcPatcher =
+
+module AiwPatcher =
     
     open System.IO
 
@@ -21,14 +21,12 @@ module EdcPatcher =
     open AssetPatch.EdcPatcher.EdcTemplate
 
 
-    type EdcPatcherOptions = 
+    type AiwOptions = 
         { UserName : string 
           OutputDirectory : string
           WorkListPath : string
           }
 
-    let private makeCompilerOptions (opts : EdcPatcherOptions) : CompilerOptions = 
-        { UserName = opts.UserName }
 
     let internal makeOutputDirectory (dirName : string) : unit = 
         if not <| Directory.Exists(dirName) then
@@ -61,9 +59,9 @@ module EdcPatcher =
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
-    let runEdcPatcherPhase1 (opts : EdcPatcherOptions) : Result<unit, string> = 
-        let compilerOpts : CompilerOptions = makeCompilerOptions opts           
-        runCompiler compilerOpts None
+    let runEdcPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
+        let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
+        runCompiler userEnv
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
                 let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
@@ -74,14 +72,14 @@ module EdcPatcher =
 
     /// Phase 2 generates ClassEqui and ValuaEqui patches 
     /// with materialized Equipment numbers
-    let runEdcPatcherPhase2 (opts : EdcPatcherOptions) 
+    let runEdcPatcherPhase2 (opts : AiwOptions) 
                             (equipmentDownloadPath : string) : Result<unit, string> = 
         match readEquiDownload equipmentDownloadPath with
         | Error msg -> Error msg
         | Ok equiMap -> 
-            let compilerOpts : CompilerOptions = makeCompilerOptions opts  
-            runCompiler compilerOpts (Some equiMap)
-                <| compile { 
+            let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = Some equiMap }
+            runCompiler userEnv 
+                <| compile {
                     do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
                     let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
                     let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat

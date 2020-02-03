@@ -8,7 +8,7 @@
     <None Include="excel-sample\EDC_Worklist_Sample.xlsx" />
     <Compile Include="src\AssetPatch\EdcPatcher\InputData.fs" />
     <Compile Include="src\AssetPatch\EdcPatcher\EdcTemplate.fs" />
-    <Compile Include="src\AssetPatch\EdcPatcher\EdcPatcher.fs" />
+    <Compile Include="src\AssetPatch\EdcPatcher\AiwPatcher.fs" />
     <None Include="RunEdcPatcher.fsx" />
   </ItemGroup>
 
