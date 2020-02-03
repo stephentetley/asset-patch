@@ -27,26 +27,26 @@ module UxlPatcher =
     let private processRow (path : FuncLocPath, row : WorkListRow) : UxlCompilerMonad<MmopCreateData> = 
         match path.Level with
         | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitMmopCreate
-        //| 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase1
-        //| 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase1
-        //| 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase1
-        //| 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
-        //       applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
-        //       equipmentEmitNewEquis eq1 >>= fun equiPatches1 -> 
-        //       equipmentEmitNewEquis eq2 >>= fun equiPatches2 -> 
-        //       mreturn (Phase1FlocData.Empty (), equiPatches1 @ equiPatches2)
+        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitMmopCreate
+        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitMmopCreate
+        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitMmopCreate
+        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
+               applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
+               equipmentEmitMmopCreate eq1 >>= fun equiPatches1 -> 
+               equipmentEmitMmopCreate eq2 >>= fun equiPatches2 -> 
+               mreturn (MmopCreateData.Concat [equiPatches1; equiPatches2])
 
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runUxlOutstationPatcher (opts : UxlOptions) : Result<unit, string> = 
-        let userEnv : Unit = ()
+        let userEnv = { ProcessRequestor = opts.ProcessRequester }
         runCompiler userEnv
             <| compile { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 
                         |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
-                // let mmopCreateData = failwith "TODO" // mapM phase1ProcessRow worklist
-                // do! writeMmopCreateData opts.OutputDirectory "outstation_patch" mmopCreateData
+                let! mmopCreateData = mapM processRow worklist |>> MmopCreateData.Concat
+                do! writeMmopCreateData opts.OutputDirectory "outstation_patch" mmopCreateData
                 return ()
             }

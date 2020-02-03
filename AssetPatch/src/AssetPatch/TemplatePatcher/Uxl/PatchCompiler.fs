@@ -37,10 +37,22 @@ module PatchCompiler =
         else            
             compile {
                 let! outPath01 = genFileName directory filePrefix "01_change_request_details_tab"
-                do! writeNewChangeRequestsFile mmopData.ChangeRequests outPath01
+                do! writeMmopChangeRequestsFile mmopData.ChangeRequests outPath01
+                
+                // FuncLoccs
                 let! outPath02 = genFileName directory filePrefix "02_function_location_data_tab"
-                do! writeNewFuncLocsFile mmopData.NewFuncLocs outPath02
+                do! writeMmopFuncLocsFile mmopData.NewFuncLocs outPath02
                 let! outPath03 = genFileName directory filePrefix "03_fl_mulitlingual_text_tab"
-                do! writeNewFLMultilingualTextsFile mmopData.NewFlocMultilingualTexts outPath03
+                do! writeMmopFLMultilingualTextsFile mmopData.NewFlocMultilingualTexts outPath03
+                let! outPath04 = genFileName directory filePrefix "04_fl_classification_tab"
+                do! writeMmopFLClassificationsFile mmopData.NewFlocClassifications outPath04
+
+                // Equipment
+                let! outPath05 = genFileName directory filePrefix "05_equipment_data_tab"
+                do! writeMmopNewEquisFile mmopData.NewEquipments outPath05
+                let! outPath06 = genFileName directory filePrefix "06_eq_mulitlingual_text_tab"
+                do! writeMmopEQMultilingualTextsFile mmopData.NewEquiMultilingualTexts outPath06
+                let! outPath07 = genFileName directory filePrefix "07_eq_classification_tab"
+                do! writeMmopEQClassificationsFile mmopData.NewEquiClassifications outPath07
                 return ()
             }
