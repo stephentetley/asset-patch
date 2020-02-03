@@ -31,10 +31,11 @@ module PatchCompiler =
 
     let writeMmopCreateData (directory : string) 
                         (filePrefix : string) 
-                        (mmopData : MmopCreateData) : UxlCompilerMonad<unit> =         
-        if mmopData.IsEmpty then
+                        (source : MmopCreateData) : UxlCompilerMonad<unit> =         
+        if source.IsEmpty then
             mreturn ()
         else            
+            let mmopData = source.RemoveDups()
             compile {
                 let! outPath01 = genFileName directory filePrefix "01_change_request_details_tab"
                 do! writeMmopChangeRequestsFile mmopData.ChangeRequests outPath01

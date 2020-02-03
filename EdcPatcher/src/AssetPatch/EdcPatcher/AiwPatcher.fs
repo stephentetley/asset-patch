@@ -9,6 +9,7 @@ module AiwPatcher =
     
     open System.IO
 
+    open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Aiw.Base
@@ -27,11 +28,6 @@ module AiwPatcher =
           WorkListPath : string
           }
 
-
-    let internal makeOutputDirectory (dirName : string) : unit = 
-        if not <| Directory.Exists(dirName) then
-            Directory.CreateDirectory(dirName) |> ignore
-        else ()
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
@@ -59,7 +55,7 @@ module AiwPatcher =
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
-    let runEdcPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
+    let runAiwEdcPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
         let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
         runCompiler userEnv
             <| compile { 
@@ -72,7 +68,7 @@ module AiwPatcher =
 
     /// Phase 2 generates ClassEqui and ValuaEqui patches 
     /// with materialized Equipment numbers
-    let runEdcPatcherPhase2 (opts : AiwOptions) 
+    let runAiwEdcPatcherPhase2 (opts : AiwOptions) 
                             (equipmentDownloadPath : string) : Result<unit, string> = 
         match readEquiDownload equipmentDownloadPath with
         | Error msg -> Error msg

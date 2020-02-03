@@ -9,6 +9,7 @@
     <Compile Include="src\AssetPatch\EdcPatcher\InputData.fs" />
     <Compile Include="src\AssetPatch\EdcPatcher\EdcTemplate.fs" />
     <Compile Include="src\AssetPatch\EdcPatcher\AiwPatcher.fs" />
+    <Compile Include="src\AssetPatch\EdcPatcher\UxlPatcher.fs" />
     <None Include="RunEdcPatcher.fsx" />
   </ItemGroup>
 
