@@ -82,3 +82,6 @@ let uxlOptions : UxlOptions =
       OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\csv" 
     }
 
+let main03 () = 
+    runUxlOutstationPatcher uxlOptions  
+

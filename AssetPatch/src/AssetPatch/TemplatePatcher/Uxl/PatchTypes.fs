@@ -21,8 +21,15 @@ module PatchTypes =
           ProcessRequestor: string
         }
         member x.ToAssocs() = 
-            [ ("Description (Long)",            x.Description)  
+            [ ("Description (Long)",            x.Description) 
+            ; ("Priority",                      "")
+            ; ("Due Date",                      "")
+            ; ("Reason",                        "")
             ; ("Type of Change Request",        x.ChangeRequestType)
+            ; ("Change Request Group",          "")
+            ; ("MBOM-Material",                 "")
+            ; ("MBOM-Plant",                    "")
+            ; ("MBOM-Usage",                    "")
             ; ("FL-Functional Location",        
                     Option.defaultValue "" <| Option.map (fun floc -> floc.ToString()) x.FunctionalLocation)
             ; ("EQ-Equipment",                  Option.defaultValue "" x.EquipmentId)
@@ -34,12 +41,28 @@ module PatchTypes =
         { FunctionalLocation: FuncLocPath
           Description: string 
           FunLocCategory: int
+          StructureIndicator: string
+          ObjectType: string
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
             ; ("Masked Func Loc",               x.FunctionalLocation.ToString())
-            ; ("Active Inactive Stat",          "")
-            ; ("Description (medium)",          x.Description)    
+            ; ("Description (medium)",          x.Description)
+            ; ("FunctLocCat.",                  x.FunLocCategory.ToString())
+            ; ("StrIndicator",                  x.StructureIndicator)
+            ; ("Object type",                   x.ObjectType)
+            ; ("Gross Weight",                    "")
+            ; ("Unit of weight",                    "")
+            ; ("Start-up date",                    "")
+            ; ("Currency",                    "")
+            ; ("Acquistion date",                    "")
+            ; ("ConstructYear",                    "")
+            ; ("Company Code",                    "")
+            ; ("Position",                    "")
+            ; ("SupFunctLoc.",                    "")
+            ; ("EquipInstall.",                    "")
+            ; ("Status of an object",                    "")
+            ; ("Status without stsno",                    "")
             ] |> AssocList.ofList
 
 
@@ -50,7 +73,9 @@ module PatchTypes =
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
-            ; ("Description",                   x.Description)    
+            ; ("Delete Indicator",              "")
+            ; ("Description",                   x.Description) 
+            ; ("Language",                      "")
             ; ("Long Text",                     x.LongText)
             ] |> AssocList.ofList
 
@@ -63,10 +88,13 @@ module PatchTypes =
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
+            ; ("Deletion Ind",                  "")
             ; ("Class Type",                    "003")
             ; ("Class",                         x.Class)
+            ; ("Status",                        "")
             ; ("Characteristics",               x.CharacteristicName)
             ; ("Char Value",                    x.CharacteristicValue)
+            ; ("Ch.Deletion Ind.",              "")
             ] |> AssocList.ofList
 
 
@@ -80,7 +108,27 @@ module PatchTypes =
             [ ("Equiment",                      x.EquiId)
             ; ("EquipCategory",                 x.EquiCategory)
             ; ("Description (medium)",          x.Description)
+            ; ("Object type",              "")
+            ; ("Gross Weight",              "")
+            ; ("Unit of weight",              "")
+            ; ("Start-up date",              "")
+            ; ("AcquistnValue",              "")
+            ; ("Currency",              "")
+            ; ("Acquistion date",              "")
+            ; ("Manufacturer",              "")
+            ; ("Model number",              "")
+            ; ("ManufPartNo.",              "")
+            ; ("ManufSerialNo.",              "")
+            ; ("ManufCountry",              "")
+            ; ("ConstructYear",              "")
+            ; ("ConstructMth",              "")
+            ; ("Company Code",              "")         
             ; ("Functional loc.",               x.FunctionalLocation.ToString())
+            ; ("Superord.Equip.",              "")
+            ; ("Position",              "")
+            ; ("TechIdentNo.",              "")
+            ; ("Status of an object",              "")
+            ; ("Status without stsno",              "")
             ] |> AssocList.ofList
 
     type MmopNewEquiMultilingualText = 
@@ -90,6 +138,8 @@ module PatchTypes =
         }
         member x.ToAssocs() = 
             [ ("Equipment",                     x.EquiId)
+            ; ("Delete Indicator",              "")
+            ; ("Language",                      "")
             ; ("Description (medium)",          x.Description)
             ; ("Long Text",                     x.LongText)
             ] |> AssocList.ofList
@@ -102,8 +152,11 @@ module PatchTypes =
         }
         member x.ToAssocs() = 
             [ ("Equipment",                     x.EquiId)
+            ; ("Delete Ind.",                   "")
             ; ("Class Type",                    "002")
             ; ("Class",                         x.Class)
+            ; ("Status",                        "")
             ; ("Characteristics",               x.CharacteristicName)
             ; ("Char Value",                    x.CharacteristicValue)  
+            ; ("Ch. Delete Ind.",               "")
             ] |> AssocList.ofList

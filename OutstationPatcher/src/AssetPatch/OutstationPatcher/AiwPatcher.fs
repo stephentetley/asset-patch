@@ -86,7 +86,7 @@ module AiwPatcher =
         | Error msg -> Error msg
         | Ok equiMap -> 
             let compilerOpts : CompilerOptions = makeCompilerOptions opts  
-            runCompiler compilerOpts (Some equiMap)
+            runAiwCompiler compilerOpts (Some equiMap)
                 <| compile { 
                     do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                     let! worklist = 

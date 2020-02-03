@@ -68,6 +68,11 @@ module Base =
 
 
     type AiwCompilerMonad<'a> = CompilerMonad<'a, EquiMap option>
+    
+    let runAiwCompiler (options : CompilerOptions) 
+                        (equis : EquiMap option)
+                        (action : AiwCompilerMonad<'a> ) : Result<'a, ErrMsg> = 
+        runCompiler options equis action
 
     
     let getEquiNumber (description: string) (funcLoc: FuncLocPath) : AiwCompilerMonad<string> = 
