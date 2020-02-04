@@ -172,7 +172,7 @@ module PatchTypes =
           ConstructionYear: int option
           ConstructionMonth: int option
           CompanyCode: string
-          FunctionalLocation: FuncLocPath
+          FunctionalLocation: FuncLocPath option
           SuperordEquip: string
           StatusOfAnObject: string
           StatusWithoutStatusNum: string
@@ -196,7 +196,7 @@ module PatchTypes =
             ; ("ConstructYear",                 optionalInt x.ConstructionYear)
             ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
             ; ("Company Code",                  x.CompanyCode)         
-            ; ("Functional loc.",               x.FunctionalLocation.ToString())
+            ; ("Functional loc.",               optionalFloc x.FunctionalLocation)
             ; ("Superord.Equip.",               x.SuperordEquip)
             ; ("Position",                      "")
             ; ("TechIdentNo.",                  "")
