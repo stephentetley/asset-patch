@@ -12,8 +12,8 @@ module Smon =
 
 
     /// Class:SMONSY
-    let smonsy : Characteristic list -> Class = 
-        _class "SMONSY" 
+    let smonsy : Characteristic list -> Classification = 
+        _classification "SMONSY" 
     
 
     /// SYSTEM_TYPE

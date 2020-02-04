@@ -43,7 +43,7 @@ module EdcTemplate =
         with
         | _ -> None
 
-    let private lstnut_leaf_instance (parameters : WorkListRow) : Class = 
+    let private lstnut_leaf_instance (parameters : WorkListRow) : Classification = 
         lstnut
             [ uniclass_code ()
               uniclass_desc ()

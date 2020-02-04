@@ -11,8 +11,8 @@ module AssetCondition =
 
 
     /// ASSET_CONDITION
-    let asset_condition : Characteristic list -> Class = 
-        _class "ASSET_CONDITION"
+    let asset_condition : Characteristic list -> Classification = 
+        _classification "ASSET_CONDITION"
 
     // ASSET_CONDITION:ConditionGrade
     type ConditionGrade = 
@@ -137,7 +137,7 @@ module AssetCondition =
         _characteristic "SURVEY_DATE" (DateValue <| dt)
 
     /// Emit ASSET_CONDITION with defaults for new
-    let asset_condition_common (year : int) : Class = 
+    let asset_condition_common (year : int) : Classification = 
         asset_condition 
             [   condition_grade Good
                 condition_grade_reason "New"

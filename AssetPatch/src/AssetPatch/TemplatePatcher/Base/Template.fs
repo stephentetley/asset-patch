@@ -164,9 +164,9 @@ module Template =
 
 
 
-    type Class = Template<S4Class>
+    type Classification = Template<S4Class>
 
-    let _class (name : string) (values : Characteristic list) : Class = 
+    let _classification (name : string) (values : Characteristic list) : Classification = 
         template {
             let! vs = unlistM values
             return { 
@@ -199,7 +199,7 @@ module Template =
                     (objectType : string)
                     (zzClass : string)
                     (memoLine : string)
-                    (classes : Class list) 
+                    (classes : Classification list) 
                     (subordinateEquipment : Equipment list) 
                     (attributes : EquipmentAttribute list) : Equipment = 
         let equip1 = 
@@ -237,7 +237,7 @@ module Template =
 
 
     let _component (flocToken : string) (description : string) (objectType : string)
-                   (classes : Class list) (equipment : Equipment list) : Component = 
+                   (classes : Classification list) (equipment : Equipment list) : Component = 
         extendFloc flocToken
             <| template {
                 let! floc = asksFloc ()
@@ -257,7 +257,7 @@ module Template =
     type Item = Template<S4Item>
     
     let _item (flocToken : string) (description : string) (objectType : string)
-                (classes : Class list) 
+                (classes : Classification list) 
                 (components : Component list) (equipment : Equipment list) : Item = 
         extendFloc flocToken
             <| template {
@@ -280,7 +280,7 @@ module Template =
     type Assembly = Template<S4Assembly>
     
     let _assembly (flocToken : string) (description : string) (objectType : string)
-                    (classes : Class list) 
+                    (classes : Classification list) 
                     (items : Item list) (equipment : Equipment list) : Assembly = 
         extendFloc flocToken
             <| template {
@@ -303,7 +303,7 @@ module Template =
     type System = Template<S4System>
     
     let _system (flocToken : string) (description : string) (objectType : string)
-                (classes : Class list) 
+                (classes : Classification list) 
                 (assemblies : Assembly list) (equipment : Equipment list) : System = 
         extendFloc flocToken
             <| template {
@@ -326,7 +326,7 @@ module Template =
     type Process = Template<S4Process>
     
     let _process (flocToken : string) (description : string) (objectType : string)
-                    (classes : Class list) 
+                    (classes : Classification list) 
                     (systems : System list) : Process = 
         extendFloc flocToken
             <| template {
@@ -347,7 +347,7 @@ module Template =
     type ProcessGroup = Template<S4ProcessGroup>
     
     let _processGroup (flocToken : string) (description : string) (objectType : string)    
-                        (classes : Class list) 
+                        (classes : Classification list) 
                         (processes : Process list) : ProcessGroup = 
         extendFloc flocToken
             <| template {
@@ -368,7 +368,7 @@ module Template =
     type Function = Template<S4Function>
     
     let _function (flocToken : string) (description : string) (objectType : string)
-                  (classes : Class list) 
+                  (classes : Classification list) 
                   (processGroups : ProcessGroup list) : Function = 
         extendFloc flocToken
             <| template {
@@ -389,7 +389,7 @@ module Template =
     type Site = Template<S4Site>
     
     let _site (siteCode : string) (description : string) 
-                (classes : Class list) 
+                (classes : Classification list) 
                 (functions : Function list) : Site = 
         rootFloc (FuncLocPath.Create siteCode)
             <| template {

@@ -12,21 +12,21 @@ module Netw =
 
 
     let telemetry_outstation (name : string) (memoLine : string)
-                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
+                : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
         _equipment name "I" "NETW" "NETWTL" memoLine
 
     let modem (name : string) (memoLine : string)
-                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
+                : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
         _equipment name "I" "NETW" "NETWMO" memoLine
 
 
     /// Class:NETWTL
-    let netwtl : Characteristic list -> Class = 
-        _class "NETWTL" 
+    let netwtl : Characteristic list -> Classification = 
+        _classification "NETWTL" 
 
     /// Class:NETWMO
-    let netwmo : Characteristic list -> Class = 
-        _class "NETWMO" 
+    let netwmo : Characteristic list -> Classification = 
+        _classification "NETWMO" 
     
     /// NETW_SUPPLY_VOLTAGE
     let netw_supply_voltage (v : int) : Characteristic =         

@@ -11,13 +11,13 @@ module Lstn =
     open AssetPatch.TemplatePatcher.Base.Template
 
     let lstn_level_transmitter (name : string) (memoLine : string)
-                : Class list -> Equipment list -> EquipmentAttribute list -> Equipment = 
+                : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
         _equipment name "I" "LSTN" "LSTNUT" memoLine
 
 
     /// Class:LSTNUT
-    let lstnut : Characteristic list -> Class = 
-        _class "LSTNUT"     
+    let lstnut : Characteristic list -> Classification = 
+        _classification "LSTNUT"     
 
     /// Too many cases to make an enum worthwhile
     type RelayFunction = string

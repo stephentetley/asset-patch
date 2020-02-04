@@ -12,8 +12,8 @@ module Ctos =
 
 
     /// Class:CTOSSY
-    let ctossy : Characteristic list -> Class = 
-        _class "CTOSSY" 
+    let ctossy : Characteristic list -> Classification = 
+        _classification "CTOSSY" 
     
 
     /// SYSTEM_TYPE

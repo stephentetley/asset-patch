@@ -16,16 +16,16 @@ module Root =
 
     let _no_functions_ : Function list = []
 
-    let control_and_automation : Class list -> ProcessGroup list -> Function =
+    let control_and_automation : Classification list -> ProcessGroup list -> Function =
         _function "CAA" "Control and Automation" "CAA"
 
-    let electrical_power_supply : Class list -> ProcessGroup list -> Function =
+    let electrical_power_supply : Classification list -> ProcessGroup list -> Function =
         _function "E" "Electrical Power Supply" "EPS"
 
-    let environmental_discharge : Class list -> ProcessGroup list -> Function =
+    let environmental_discharge : Classification list -> ProcessGroup list -> Function =
         _function "EDC" "Environmental Discharge" "EDC"
 
-    let site_infrastructure : Class list -> ProcessGroup list -> Function =
+    let site_infrastructure : Classification list -> ProcessGroup list -> Function =
         _function "SIF" "Site Infrastructure" "SIF"
 
 
@@ -34,19 +34,19 @@ module Root =
 
     let _no_process_groups_ : ProcessGroup list = []
 
-    let control : Class list -> Process list -> ProcessGroup =
+    let control : Classification list -> Process list -> ProcessGroup =
         _processGroup "CON" "Control" "CON"
 
-    let combined_treatment : Class list -> Process list -> ProcessGroup =
+    let combined_treatment : Classification list -> Process list -> ProcessGroup =
         _processGroup "COT" "Combined Treatment" "COT"
 
-    let liquid_discharge : Class list -> Process list -> ProcessGroup =
+    let liquid_discharge : Classification list -> Process list -> ProcessGroup =
         _processGroup "LQD" "Liquid Discharge" "LQD"
 
-    let networks : Class list -> Process list -> ProcessGroup =
+    let networks : Classification list -> Process list -> ProcessGroup =
         _processGroup "NET" "Networks" "NET"
 
-    let waste_water_transfer : Class list -> Process list -> ProcessGroup =
+    let waste_water_transfer : Classification list -> Process list -> ProcessGroup =
         _processGroup "WTF" "Waste Water Transfer" "WTF"
 
 
@@ -55,13 +55,13 @@ module Root =
 
     let _no_processes_ : Process list = []
 
-    let pumping : Class list -> System list -> Process =
+    let pumping : Classification list -> System list -> Process =
         _process "PMG" "Pumping" "PMG"
 
-    let regulatory_monitoring : Class list -> System list -> Process =
+    let regulatory_monitoring : Classification list -> System list -> Process =
         _process "RGM" "Regulatory Monitoring" "RGM"
 
-    let telemetry : Class list -> System list -> Process =
+    let telemetry : Classification list -> System list -> Process =
         _process "TEL" "Telemetry" "TEL"
 
     // ************************************************************************
@@ -70,12 +70,12 @@ module Root =
     let _no_systems_ : System list = []
 
     let montoring_system (shortCode : string) (description : string) 
-                : Class list -> Assembly list -> Equipment list -> System =        
+                : Classification list -> Assembly list -> Equipment list -> System =        
         _system shortCode description "SMON"
 
 
     let telemetry_system (shortCode : string) (description : string)  
-                : Class list -> Assembly list -> Equipment list -> System =    
+                : Classification list -> Assembly list -> Equipment list -> System =    
         _system shortCode description "CTOS"
 
     
@@ -148,8 +148,8 @@ module Root =
 
 
     /// AIB_REFERENCE
-    let aib_reference : Characteristic list -> Class = 
-        _class "AIB_REFERENCE"
+    let aib_reference : Characteristic list -> Classification = 
+        _classification "AIB_REFERENCE"
 
     /// AIB_REFERENCE:AI2_AIB_REFERENCE
     let ai2_aib_reference (v : string) : Characteristic = 
@@ -161,10 +161,10 @@ module Root =
         _characteristic "S4_AIB_REFERENCE" NullValue
 
 
-    let aib_reference_floc_common (saiNumber : string) : Class = 
+    let aib_reference_floc_common (saiNumber : string) : Classification = 
         aib_reference [ ai2_aib_reference saiNumber; s4_aib_reference () ]
 
-    let aib_reference_equipment_common (saiNumber : string) (pliNumber: string) : Class = 
+    let aib_reference_equipment_common (saiNumber : string) (pliNumber: string) : Classification = 
         aib_reference 
             [ ai2_aib_reference saiNumber
               ai2_aib_reference pliNumber
@@ -173,8 +173,8 @@ module Root =
 
 
     /// Class:EAST_NORTH
-    let east_north : Characteristic list -> Class = 
-        _class "EAST_NORTH" 
+    let east_north : Characteristic list -> Classification = 
+        _classification "EAST_NORTH" 
 
     /// EAST_NORTH:EASTING
     let easting (v : int) : Characteristic = 
@@ -185,7 +185,7 @@ module Root =
         _characteristic "NORTHING" (intValue v)
 
     
-    let east_north_common (ngr : string) : Class = 
+    let east_north_common (ngr : string) : Classification = 
         match NGR.Create ngr with
         | None -> templateError (sprintf "invalid NGR: %s" ngr)
         | Some s -> 

@@ -12,6 +12,6 @@ module Pode =
 
 
     /// Class:PODEUP
-    let podeup : Characteristic list -> Class = 
-        _class "PODEUP" 
+    let podeup : Characteristic list -> Classification = 
+        _classification "PODEUP" 
     
