@@ -23,14 +23,15 @@
 #load "..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\AssetPatch\src\AssetPatch\Base\AbsChangeFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\FuncLocPath.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Parser.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Printer.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "src\AssetPatch\DisposeEquiPatcher\InputData.fs"
-#load "src\AssetPatch\DisposeEquiPatcher\DisposeEquiPatcher.fs"
-open AssetPatch.DisposeEquiPatcher
+#load "src\AssetPatch\DisposeEquiPatcher\AiwDisposeEquiPatcher.fs"
+#load "src\AssetPatch\DisposeEquiPatcher\UxlDisposeEquiPatcher.fs"
+open AssetPatch.DisposeEquiPatcher.AiwDisposeEquiPatcher
+open AssetPatch.DisposeEquiPatcher.UxlDisposeEquiPatcher
 
 
 // TODO - derive filename from input file?
@@ -40,6 +41,6 @@ let retireMm3x01 () =
           WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MM3X_preprod_2019_retire_worklist1.xlsx"
           OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\"
           }
-    runDisposeEquiPatcher opts
+    runAiwDisposeEquiPatcher opts
 
 

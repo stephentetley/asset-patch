@@ -72,10 +72,10 @@ let inputRows () : InputRow list  = (new InputTable()).Rows |> Seq.toList
 
 
 let demo01() = 
-    let opts = 
+    let opts : AiwOptions = 
         { UserName = "TETLEYS"
           FilePrefix = "preprod_add_PODE_attributes"
-          OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\patch_output"
+          OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output"
         }
     let podes = 
         inputRows () 

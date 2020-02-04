@@ -35,6 +35,7 @@
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchTypes.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchTypes2.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchWriter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />

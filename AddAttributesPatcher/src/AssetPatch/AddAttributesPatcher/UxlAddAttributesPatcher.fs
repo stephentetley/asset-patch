@@ -4,17 +4,18 @@
 namespace AssetPatch.AddAttributesPatcher
 
 
-module AiwAddAttributesPatcher =
+module UxlAddAttributesPatcher =
 
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Base.Template
-    open AssetPatch.TemplatePatcher.Aiw.Base
-    open AssetPatch.TemplatePatcher.Aiw.EmitNewAttributes
-    open AssetPatch.TemplatePatcher.Aiw.PatchCompiler
+    open AssetPatch.TemplatePatcher.Uxl.Base
+    // open AssetPatch.TemplatePatcher.Uxl.EmitNewAttributes
+    open AssetPatch.TemplatePatcher.Uxl.PatchCompiler
 
-    type AiwOptions = 
-        { UserName : string 
+    type UxlOptions = 
+        { ProcessRequester: string
+          ChangeRequestDescription: string
           FilePrefix: string
           OutputDirectory : string
         }
@@ -23,20 +24,20 @@ module AiwAddAttributesPatcher =
     // Add Floc attributes
 
     let private genFuncLocAttributes1 (funcLoc: FuncLocPath) 
-                                        (classes: Class list): AiwCompilerMonad<FlocAttributes> = 
+                                        (classes: Class list): UxlCompilerMonad<FlocAttributes> = 
         compile {
             let! s4classes = mapM (evalTemplate funcLoc) classes
             let! attrs = generateFlocAttributes funcLoc s4classes
             return attrs
         }
 
-    let private genFuncLocAttributes (items: FuncLocPath list) (classes: Class list): AiwCompilerMonad<FlocAttributes> = 
+    let private genFuncLocAttributes (items: FuncLocPath list) (classes: Class list): UxlCompilerMonad<FlocAttributes> = 
         compile {
             let! attrs = mapM (fun floc -> genFuncLocAttributes1 floc classes) items
             return FlocAttributes.Concat attrs
         }
 
-    let generateFuncLocAttibutes (opts: AiwOptions) 
+    let generateFuncLocAttibutes (opts: UxlOptions) 
                                     (inputList: FuncLocPath list)
                                     (classTemplates: Class list) : Result<unit, string> = 
         let aiwEnv : AiwEnv = 
@@ -54,7 +55,7 @@ module AiwAddAttributesPatcher =
     // Add Equipment attributes
 
     let private genEquipmentAttributes1 (equiId: string) 
-                                        (classes: Class list): AiwCompilerMonad<EquiAttributes> = 
+                                        (classes: Class list): UxlCompilerMonad<EquiAttributes> = 
         compile {
             let! s4classes = mapM evalTemplateNoFloc classes
             let! attrs = generateEquiAttributes equiId s4classes
@@ -65,13 +66,13 @@ module AiwAddAttributesPatcher =
     type EquipmentId = string
       
     
-    let private genEquipmentAttributes (items: EquipmentId list) (classes: Class list): AiwCompilerMonad<EquiAttributes> = 
+    let private genEquipmentAttributes (items: EquipmentId list) (classes: Class list): UxlCompilerMonad<EquiAttributes> = 
         compile {
             let! attrs = mapM (fun item -> genEquipmentAttributes1 item classes) items
             return EquiAttributes.Concat attrs
         }
 
-    let generateEquipmentAttibutes (opts: AiwOptions) 
+    let generateEquipmentAttibutes (opts: UxlOptions) 
                                     (inputList: EquipmentId list)
                                     (classTemplates: Class list) : Result<unit, string> = 
         let aiwEnv : AiwEnv = 

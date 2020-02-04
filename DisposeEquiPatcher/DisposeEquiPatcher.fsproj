@@ -7,7 +7,8 @@
   <ItemGroup>
     <None Include="excel-sample\Dispose_Equi_Worklist_Sample.xlsx" />
     <Compile Include="src\AssetPatch\DisposeEquiPatcher\InputData.fs" />
-    <Compile Include="src\AssetPatch\DisposeEquiPatcher\DisposeEquiPatcher.fs" />
+    <Compile Include="src\AssetPatch\DisposeEquiPatcher\AiwDisposeEquiPatcher.fs" />
+    <Compile Include="src\AssetPatch\DisposeEquiPatcher\UxlDisposeEquiPatcher.fs" />
     <None Include="RunDisposeEquiPatcher.fsx" />
   </ItemGroup>
 

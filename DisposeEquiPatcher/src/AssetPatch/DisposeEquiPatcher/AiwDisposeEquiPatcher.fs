@@ -3,8 +3,7 @@
 
 namespace AssetPatch.DisposeEquiPatcher
 
-[<AutoOpen>]
-module DisposeEquiPatcher =
+module AiwDisposeEquiPatcher =
 
     open System
     open System.IO
@@ -82,13 +81,13 @@ module DisposeEquiPatcher =
             DataRows = List.map DataRow.FromAssocList assocRows        
         }
 
-    type DisposeEquiPatcherOptions = 
+    type AiwOptions = 
         { UserName : string 
           WorkListPath : string
           OutputDirectory : string
           }
 
-    let runDisposeEquiPatcher (opts : DisposeEquiPatcherOptions) : Result<unit, string> = 
+    let runAiwDisposeEquiPatcher (opts : AiwOptions) : Result<unit, string> = 
         let worklist = readWorkList opts.WorkListPath |> List.map inputRowToDisposeEqui
         let name1 = Path.GetFileNameWithoutExtension(opts.WorkListPath) + "_retire_upload.txt"
         let outputPath = Path.Combine(opts.OutputDirectory, name1)
