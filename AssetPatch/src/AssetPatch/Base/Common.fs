@@ -31,6 +31,8 @@ module Common =
             Directory.CreateDirectory(dirName) |> ignore
         else ()
 
+    let showS4Bool (source : bool) : string = 
+        if source then "X" else ""
 
     let showS4Date (date : DateTime) : string = 
         date.ToString(format = "dd.MM.yyyy")

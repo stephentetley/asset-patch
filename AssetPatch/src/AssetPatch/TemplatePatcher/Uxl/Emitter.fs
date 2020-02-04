@@ -6,6 +6,8 @@ namespace AssetPatch.TemplatePatcher.Uxl
 
 module Emitter =
     
+    open FSharp.Core
+
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
@@ -14,19 +16,19 @@ module Emitter =
     open AssetPatch.TemplatePatcher.Uxl.PatchTypes
 
     type EquiData =
-        { Equipment: MmopNewEqui
-          MultilingualText: MmopNewEquiMultilingualText
-          EquiClassifications: MmopEquiClassification list
+        { Equipment: EquimentData
+          MultilingualText: EquiMultilingualText
+          EquiClassifications: EquiClassification list
         }
 
     type MmopCreateData = 
-        { ChangeRequests : MmopChangeRequest list
-          NewFuncLocs: MmopNewFuncLoc list
-          NewFlocMultilingualTexts: MmopNewFlocMultilingualText list
-          NewFlocClassifications: MmopFlocClassification list
-          NewEquipments: MmopNewEqui list
-          NewEquiMultilingualTexts: MmopNewEquiMultilingualText list
-          NewEquiClassifications: MmopEquiClassification list          
+        { ChangeRequests : ChangeRequestDetails list
+          NewFuncLocs: FunctionalLocationData list
+          NewFlocMultilingualTexts: FlocMultilingualText list
+          NewFlocClassifications: FlocClassification list
+          NewEquipments: EquimentData list
+          NewEquiMultilingualTexts: EquiMultilingualText list
+          NewEquiClassifications: EquiClassification list          
         }
 
         member x.IsEmpty
@@ -40,18 +42,18 @@ module Emitter =
                     && x.NewEquiClassifications.IsEmpty
     
         member x.RemoveDups() : MmopCreateData = 
-            let flocClassDistinctKey (v: MmopFlocClassification) : string = 
+            let flocClassDistinctKey (v: FlocClassification) : string = 
                 v.FunctionalLocation.ToString() + "!!" + v.Class + "!!" + v.CharacteristicName + "!!" + v.CharacteristicValue
 
-            let equiClassDistinctKey (v: MmopEquiClassification) : string = 
-                v.EquiId + "!!" + v.Class + "!!" + v.CharacteristicName + "!!" + v.CharacteristicValue
+            let equiClassDistinctKey (v: EquiClassification) : string = 
+                v.EquipmentId + "!!" + v.Class + "!!" + v.CharacteristicName + "!!" + v.CharacteristicValue
 
             { ChangeRequests = x.ChangeRequests |> List.distinctBy (fun v -> v.SortKey)
               NewFuncLocs = x.NewFuncLocs |> List.distinctBy (fun v -> v.FunctionalLocation.ToString())
               NewFlocMultilingualTexts = x.NewFlocMultilingualTexts |> List.distinctBy (fun v -> v.FunctionalLocation.ToString())
               NewFlocClassifications = x.NewFlocClassifications |> List.distinctBy flocClassDistinctKey
-              NewEquipments = x.NewEquipments |> List.distinctBy (fun v -> v.EquiId)
-              NewEquiMultilingualTexts = x.NewEquiMultilingualTexts |> List.distinctBy (fun v -> v.EquiId)
+              NewEquipments = x.NewEquipments |> List.distinctBy (fun v -> v.EquipmentId)
+              NewEquiMultilingualTexts = x.NewEquiMultilingualTexts |> List.distinctBy (fun v -> v.EquipmentId)
               NewEquiClassifications = x.NewEquiClassifications |> List.distinctBy equiClassDistinctKey
              }
 
@@ -69,87 +71,99 @@ module Emitter =
     // ************************************************************************
     // Translation
 
+    let private makeChangeRequestDetails (item: Choice<FuncLocPath, EquipmentId>) : UxlCompilerMonad<ChangeRequestDetails> = 
+        compile {
+            let! descr = getChangeRequestDescription ()
+            let! changeType = getChangeRequestType ()
+            let! requester = getProcessRequester ()
+            return { 
+                DescriptionLong = descr
+                Priority = ""
+                DueDate = None
+                Reason = ""
+                ChangeRequestType = changeType
+                ChangeRequestGroup = ""
+                FuncLocOrEquipment = item
+                ProcessRequester = requester
+                }
+        }
+
     
-    let makeMmopChangeRequestFloc (floc: FuncLocPath) : UxlCompilerMonad<MmopChangeRequest> = 
-        compile {
-            let! descr = getChangeRequestDescription ()
-            let! changeType = getChangeRequestType ()
-            let! requester = getProcessRequester ()
-            return { 
-                Description = descr
-                ChangeRequestType = changeType
-                FunctionalLocation = Some floc
-                EquipmentId = None
-                ProcessRequestor = requester
-                }
-        }
+    let makeChangeRequestDetailsFloc (floc: FuncLocPath) : UxlCompilerMonad<ChangeRequestDetails> = 
+        makeChangeRequestDetails (Choice1Of2 floc)
 
-    let makeMmopChangeRequestEqui (equiId: string) : UxlCompilerMonad<MmopChangeRequest> = 
-        compile {
-            let! descr = getChangeRequestDescription ()
-            let! changeType = getChangeRequestType ()
-            let! requester = getProcessRequester ()
-            return { 
-                Description = descr
-                ChangeRequestType = changeType
-                FunctionalLocation = None
-                EquipmentId = Some equiId
-                ProcessRequestor = requester
-                }
-        }
+    let makeChangeRequestDetailsEqui (equiId: string) : UxlCompilerMonad<ChangeRequestDetails> = 
+        makeChangeRequestDetails (Choice2Of2 equiId)
 
-    let makeMmopFlocClassification (funcLoc : FuncLocPath)
+
+    let makeFlocClassification (funcLoc : FuncLocPath)
                                     (className: string)
-                                    (charac : S4Characteristic) : MmopFlocClassification = 
+                                    (charac : S4Characteristic) : FlocClassification = 
         { FunctionalLocation = funcLoc
+          ClassDeletionInd = false
           Class = className
+          Status = ""
           CharacteristicName = charac.Name
           CharacteristicValue = charac.Value.UxlValue
+          CharDeletionInd = false
         }
 
-    let makeMmopFlocClassifications (funcLoc : FuncLocPath)
-                                    (flocClass : S4Class) : MmopFlocClassification list = 
-        List.map (makeMmopFlocClassification funcLoc flocClass.ClassName) flocClass.Characteristics
+    let makeFlocClassifications (funcLoc : FuncLocPath)
+                                (flocClass : S4Class) : FlocClassification list = 
+        List.map (makeFlocClassification  funcLoc flocClass.ClassName) flocClass.Characteristics
 
 
-    let makeMmopEquiMultilingualText (equiId: string)
-                                     (description: string)
-                                     (longText : string) : MmopNewEquiMultilingualText = 
-        { EquiId = equiId
-          Description = description
+    let makeEquiMultilingualText (equiId: string)
+                                    (description: string)
+                                    (longText : string) : EquiMultilingualText = 
+        { EquipmentId = equiId
+          DeleteIndicator = false
+          Language = ""
+          DescriptionMedium = description
           LongText = longText
         }
 
 
-    let makeMmopEquiClassification (equiId: string)
-                                    (className: string)
-                                    (charac : S4Characteristic) : MmopEquiClassification = 
-        { EquiId = equiId
+    let makeEquiClassification (equiId: string)
+                                (className: string)
+                                (charac : S4Characteristic) : EquiClassification = 
+        { EquipmentId = equiId
+          ClassDeleteInd = false
           Class = className
+          Status = ""
           CharacteristicName = charac.Name
           CharacteristicValue = charac.Value.UxlValue
+          CharDeleteInd = false
         }
 
-    let makeMmopEquiClassifications (equiId: string)
-                                    (equiClass : S4Class) : MmopEquiClassification list = 
-        List.map (makeMmopEquiClassification equiId equiClass.ClassName) equiClass.Characteristics
+    let makeEquiClassifications (equiId: string)
+                                    (equiClass : S4Class) : EquiClassification list = 
+        List.map (makeEquiClassification equiId equiClass.ClassName) equiClass.Characteristics
 
-    let private makeMmopNewEqui1 (equiId: string) (equipment : S4Equipment) : MmopNewEqui = 
-        { EquiId = equiId
-          EquiCategory = equipment.Category
-          Description = equipment.Description
-          StartupDate = equipment.FlocProperties.StartupDate
+    let private makeEquimentData1 (equiId: string) (equipment : S4Equipment) : EquimentData = 
+        { EquipmentId = equiId
+          EquipCategory = equipment.Category
+          DescriptionMedium = equipment.Description
+          ObjectType = equipment.ObjectType
+          StartupDate = Some equipment.FlocProperties.StartupDate
           Manufacturer = Option.defaultValue "TO BE DETERMINED" equipment.Manufacturer
-          Model = Option.defaultValue "TO BE DETERMINED" equipment.Model
-          SerialNumber = Option.defaultValue "UNKNOWN" equipment.SerialNumber
+          ModelNumber = Option.defaultValue "TO BE DETERMINED" equipment.Model
+          ManufPartNumber = ""
+          ManufSerialNumber = Option.defaultValue "UNKNOWN" equipment.SerialNumber
+          ConstructionYear = None
+          ConstructionMonth = None
+          CompanyCode = ""
           FunctionalLocation = equipment.FuncLoc
+          SuperordEquip = ""
+          StatusOfAnObject = ""
+          StatusWithoutStatusNum = ""
         }
 
     let private makeEquiData (equiId: string) (source : S4Equipment) : EquiData = 
-        { Equipment = makeMmopNewEqui1 equiId source 
-          MultilingualText = makeMmopEquiMultilingualText equiId "" source.MemoLine
+        { Equipment = makeEquimentData1 equiId source 
+          MultilingualText = makeEquiMultilingualText equiId "" source.MemoLine
           EquiClassifications = 
-              List.map (makeMmopEquiClassifications equiId) source.Classes |> List.concat
+              List.map (makeEquiClassifications equiId) source.Classes |> List.concat
         }
 
 
@@ -171,9 +185,9 @@ module Emitter =
         compile {
             let! equiData = makeEquiDataWithKids source
             let equiIds = 
-                equiData|> List.map (fun (x: EquiData) -> x.Equipment.EquiId)
+                equiData|> List.map (fun (x: EquiData) -> Choice2Of2 x.Equipment.EquipmentId)
             let! changeRequests = 
-                mapM makeMmopChangeRequestEqui equiIds
+                mapM makeChangeRequestDetails equiIds
             return { 
                 ChangeRequests = changeRequests
                 NewFuncLocs = []
@@ -191,16 +205,22 @@ module Emitter =
         }
 
 
-    let makeMmopNewFuncLoc (path : FuncLocPath) 
-                        (props : FuncLocProperties)
-                        (description : string) 
-                        (objectType : string)  : MmopNewFuncLoc = 
+    let makeFunctionalLocationData (path : FuncLocPath) 
+                                    (props : FuncLocProperties)
+                                    (description : string) 
+                                    (objectType : string)  : FunctionalLocationData = 
         { FunctionalLocation = path
-          Description = description
-          FunLocCategory = path.Level
+          DescriptionMedium = description
+          FunLocCategory = Some path.Level
           StructureIndicator = props.StructureIndicator
-          StartupDate = props.StartupDate
           ObjectType = objectType
+          StartupDate = Some props.StartupDate
+          ConstructYear = None
+          ConstructMonth = None
+          SuperiorFuncLoc = parent path
+          EquipInstall = path.Level >= 5 |> Some
+          StatusOfAnObject = ""
+          StatusWithoutStatusNum = ""
         }
 
 
@@ -212,10 +232,10 @@ module Emitter =
                                         (classes : S4Class list) : UxlCompilerMonad<MmopCreateData> = 
         let collect xs = List.foldBack (fun (c1, vs1)  (cs,vs) -> (c1 ::cs, vs1 @ vs)) xs ([],[])
         compile {
-            let floc = makeMmopNewFuncLoc path props description objectType
-            let classChars : MmopFlocClassification list = 
-                List.map (makeMmopFlocClassifications path) classes |> List.concat
-            let! changeRequest = makeMmopChangeRequestFloc path
+            let floc = makeFunctionalLocationData path props description objectType
+            let classChars : FlocClassification list = 
+                List.map (makeFlocClassifications path) classes |> List.concat
+            let! changeRequest = makeChangeRequestDetailsFloc path
             return { 
                 ChangeRequests = [changeRequest]
                 NewFuncLocs = [floc]

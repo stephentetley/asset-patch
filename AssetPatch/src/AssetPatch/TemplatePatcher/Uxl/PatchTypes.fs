@@ -12,170 +12,232 @@ module PatchTypes =
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
 
+    
+    type EquipmentId = string
 
-    /// This represents one row
-    type MmopChangeRequest = 
-        { Description: string
+
+    let private optionalDate (source: DateTime option):  string = 
+        match source with
+        | None -> ""
+        | Some dt -> showS4Date dt
+
+    let private optionalInt (source: int option):  string = 
+        match source with
+        | None -> ""
+        | Some i -> i.ToString()
+        
+    let private optionalFloc (source: FuncLocPath option):  string = 
+        match source with
+        | Some floc -> floc.ToString()
+        | None -> ""
+
+    let private choice1Floc (source: Choice<FuncLocPath, EquipmentId>):  string = 
+        match source with
+        | Choice1Of2 floc -> floc.ToString()
+        | Choice2Of2 _ -> ""
+
+    let private choice2Equi (source: Choice<FuncLocPath, EquipmentId>):  string = 
+        match source with
+        | Choice1Of2 _ -> ""
+        | Choice2Of2 equiId -> equiId
+
+    let private optionalString (source: string option):  string = 
+         Option.defaultValue "" source
+
+    let private optionalBool (source: bool option):  string = 
+        match source with
+        | Some true -> "X"
+        | _ -> ""
+
+    /// This represents one row (MMOP configuration)
+    /// MBOM-* fields are left out
+    type ChangeRequestDetails = 
+        { DescriptionLong: string
+          Priority: string
+          DueDate: DateTime option
+          Reason: string
           ChangeRequestType: string
-          FunctionalLocation: FuncLocPath option
-          EquipmentId: string option                  // Generally a "dollar number"
-          ProcessRequestor: string
+          ChangeRequestGroup: string
+          FuncLocOrEquipment:  Choice<FuncLocPath, EquipmentId>
+          ProcessRequester: string
         }
         member x.SortKey
             with get(): string = 
-                let part1 = Option.defaultValue "ZZZZZ" <| Option.map (fun floc -> floc.ToString()) x.FunctionalLocation
-                let part2 = Option.defaultValue "ZZZZZ" x.EquipmentId
-                part1 + "!!" + part2
-
+                match x.FuncLocOrEquipment with
+                | Choice1Of2 floc -> "A:" + floc.ToString()
+                | Choice2Of2 equiId -> "B:" + equiId
+                
         member x.ToAssocs() = 
-            [ ("Description (Long)",            x.Description) 
-            ; ("Priority",                      "")
-            ; ("Due Date",                      "")
-            ; ("Reason",                        "")
+            [ ("Description (Long)",            x.DescriptionLong) 
+            ; ("Priority",                      x.Priority)
+            ; ("Due Date",                      optionalDate x.DueDate)
+            ; ("Reason",                        x.Reason)
             ; ("Type of Change Request",        x.ChangeRequestType)
-            ; ("Change Request Group",          "")
+            ; ("Change Request Group",          x.ChangeRequestGroup)
             ; ("MBOM-Material",                 "")
             ; ("MBOM-Plant",                    "")
             ; ("MBOM-Usage",                    "")            
             ; ("MBOM-Alternative",              "")
-            ; ("FL-Functional Location",        
-                    Option.defaultValue "" <| Option.map (fun floc -> floc.ToString()) x.FunctionalLocation)
-            ; ("EQ-Equipment",                  Option.defaultValue "" x.EquipmentId)
-            ; ("Process Requestor",             x.ProcessRequestor)
+            ; ("FL-Functional Location",        choice1Floc x.FuncLocOrEquipment)
+            ; ("EQ-Equipment",                  choice2Equi x.FuncLocOrEquipment)
+            ; ("Process Requestor",             x.ProcessRequester)
             ] |> AssocList.ofList
 
 
-    type MmopNewFuncLoc = 
+    type FunctionalLocationData = 
         { FunctionalLocation: FuncLocPath
-          Description: string 
-          FunLocCategory: int
-          StructureIndicator: string
-          StartupDate: DateTime
+          DescriptionMedium: string 
+          FunLocCategory: int option
+          StructureIndicator: string          
           ObjectType: string
+          StartupDate: DateTime option
+          ConstructYear: int option
+          ConstructMonth: int option
+          SuperiorFuncLoc: FuncLocPath option
+          EquipInstall: bool option
+          StatusOfAnObject: string
+          StatusWithoutStatusNum: string
         }
   
         member x.ToAssocs() = 
-            let superFlocName = 
-                match parent x.FunctionalLocation with
-                | None -> ""
-                | Some parentFloc -> parentFloc.ToString()
             [ ("Functional Location",           x.FunctionalLocation.ToString())
             ; ("Masked Func Loc",               x.FunctionalLocation.ToString())
-            ; ("Description (medium)",          x.Description)
-            ; ("FunctLocCat.",                  x.FunLocCategory.ToString())
+            ; ("Description (medium)",          x.DescriptionMedium)
+            ; ("FunctLocCat.",                  optionalInt x.FunLocCategory)
             ; ("StrIndicator",                  x.StructureIndicator)
             ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                  "")
             ; ("Unit of weight",                "")
-            ; ("Start-up date",                 x.StartupDate |> showS4Date)
+            ; ("Start-up date",                 optionalDate x.StartupDate)
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
-            ; ("ConstructYear",                 "")
-            ; ("ConstructMth",                  "")
+            ; ("ConstructYear",                 optionalInt x.ConstructYear)
+            ; ("ConstructMth",                  optionalInt x.ConstructMonth)
             ; ("Company Code",                  "")
             ; ("Position",                      "")
-            ; ("SupFunctLoc.",                  superFlocName)
-            ; ("EquipInstall.",                 "")
-            ; ("Status of an object",           "")
-            ; ("Status without stsno",          "")
+            ; ("SupFunctLoc.",                  optionalFloc x.SuperiorFuncLoc)
+            ; ("EquipInstall.",                 optionalBool x.EquipInstall)
+            ; ("Status of an object",           x.StatusOfAnObject)
+            ; ("Status without stsno",          x.StatusWithoutStatusNum)
             ] |> AssocList.ofList
 
 
-    type MmopNewFlocMultilingualText = 
+    type FlocMultilingualText = 
         { FunctionalLocation: FuncLocPath
+          DeleteIndicator: bool
+          Language: string
           Description: string 
           LongText: string
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
-            ; ("Delete Indicator",              "")
+            ; ("Delete Indicator",              if x.DeleteIndicator then "X" else "")            
+            ; ("Language",                      x.Language)
             ; ("Description",                   x.Description) 
-            ; ("Language",                      "")
             ; ("Long Text",                     x.LongText)
             ] |> AssocList.ofList
 
 
-    type MmopFlocClassification = 
+    type FlocClassification = 
         { FunctionalLocation: FuncLocPath
+          ClassDeletionInd: bool
           Class: string
+          Status: string
           CharacteristicName: string
           CharacteristicValue: string
+          CharDeletionInd: bool
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
-            ; ("Deletion Ind",                  "")
+            ; ("Deletion Ind",                  showS4Bool x.ClassDeletionInd)
             ; ("Class Type",                    "003")
             ; ("Class",                         x.Class)
-            ; ("Status",                        "")
+            ; ("Status",                        x.Status)
             ; ("Characteristics",               x.CharacteristicName)
             ; ("Char Value",                    x.CharacteristicValue)
-            ; ("Ch.Deletion Ind.",              "")
+            ; ("Ch.Deletion Ind.",              showS4Bool x.CharDeletionInd)
             ] |> AssocList.ofList
 
 
-    type MmopNewEqui = 
-        { EquiId: string
-          EquiCategory: string  
-          Description: string 
-          StartupDate: DateTime
+    type EquimentData = 
+        { EquipmentId: EquipmentId
+          EquipCategory: string  
+          DescriptionMedium: string 
+          ObjectType: string
+          StartupDate: DateTime option
           Manufacturer: string
-          Model: string
-          SerialNumber: string
+          ModelNumber: string
+          ManufPartNumber: string
+          ManufSerialNumber: string
+          ConstructionYear: int option
+          ConstructionMonth: int option
+          CompanyCode: string
           FunctionalLocation: FuncLocPath
+          SuperordEquip: string
+          StatusOfAnObject: string
+          StatusWithoutStatusNum: string
         }
         member x.ToAssocs() = 
-            [ ("Equiment",                      x.EquiId)
-            ; ("EquipCategory",                 x.EquiCategory)
-            ; ("Description (medium)",          x.Description)
-            ; ("Object type",                   "")
+            [ ("Equiment",                      x.EquipmentId)
+            ; ("EquipCategory",                 x.EquipCategory)
+            ; ("Description (medium)",          x.DescriptionMedium)
+            ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                  "")
             ; ("Unit of weight",                "")
-            ; ("Start-up date",                 x.StartupDate |> showS4Date)
+            ; ("Start-up date",                 optionalDate x.StartupDate)
             ; ("AcquistnValue",                 "")
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
             ; ("Manufacturer",                  x.Manufacturer)
-            ; ("Model number",                  x.Model)
-            ; ("ManufPartNo.",                  "")
-            ; ("ManufSerialNo.",                x.SerialNumber)
+            ; ("Model number",                  x.ModelNumber)
+            ; ("ManufPartNo.",                  x.ManufPartNumber)
+            ; ("ManufSerialNo.",                x.ManufSerialNumber)
             ; ("ManufCountry",                  "")
-            ; ("ConstructYear",                 "")
-            ; ("ConstructMth",                  "")
-            ; ("Company Code",                  "")         
+            ; ("ConstructYear",                 optionalInt x.ConstructionYear)
+            ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
+            ; ("Company Code",                  x.CompanyCode)         
             ; ("Functional loc.",               x.FunctionalLocation.ToString())
-            ; ("Superord.Equip.",               "")
+            ; ("Superord.Equip.",               x.SuperordEquip)
             ; ("Position",                      "")
             ; ("TechIdentNo.",                  "")
-            ; ("Status of an object",           "")
-            ; ("Status without stsno",          "")
+            ; ("Status of an object",           x.StatusOfAnObject)
+            ; ("Status without stsno",          x.StatusWithoutStatusNum)
             ] |> AssocList.ofList
 
-    type MmopNewEquiMultilingualText = 
-        { EquiId: string
-          Description: string 
+    type EquiMultilingualText = 
+        { EquipmentId: string
+          DeleteIndicator: bool
+          Language: string
+          DescriptionMedium: string 
           LongText: string
         }
         member x.ToAssocs() = 
-            [ ("Equipment",                     x.EquiId)
-            ; ("Delete Indicator",              "")
-            ; ("Language",                      "")
-            ; ("Description (medium)",          x.Description)
+            [ ("Equipment",                     x.EquipmentId)
+            ; ("Delete Indicator",              if x.DeleteIndicator then "X" else "")
+            ; ("Language",                      x.Language)
+            ; ("Description (medium)",          x.DescriptionMedium) 
             ; ("Long Text",                     x.LongText)
             ] |> AssocList.ofList
 
-    type MmopEquiClassification = 
-        { EquiId: string
+    type EquiClassification = 
+        { EquipmentId: EquipmentId
+          ClassDeleteInd: bool
           Class: string
+          Status: string
           CharacteristicName: string
           CharacteristicValue: string
+          CharDeleteInd: bool
         }
         member x.ToAssocs() = 
-            [ ("Equipment",                     x.EquiId)
-            ; ("Delete Ind.",                   "")
+            [ ("Equipment",                     x.EquipmentId)
+            ; ("Delete Ind.",                   showS4Bool x.ClassDeleteInd)
             ; ("Class Type",                    "002")
             ; ("Class",                         x.Class)
-            ; ("Status",                        "")
+            ; ("Status",                        x.Status)
             ; ("Characteristics",               x.CharacteristicName)
             ; ("Char Value",                    x.CharacteristicValue)  
-            ; ("Ch. Delete Ind.",               "")
+            ; ("Ch. Delete Ind.",               showS4Bool x.CharDeleteInd)
             ] |> AssocList.ofList
+
+
+

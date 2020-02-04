@@ -6,8 +6,6 @@ namespace AssetPatch.TemplatePatcher.Uxl
 
 module PatchWriter =
     
-    open System
-
     open AssetPatch.Base
     open AssetPatch.Base.CsvFile
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
@@ -24,159 +22,160 @@ module PatchWriter =
             mreturn { Headers = headers; Rows = csvRows }
 
     let private writeChangesAsCsv (changeFile : CsvFileWithHeaders)  
-                                        (outputPath: string) : UxlCompilerMonad<unit> =
+                                    (outputPath: string) : UxlCompilerMonad<unit> =
         liftAction (fun () -> CsvFile.writeCsvFile csvDefaults changeFile outputPath)
 
     // ************************************************************************
     // Change Request Details csv
 
-    /// Render a list of new FuncLocs to Csv for the `Change Request Details` tab
-    let private makeMmopChangeRequestsFile (rows : MmopChangeRequest list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    /// Render data for the `Change Request Details` tab
+    let private makeChangeRequestDetails (rows : ChangeRequestDetails list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
-            |> List.sortBy (fun (x: MmopChangeRequest) -> x.SortKey)
+            |> List.sortBy (fun (x: ChangeRequestDetails) -> x.SortKey)
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopChangeRequestsFile (changeRequests : MmopChangeRequest list)
+    /// Write data for the `Change Request Details` tab
+    let writeChangeRequestDetails (changeRequests : ChangeRequestDetails list)
                                     (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match changeRequests with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopChangeRequestsFile changeRequests
+                let! changes = makeChangeRequestDetails changeRequests
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
 
-    // ************************************************************************
-    // New FuncLocs csv
 
-    /// Render a list of new FuncLocs to Csv for the `Functional Location Data` tab
-    let private makeMmopFuncLocsFile (rows : MmopNewFuncLoc list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    // ************************************************************************
+    // FuncLocs csv
+
+    /// Render data for the `Functional Location Data` tab
+    let private makeFunctionalLocationData (rows : FunctionalLocationData list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
             |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopFuncLocsFile (source : MmopNewFuncLoc list)
+    /// Write data for the `Functional Location Data` tab
+    let writeFunctionalLocationData (source : FunctionalLocationData list)
                                 (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match source with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopFuncLocsFile source
+                let! changes = makeFunctionalLocationData source
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
 
     // ************************************************************************
-    // New FuncLocs multilingual csv file
+    // FuncLocs multilingual text csv
 
-    /// Render a list of new FuncLocs into a Csv for the `FL-Multilingual Text` tab
-    let private makeMmopFLMultilingualTextsFile (rows : MmopNewFlocMultilingualText list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    /// Render data for the `FL-Multilingual Text` tab
+    let private makeFlocMultilingualText (rows : FlocMultilingualText list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
             |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopFLMultilingualTextsFile (source : MmopNewFlocMultilingualText list)
-                                        (outPath: string) : UxlCompilerMonad<unit> = 
+    /// Write data for the `FL-Multilingual Text` tab
+    let writeFlocMultilingualText (source : FlocMultilingualText list)
+                                    (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match source with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopFLMultilingualTextsFile source
+                let! changes = makeFlocMultilingualText source
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
 
     // ************************************************************************
-    // New FuncLocs class/characteristics csv file
+    // FuncLocs class/characteristics csv
 
-    /// Render a list of new FuncLocs into a Csv for the `FL-Classification` tab
-    let private makeMmopFLClassificationsFile (rows : MmopFlocClassification list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    /// Render data for the `FL-Classification` tab
+    let private makeFlocClassification (rows : FlocClassification list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
             |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopFLClassificationsFile (source : MmopFlocClassification list)
+    /// Write data for the `FL-Classification` tab
+    let writeFlocClassification (source : FlocClassification list)
                                         (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match source with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopFLClassificationsFile source
+                let! changes = makeFlocClassification source
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
 
     // ************************************************************************
-    // New Equipment csv file
+    // Equipment csv
 
-    /// Render a list of new FuncLocs into a Csv for the `Equipment Data` tab
-    let private makeMmopNewEquiFile (rows : MmopNewEqui list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    /// Render data for the `Equipment Data` tab
+    let private makeEquipmentData (rows : EquimentData list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
-            |> List.sortBy (fun row -> row.EquiId) 
+            |> List.sortBy (fun row -> row.EquipmentId) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopNewEquisFile (source : MmopNewEqui list)
+    /// Write data for the `Equipment Data` tab
+    let writeEquipmentData (source : EquimentData list)
                                 (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match source with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopNewEquiFile source
+                let! changes = makeEquipmentData source
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
 
     // ************************************************************************
-    // New Equipment multilingual csv file
+    // Equipment multilingual csv
 
-    /// Render a list of new equipment into a Csv for the `EQ-Multilingual Text` tab
-    let private makeMmopEQMultilingualTextsFile (rows : MmopNewEquiMultilingualText list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    /// Render data for the `EQ-Multilingual Text` tab
+    let private makeEquiMultilingualText (rows : EquiMultilingualText list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
-            |> List.sortBy (fun row -> row.EquiId) 
+            |> List.sortBy (fun row -> row.EquipmentId) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopEQMultilingualTextsFile (source : MmopNewEquiMultilingualText list)
-                                        (outPath: string) : UxlCompilerMonad<unit> = 
+    /// Write data for the `EQ-Multilingual Text` tab
+    let writeEquiMultilingualText (source : EquiMultilingualText list)
+                                    (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match source with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopEQMultilingualTextsFile source
+                let! changes = makeEquiMultilingualText source
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
 
     // ************************************************************************
-    // New Equipment class/characteristics csv file
+    // Equipment class/characteristics csv
 
-    /// Render a list of new FuncLocs into a Csv for the `FL-Classification` tab
-    let private makeMmopEQClassificationsFile (rows : MmopEquiClassification list) : UxlCompilerMonad<CsvFileWithHeaders> = 
+    /// Render data for the `FL-Classification` tab
+    let private makeEquiClassification (rows : EquiClassification list) : UxlCompilerMonad<CsvFileWithHeaders> = 
         rows
-            |> List.sortBy (fun row -> row.EquiId) 
+            |> List.sortBy (fun row -> row.EquipmentId) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
-    /// Write a list of new FuncLocs to Csv
-    let writeMmopEQClassificationsFile (source : MmopEquiClassification list)
-                                        (outPath: string) : UxlCompilerMonad<unit> = 
+    /// Write data for the `FL-Classification` tab
+    let writeEquiClassification (source : EquiClassification list)
+                                (outPath: string) : UxlCompilerMonad<unit> = 
         compile { 
             match source with
             | [] -> return ()
             | _ -> 
-                let! changes = makeMmopEQClassificationsFile source
+                let! changes = makeEquiClassification source
                 do! writeChangesAsCsv changes outPath
                 return ()
             }
