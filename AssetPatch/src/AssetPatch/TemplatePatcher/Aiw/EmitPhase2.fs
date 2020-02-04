@@ -7,7 +7,7 @@ namespace AssetPatch.TemplatePatcher.Aiw
 
 module EmitPhase2 =
     
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Aiw.Base

@@ -22,18 +22,18 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\CsvFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFileParser.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\CsvExport.fs"
-open AssetPatch.Base.Parser
+open AssetPatch.Base.AiwChangeFileParser
 open AssetPatch.Analysis.Utilities.CsvExport
 
 
 
 let outputCsv1 (destDir: string) (sourcePath: string) : Result<Unit, string> = 
-    match readChangeFile sourcePath with
+    match readAiwChangeFile sourcePath with
     | Error msg -> Error msg
     | Ok ans -> 
         let filename = Path.GetFileName sourcePath
@@ -42,7 +42,7 @@ let outputCsv1 (destDir: string) (sourcePath: string) : Result<Unit, string> =
 
 
 let outputAsCsv (sourcePath: string) : Result<Unit, string> = 
-    match readChangeFile sourcePath with
+    match readAiwChangeFile sourcePath with
     | Error msg -> Error msg
     | Ok ans -> 
         let filename = Path.GetFileName sourcePath

@@ -11,7 +11,7 @@ module PatchTypes =
 
     open AssetPatch.Base
     open AssetPatch.Base.Common
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.FuncLocPath
    
     open AssetPatch.TemplatePatcher.Base.CommonTypes

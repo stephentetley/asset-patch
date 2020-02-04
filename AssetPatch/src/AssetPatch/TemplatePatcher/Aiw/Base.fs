@@ -12,7 +12,7 @@ module Base =
     
     open AssetPatch.Base
     open AssetPatch.Base.Common
-    open AssetPatch.Base.Parser
+    open AssetPatch.Base.AiwChangeFileParser
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
 
@@ -50,7 +50,7 @@ module Base =
         | None -> None
     
     let readEquiDownload (path : string) : Result<EquiMap, ErrMsg> = 
-        match readChangeFile path with
+        match readAiwChangeFile path with
         | Error msg -> Error msg
         | Ok changes -> 
             changes 

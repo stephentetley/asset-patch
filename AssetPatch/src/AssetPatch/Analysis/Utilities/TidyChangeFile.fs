@@ -7,8 +7,8 @@ namespace AssetPatch.Anaylsis.Utilities
 module TidyChangeFile = 
     
     open AssetPatch.Base.Common
-    open AssetPatch.Base.Parser
-    open AssetPatch.Base.Printer
+    open AssetPatch.Base.AiwChangeFileParser
+    open AssetPatch.Base.AiwChangeFilePrinter
     open AssetPatch.Analysis
 
     let tidyChangeFile (priorities : string list) 
@@ -21,9 +21,9 @@ module TidyChangeFile =
                 >> AbsChangeFile.restrict removes
                 >> AbsChangeFile.toChangeFile
         try 
-            readChangeFile sourceFile
+            readAiwChangeFile sourceFile
                 |> Result.bind transform
-                |> Result.map (fun changes -> writeChangeFile changes destFile)
+                |> Result.map (fun changes -> writeAiwChangeFile changes destFile)
         with
         | ex -> Error (ex.Message)
     

@@ -16,13 +16,13 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\Parser.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\Printer.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFileParser.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFilePrinter.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\TidyChangeFile.fs"
-open AssetPatch.Base.Parser
+open AssetPatch.Base.AiwChangeFileParser
 open AssetPatch.Anaylsis.Utilities.TidyChangeFile
 
 
@@ -39,7 +39,7 @@ let tidyChangeFile01 () =
 
 
 let testParser (file : string) = 
-    match runParserOnFile (parseChangeFile ()) () file Text.Encoding.UTF8 with
+    match runParserOnFile (parseAiwChangeFile ()) () file Text.Encoding.UTF8 with
     | FParsec.CharParsers.ParserResult.Failure (str,_,_) -> Result.Error str
     | FParsec.CharParsers.ParserResult.Success (ans,_,_) -> Result.Ok ans
 

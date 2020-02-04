@@ -3,70 +3,70 @@
 
 namespace AssetPatch.Base
 
-module Parser =
+module AiwChangeFileParser =
 
     open FParsec
     open System
 
     open AssetPatch.Base.Common
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
 
-    type ChangeFileParser<'ans> = Parser<'ans, unit>
+    type AiwChangeFileParser<'ans> = Parser<'ans, unit>
 
     // ************************************************************************
     // Lexer
 
 
-    let intOfLength (len : int) : ChangeFileParser<int> = 
+    let intOfLength (len : int) : AiwChangeFileParser<int> = 
         let after (chars : char []) = chars |> System.String |> int
         parray len digit |>> after
 
-    let lexeme (parser : ChangeFileParser<'a>) : ChangeFileParser<'a> = 
+    let lexeme (parser : AiwChangeFileParser<'a>) : AiwChangeFileParser<'a> = 
         let softSpaces = many (anyOf [' '; '\t'])
         parser .>> softSpaces
 
-    let token (str : string) : ChangeFileParser<string> = 
+    let token (str : string) : AiwChangeFileParser<string> = 
         lexeme (pstring str)
 
-    let charToken (ch : char) : ChangeFileParser<char> = 
+    let charToken (ch : char) : AiwChangeFileParser<char> = 
         lexeme (pchar ch)
 
-    let directive (parser : ChangeFileParser<'a>) : ChangeFileParser<'a> = 
+    let directive (parser : AiwChangeFileParser<'a>) : AiwChangeFileParser<'a> = 
         charToken '*' >>. parser .>> newline
 
     let named (name : string) 
-              (parser : ChangeFileParser<'a>) : ChangeFileParser<'a> = 
+              (parser : AiwChangeFileParser<'a>) : AiwChangeFileParser<'a> = 
         token (name + ":") >>. parser
 
-    //let cellValue : ChangeFileParser<string> =
+    //let cellValue : AiwChangeFileParser<string> =
     //    manyChars (noneOf ['\t'; '\r'; '\n' ])
 
 
     // ************************************************************************
     // Parser
 
-    let pIntegerString : ChangeFileParser<IntegerString> = 
+    let pIntegerString : AiwChangeFileParser<IntegerString> = 
         many1Chars digit |>> IntegerString |> lexeme
 
 
-    let pFuncLoc : ChangeFileParser<string> = 
+    let pFuncLoc : AiwChangeFileParser<string> = 
         many1Chars (satisfy (not << Char.IsWhiteSpace)) |> lexeme
 
 
-    let pFileType : ChangeFileParser<FileType> =
+    let pFileType : AiwChangeFileParser<FileType> =
         let inner = 
             choice [ token "Download" >>. preturn Download 
                    ; token "Upload" >>. preturn Upload
                    ]
         directive inner
 
-    let pDataModel : ChangeFileParser<DataModel> =
+    let pDataModel : AiwChangeFileParser<DataModel> =
         let inner = 
             choice [ token "U1" >>. preturn U1 ]
         directive (named "Data Model" inner)
 
 
-    let pEntityType : ChangeFileParser<EntityType> =
+    let pEntityType : AiwChangeFileParser<EntityType> =
         let inner = 
             choice 
                 [ token "FUNCLOC"   >>. preturn FuncLoc 
@@ -81,26 +81,26 @@ module Parser =
                 ]
         directive (named "Entity Type" inner)
 
-    let pVariant : ChangeFileParser<string> =
+    let pVariant : AiwChangeFileParser<string> =
         let inner = restOfLine false |>> (fun s -> s.Trim())
         directive (named "Variant" inner)
 
-    let pUser : ChangeFileParser<string> =
+    let pUser : AiwChangeFileParser<string> =
         let inner = restOfLine false |>> (fun s -> s.Trim())
         directive (named "User" inner)
 
 
-    let pDate : ChangeFileParser<int * int * int> =
+    let pDate : AiwChangeFileParser<int * int * int> =
         let inner = tuple3 (intOfLength 4) (intOfLength 2) (intOfLength 2)
         named "Date" (lexeme inner)
     
-    let pTime : ChangeFileParser<int * int * int> =
+    let pTime : AiwChangeFileParser<int * int * int> =
         let inner = tuple3 (intOfLength 2) (intOfLength 2) (intOfLength 2)
         named "Time" (lexeme inner)
 
     
 
-    let pDateTime : ChangeFileParser<DateTime> = 
+    let pDateTime : AiwChangeFileParser<DateTime> = 
         let inner = 
             parse { 
                 let! (yr,mon,day) = pDate
@@ -112,25 +112,25 @@ module Parser =
         directive inner
     
 
-    let pSelectionItem : ChangeFileParser<Selection> = 
+    let pSelectionItem : AiwChangeFileParser<Selection> = 
         let line = regex ".*\|.*\|" |>> SelectionLine
         attempt (directive line)
 
-    let pSelectionHeader : ChangeFileParser<unit> =
+    let pSelectionHeader : AiwChangeFileParser<unit> =
         let inner = preturn ()
         directive (named "Selection" inner)
 
 
-    let pSelection : ChangeFileParser<Selection list> = 
+    let pSelection : AiwChangeFileParser<Selection list> = 
         pSelectionHeader >>. many pSelectionItem
 
-    let pHeaderRow : ChangeFileParser<HeaderRow> = 
+    let pHeaderRow : AiwChangeFileParser<HeaderRow> = 
         let decode (str : string) = str.Split([| '\t' |]) |> HeaderRow
         let inner = restOfLine false |>> decode
         directive inner 
 
 
-    let pDataRow (size :int) : ChangeFileParser<DataRow> = 
+    let pDataRow (size :int) : AiwChangeFileParser<DataRow> = 
         let decode (str : string) = 
             let arr = str.Split([| '\t' |]) 
             try 
@@ -139,10 +139,10 @@ module Parser =
             | _ -> fail "bad row"
         restOfLine true >>= decode
 
-    let pDataRows (size : int) : ChangeFileParser<DataRow list> = 
+    let pDataRows (size : int) : AiwChangeFileParser<DataRow list> = 
         manyTill (pDataRow size) eof
 
-    let pFileHeader : ChangeFileParser<FileHeader> = 
+    let pFileHeader : AiwChangeFileParser<FileHeader> = 
         parse {
             let! ptype = pFileType
             let! dmodel = pDataModel
@@ -158,7 +158,7 @@ module Parser =
                      DateTime = date }
         }
 
-    let parseChangeFile () : ChangeFileParser<ChangeFile> = 
+    let parseAiwChangeFile () : AiwChangeFileParser<AiwChangeFile> = 
         parse {
             let! fileHeader = pFileHeader
             let! selection = 
@@ -180,8 +180,8 @@ module Parser =
         }
 
 
-    let readChangeFile (inputPath : string) : Result<ChangeFile, ErrMsg> = 
-        match runParserOnFile (parseChangeFile ()) () inputPath Text.Encoding.UTF8 with
+    let readAiwChangeFile (inputPath : string) : Result<AiwChangeFile, ErrMsg> = 
+        match runParserOnFile (parseAiwChangeFile ()) () inputPath Text.Encoding.UTF8 with
         | Failure (str,_,_) -> Result.Error str
         | Success (ans,_,_) -> Result.Ok ans
 

@@ -30,11 +30,11 @@ open FSharp.Core
 #load "..\src\AssetPatch\Base\Addendum.fs"
 #load "..\src\AssetPatch\Base\Common.fs"
 #load "..\src\AssetPatch\Base\AssocList.fs"
-#load "..\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\src\AssetPatch\Base\AiwChangeFile.fs"
 #load "..\src\AssetPatch\Base\Acronyms.fs"
+#load "..\src\AssetPatch\Base\AiwChangeFileParser.fs"
+#load "..\src\AssetPatch\Base\AiwChangeFilePrinter.fs"
 #load "..\src\AssetPatch\Base\FuncLocPath.fs"
-#load "..\src\AssetPatch\Base\Parser.fs"
-#load "..\src\AssetPatch\Base\Printer.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\CommonTypes.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\Template.fs"
@@ -74,9 +74,6 @@ type RowParams =
       EquiFlocSaiNumber : string option
       EquiPliNumber : string option
     }
-
-
-  
 
 
 let edcTemplate (parameters : RowParams) : Function = 

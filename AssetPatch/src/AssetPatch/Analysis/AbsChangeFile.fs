@@ -9,7 +9,7 @@ module AbsChangeFile =
 
     open AssetPatch.Base
     open AssetPatch.Base.Common
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.Acronyms
    
 
@@ -26,7 +26,7 @@ module AbsChangeFile =
             { Header = x.Header; Rows = rows1 }
 
     
-    let ofChangeFile (changeFile : ChangeFile) : AbsChangeFile = 
+    let ofChangeFile (changeFile : AiwChangeFile) : AbsChangeFile = 
         { Header = changeFile.Header 
           Rows = changeFile.RowAssocs ()
         }
@@ -40,7 +40,7 @@ module AbsChangeFile =
 
     /// Note - Selection data from a Dowload file is not preserved in 
     /// an AbsChangeFile
-    let toChangeFile (absChangeFile : AbsChangeFile) : Result<ChangeFile, ErrMsg> = 
+    let toChangeFile (absChangeFile : AbsChangeFile) : Result<AiwChangeFile, ErrMsg> = 
         match deriveHeaderRow absChangeFile.Rows with
         | Some header -> 
             Ok { Header = { absChangeFile.Header with FileType = Upload }

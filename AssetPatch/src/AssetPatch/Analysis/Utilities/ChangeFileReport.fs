@@ -10,9 +10,9 @@ module ChangeFileReport =
     open Giraffe.GiraffeViewEngine
 
     open AssetPatch.Base
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.Acronyms
-    open AssetPatch.Base.Parser
+    open AssetPatch.Base.AiwChangeFileParser
     
 
     let private cellValue (src : string) : XmlNode = 
@@ -94,7 +94,7 @@ module ChangeFileReport =
             yield! (List.mapi makeRow (AssocList.toList source))    
         ]
 
-    let private dataRows (patch : ChangeFile) : XmlNode list = 
+    let private dataRows (patch : AiwChangeFile) : XmlNode list = 
         let rowAssocs = patch.RowAssocs ()
         let rowCount = rowAssocs.Length
         let makeTable ix (rowAssoc : AssocList<string, string>) = 
@@ -107,7 +107,7 @@ module ChangeFileReport =
 
 
 
-    let patchToHtml (patch : ChangeFile) : XmlNode =
+    let patchToHtml (patch : AiwChangeFile) : XmlNode =
         let titleText = sprintf "Patch Summary (%s)" (patch.Header.EntityType.ToString())
         html [] [
             head [] [
@@ -125,7 +125,7 @@ module ChangeFileReport =
             ]
         ]
 
-    let private genHtml (htmlFileName : string) (patch : ChangeFile) : Result<unit, string> = 
+    let private genHtml (htmlFileName : string) (patch : AiwChangeFile) : Result<unit, string> = 
         let html = patchToHtml patch |> renderHtmlDocument
         File.WriteAllText(path = htmlFileName, contents = html) |> Ok
 
@@ -138,7 +138,7 @@ module ChangeFileReport =
             Path.GetFileName(inputPatch) 
                 |> fun s -> Path.ChangeExtension(path = s, extension = "html")
                 |> fun s -> Path.Combine(outputDirectory, s)
-        match readChangeFile inputPatch with
+        match readAiwChangeFile inputPatch with
         | Result.Error msg -> Result.Error msg
         | Result.Ok ans -> 
             let cssDest = 

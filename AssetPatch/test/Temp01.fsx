@@ -16,10 +16,10 @@ open FSharp.Core
 #load "..\src\AssetPatch\Base\Addendum.fs"
 #load "..\src\AssetPatch\Base\Common.fs"
 #load "..\src\AssetPatch\Base\AssocList.fs"
-#load "..\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\src\AssetPatch\Base\AiwChangeFile.fs"
 #load "..\src\AssetPatch\Base\Acronyms.fs"
-#load "..\src\AssetPatch\Base\Parser.fs"
-#load "..\src\AssetPatch\Base\Printer.fs"
+#load "..\src\AssetPatch\Base\AiwChangeFileParser.fs"
+#load "..\src\AssetPatch\Base\AiwChangeFilePrinter.fs"
 #load "..\src\AssetPatch\Base\FuncLocPath.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\CommonTypes.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
@@ -27,7 +27,7 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplatePatcher\Base\CompilerMonad.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Aiw\Base.fs"
 open AssetPatch.Base
-open AssetPatch.Base.Parser
+open AssetPatch.Base.AiwChangeFileParser
 open AssetPatch.TemplatePatcher.Aiw.Base
 
 type EquiIndex = 
@@ -47,7 +47,7 @@ let extractEquiIndex (row : AssocList<string, string>) : EquiIndex option =
     | None -> None
 
 let demo01 () = 
-    readChangeFile @"G:\work\Projects\assets\asset_patch\samples\equi_sample_to_derive_indexing2.txt"
+    readAiwChangeFile @"G:\work\Projects\assets\asset_patch\samples\equi_sample_to_derive_indexing2.txt"
         |> Result.map (fun x -> x.RowAssocs () |> List.map extractEquiIndex |> List.choose id)
         |> Result.map (List.iter (printfn "%O"))
 

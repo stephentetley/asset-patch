@@ -9,9 +9,9 @@ module AiwDisposeEquiPatcher =
     open System.IO
 
     open AssetPatch.Base
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.Acronyms
-    open AssetPatch.Base.Printer
+    open AssetPatch.Base.AiwChangeFilePrinter
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.DisposeEquiPatcher.InputData
 
@@ -68,7 +68,7 @@ module AiwDisposeEquiPatcher =
         }
         
 
-    let private makeChangeFile (username: string) (rows : DisposeEqui list) : ChangeFile = 
+    let private makeChangeFile (username: string) (rows : DisposeEqui list) : AiwChangeFile = 
         let timestamp = DateTime.Now
         let assocRows = rows |> List.map makeDisposeEquiAssocs
         let headerRow = getHeaderRow assocRows
@@ -92,4 +92,4 @@ module AiwDisposeEquiPatcher =
         let name1 = Path.GetFileNameWithoutExtension(opts.WorkListPath) + "_retire_upload.txt"
         let outputPath = Path.Combine(opts.OutputDirectory, name1)
         let changeFile = makeChangeFile opts.UserName worklist
-        writeChangeFile changeFile outputPath |> Ok
+        writeAiwChangeFile changeFile outputPath |> Ok

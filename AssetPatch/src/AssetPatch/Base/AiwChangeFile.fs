@@ -3,7 +3,7 @@
 
 namespace AssetPatch.Base
 
-module ChangeFile =
+module AiwChangeFile =
 
     open System
     open AssetPatch.Base
@@ -118,7 +118,7 @@ module ChangeFile =
         } 
 
 
-    type ChangeFile = 
+    type AiwChangeFile = 
         { Header : FileHeader
           Selection : (Selection list) option
           HeaderDescriptions : HeaderRow option

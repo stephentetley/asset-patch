@@ -11,8 +11,8 @@ module PatchDiff =
     open Giraffe.GiraffeViewEngine
 
     open AssetPatch.Base
-    open AssetPatch.Base.ChangeFile
-    open AssetPatch.Base.Parser
+    open AssetPatch.Base.AiwChangeFile
+    open AssetPatch.Base.AiwChangeFileParser
 
     type AssocDiff<'Key, 'T> = 
         | AssocInLeft of 'Key * 'T
@@ -81,8 +81,8 @@ module PatchDiff =
 
 
     let diffChangeFiles (sortKeyField: string) 
-                        (fileLeft: ChangeFile)
-                        (fileRight: ChangeFile) : Result<RowDiff<string> list, string>  = 
+                        (fileLeft: AiwChangeFile)
+                        (fileRight: AiwChangeFile) : Result<RowDiff<string> list, string>  = 
         if fileLeft.Header.EntityType <> fileRight.Header.EntityType then
             Error "Mismatched file types"
         else if fileLeft.ColumnHeaders <> fileRight.ColumnHeaders then
@@ -96,7 +96,7 @@ module PatchDiff =
     let removeAssocSame(diffs: AssocDiff<string, string> list) : AssocDiff<string, string> list = 
         diffs |> List.filter (fun x -> match x with | AssocSame(_,_) -> false; | _ -> true)
 
-    let private headerTable (tableTitle: string) (changeFile: ChangeFile): XmlNode = 
+    let private headerTable (tableTitle: string) (changeFile: AiwChangeFile): XmlNode = 
         let dateValue = changeFile.Header.DateTime.ToString(format="yyyyMMdd")
         let timeValue = changeFile.Header.DateTime.ToString(format="HHmmss")
         table [] [
@@ -230,7 +230,9 @@ module PatchDiff =
         ]
 
 
-    let private diffReport (before: ChangeFile) (after: ChangeFile) (diffs: RowDiff<string> list): XmlNode = 
+    let private diffReport (before: AiwChangeFile) 
+                            (after: AiwChangeFile) 
+                            (diffs: RowDiff<string> list): XmlNode = 
         html [] [
             head [] [
                 title [] [str "Changes (before and after)"]
@@ -250,10 +252,10 @@ module PatchDiff =
         ]
 
     let reportRowDiffs (sortfield: string) (beforeFilePath: string) (afterFilePath: string) (outputPath: string) : Result<Unit, string> = 
-        match readChangeFile beforeFilePath with
+        match readAiwChangeFile beforeFilePath with
         | Error msg1 -> Error msg1
         | Ok beforeChanges -> 
-            match readChangeFile afterFilePath with
+            match readAiwChangeFile afterFilePath with
             | Error msg2 -> Error msg2
             | Ok afterChanges ->  
                 match diffChangeFiles sortfield beforeChanges afterChanges with

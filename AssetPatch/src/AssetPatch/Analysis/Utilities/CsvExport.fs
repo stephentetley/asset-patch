@@ -7,7 +7,7 @@ module CsvExport =
 
 
     open AssetPatch.Base
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.CsvFile
     open AssetPatch.Base.Acronyms
     
@@ -20,7 +20,7 @@ module CsvExport =
             | Some desc -> sprintf "%s (%s)" desc code
         Array.map decode1 codes
 
-    let exportCsv (changeFile: ChangeFile) (outputPath: string) : Unit = 
+    let exportCsv (changeFile: AiwChangeFile) (outputPath: string) : Unit = 
         let assocs = changeFile.RowAssocs ()
         match List.tryHead assocs with
         | None -> ()

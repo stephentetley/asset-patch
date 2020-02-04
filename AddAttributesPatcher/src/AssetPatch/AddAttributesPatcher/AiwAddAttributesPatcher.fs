@@ -23,14 +23,15 @@ module AiwAddAttributesPatcher =
     // Add Floc attributes
 
     let private genFuncLocAttributes1 (funcLoc: FuncLocPath) 
-                                        (classes: Class list): AiwCompilerMonad<FlocAttributes> = 
+                                        (classes: Classification list): AiwCompilerMonad<FlocAttributes> = 
         compile {
             let! s4classes = mapM (evalTemplate funcLoc) classes
             let! attrs = generateFlocAttributes funcLoc s4classes
             return attrs
         }
 
-    let private genFuncLocAttributes (items: FuncLocPath list) (classes: Class list): AiwCompilerMonad<FlocAttributes> = 
+    let private genFuncLocAttributes (items: FuncLocPath list) 
+                                        (classes: Classification list): AiwCompilerMonad<FlocAttributes> = 
         compile {
             let! attrs = mapM (fun floc -> genFuncLocAttributes1 floc classes) items
             return FlocAttributes.Concat attrs
@@ -38,7 +39,7 @@ module AiwAddAttributesPatcher =
 
     let generateFuncLocAttibutes (opts: AiwOptions) 
                                     (inputList: FuncLocPath list)
-                                    (classTemplates: Class list) : Result<unit, string> = 
+                                    (classTemplates: Classification list) : Result<unit, string> = 
         let aiwEnv : AiwEnv = 
             { UserName = opts.UserName
               EquiIndices = None
@@ -54,7 +55,7 @@ module AiwAddAttributesPatcher =
     // Add Equipment attributes
 
     let private genEquipmentAttributes1 (equiId: string) 
-                                        (classes: Class list): AiwCompilerMonad<EquiAttributes> = 
+                                        (classes: Classification list): AiwCompilerMonad<EquiAttributes> = 
         compile {
             let! s4classes = mapM evalTemplateNoFloc classes
             let! attrs = generateEquiAttributes equiId s4classes
@@ -65,7 +66,8 @@ module AiwAddAttributesPatcher =
     type EquipmentId = string
       
     
-    let private genEquipmentAttributes (items: EquipmentId list) (classes: Class list): AiwCompilerMonad<EquiAttributes> = 
+    let private genEquipmentAttributes (items: EquipmentId list) 
+                                        (classes: Classification list): AiwCompilerMonad<EquiAttributes> = 
         compile {
             let! attrs = mapM (fun item -> genEquipmentAttributes1 item classes) items
             return EquiAttributes.Concat attrs
@@ -73,7 +75,7 @@ module AiwAddAttributesPatcher =
 
     let generateEquipmentAttibutes (opts: AiwOptions) 
                                     (inputList: EquipmentId list)
-                                    (classTemplates: Class list) : Result<unit, string> = 
+                                    (classTemplates: Classification list) : Result<unit, string> = 
         let aiwEnv : AiwEnv = 
             { UserName = opts.UserName
               EquiIndices = None

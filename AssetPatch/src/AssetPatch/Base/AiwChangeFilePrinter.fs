@@ -3,13 +3,13 @@
 
 namespace AssetPatch.Base
 
-module Printer =
+module AiwChangeFilePrinter =
 
     open System
 
     open AssetPatch.Base.Addendum
 
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.Acronyms
    
 
@@ -100,7 +100,7 @@ module Printer =
             ; user header.User
             ; dateTime header.DateTime ]
 
-    let changeFileToString (changeFile : ChangeFile) : string = 
+    let changeFileToString (changeFile : AiwChangeFile) : string = 
         let d1 = 
             [ fileHeader changeFile.Header |> Some
             ; Option.map selection changeFile.Selection
@@ -112,7 +112,7 @@ module Printer =
                 |> vcat 
         render d1
 
-    let writeChangeFile (changeFile : ChangeFile) (outpath : string)  : unit = 
+    let writeAiwChangeFile (changeFile : AiwChangeFile) (outpath : string)  : unit = 
         let text = changeFileToString changeFile
         IO.File.WriteAllText(path=outpath, contents=text)
 
@@ -125,7 +125,7 @@ module Printer =
         let titles = headers.Columns |> List.map  (decode >> text)
         vcat titles
 
-    let writeVariantHeaders (outpath : string) (changeFile : ChangeFile) : unit = 
+    let writeVariantHeaders (outpath : string) (changeFile : AiwChangeFile) : unit = 
         let text = 
             text "# Variant headings"
                 ^!^ descriptiveHeaderLines changeFile.Header.EntityType changeFile.HeaderRow
@@ -134,8 +134,8 @@ module Printer =
 
 
 
-    let writePatchAndVariantHeaders (changeFile : ChangeFile) (outpath : string)  : unit = 
+    let writeAiwPatchAndVariantHeaders (changeFile : AiwChangeFile) (outpath : string)  : unit = 
         let name1 = IO.Path.GetFileNameWithoutExtension(outpath) + ".variant.txt"
         let variantPath = IO.Path.Combine(IO.Path.GetDirectoryName(outpath), name1)        
         writeVariantHeaders variantPath changeFile
-        writeChangeFile changeFile outpath 
+        writeAiwChangeFile changeFile outpath 

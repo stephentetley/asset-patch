@@ -3,11 +3,9 @@
 
 namespace AssetPatch.TemplatePatcher.Aiw
 
-
 module PatchCompiler =
     
     open System.IO
-
 
     open AssetPatch.Base.Common
     open AssetPatch.TemplatePatcher.Base.CompilerMonad

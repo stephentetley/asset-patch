@@ -13,9 +13,9 @@ module PatchWriter =
     open FSharp.Core
 
     open AssetPatch.Base
-    open AssetPatch.Base.ChangeFile
+    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.Acronyms
-    open AssetPatch.Base.Printer
+    open AssetPatch.Base.AiwChangeFilePrinter
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Aiw.Base
     open AssetPatch.TemplatePatcher.Aiw.PatchTypes
@@ -48,7 +48,7 @@ module PatchWriter =
 
     let private makeChangeFile (entityType : EntityType) 
                                 (variantName : string)
-                                (rows : AssocList<string, string> list) : AiwCompilerMonad<ChangeFile> = 
+                                (rows : AssocList<string, string> list) : AiwCompilerMonad<AiwChangeFile> = 
         compile {
             let! user = asksUserEnv (fun x -> x.UserName)
             let timestamp = DateTime.Now
@@ -63,9 +63,9 @@ module PatchWriter =
             }          
         }
 
-    let private writeChangesAndHeaders (changeFile : ChangeFile)  
+    let private writeChangesAndHeaders (changeFile : AiwChangeFile)  
                                         (outputPath: string) : AiwCompilerMonad<unit> =
-        liftAction (fun () -> writePatchAndVariantHeaders changeFile outputPath)
+        liftAction (fun () -> writeAiwPatchAndVariantHeaders changeFile outputPath)
         
     
 
@@ -74,7 +74,7 @@ module PatchWriter =
     // New FuncLocs file
 
     /// Render a list of new FuncLocs into a ChangeFile
-    let private makeNewFuncLocsFile (rows : NewFuncLoc list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewFuncLocsFile (rows : NewFuncLoc list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FunctionLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())      
@@ -96,7 +96,7 @@ module PatchWriter =
     // Link FuncLocs file
 
     /// Render a list of FuncLoc hierarchy changes into a ChangeFile
-    let private makeLinkFuncLocsFile (rows : LinkFuncLoc list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeLinkFuncLocsFile (rows : LinkFuncLoc list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FunctionLocation.ToString()) 
             |> List.map (fun x -> x.ToAssocs())     
@@ -118,7 +118,7 @@ module PatchWriter =
     // New ClassFloc file
 
     /// Render a list of new ClassFlocs into a ChangeFile
-    let private makeNewClassFlocsFile (rows : NewClassFloc list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewClassFlocsFile (rows : NewClassFloc list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FuncLoc.ToString() + "!!" + row.Class)
             |> List.map (fun x -> x.ToAssocs())    
@@ -140,7 +140,7 @@ module PatchWriter =
     // New ValuaFloc file
 
     /// Render a list of new ValuaFloc into a ChangeFile
-    let private makeNewValuaFlocsFile (rows : NewValuaFloc list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewValuaFlocsFile (rows : NewValuaFloc list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FuncLoc.ToString() + "!!" + row.CharacteristicID)
             |> List.map (fun x -> x.ToAssocs())       
@@ -164,7 +164,7 @@ module PatchWriter =
     // New Equi file
 
     /// Render a list of new equipment into a ChangeFile
-    let private makeNewEquisFile (rows : NewEqui list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewEquisFile (rows : NewEqui list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.FuncLoc.ToString())
             |> List.map (fun x -> x.ToAssocs())       
@@ -188,7 +188,7 @@ module PatchWriter =
 
 
     /// Render a list of new ClassEquis into a ChangeFile
-    let private makeNewClassEquisFile (rows : NewClassEqui list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewClassEquisFile (rows : NewClassEqui list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> (sprintf "%s" row.EquipmentId) + row.Class)
             |> List.map (fun x -> x.ToAssocs())       
@@ -210,7 +210,7 @@ module PatchWriter =
     // New ValuaEqui file
 
     /// Render a list of new ValuaEquis into a ChangeFile
-    let private makeNewValuaEquisFile (rows : NewValuaEqui list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewValuaEquisFile (rows : NewValuaEqui list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.EquipmentId)
             |> List.map (fun x -> x.ToAssocs())       
@@ -233,7 +233,7 @@ module PatchWriter =
 
 
     /// Render a list of new ValuaEquis into a ChangeFile
-    let private makeNewEqmltxtsFile (rows : NewEqmltxt list) : AiwCompilerMonad<ChangeFile> = 
+    let private makeNewEqmltxtsFile (rows : NewEqmltxt list) : AiwCompilerMonad<AiwChangeFile> = 
         rows
             |> List.sortBy (fun row -> row.EquipmentId)
             |> List.map (fun x -> x.ToAssocs())       

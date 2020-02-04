@@ -16,11 +16,11 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
-#load "..\AssetPatch\src\AssetPatch\Base\ChangeFile.fs"
+#load "..\AssetPatch\src\AssetPatch\Base\AiwChangeFile.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\FuncLocPath.fs"
-#load "..\AssetPatch\src\AssetPatch\Base\Parser.fs"
-#load "..\AssetPatch\src\AssetPatch\Base\Printer.fs"
+#load "..\AssetPatch\src\AssetPatch\Base\AiwChangeFileParser.fs"
+#load "..\AssetPatch\src\AssetPatch\Base\AiwChangeFilePrinter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\CommonTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\Template.fs"
@@ -49,13 +49,13 @@ open AssetPatch.AddAttributesPatcher.AiwAddAttributesPatcher
 
 // This patcher is a bit more general than the other ones
     
-let addNETWTL : Class = 
+let addNETWTL : Classification = 
     netwtl [ 
         uniclass_code ()
         uniclass_desc ()
     ]
 
-let addPODEUP : Class = 
+let addPODEUP : Classification = 
     podeup [ 
         uniclass_code ()
         uniclass_desc ()
