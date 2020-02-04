@@ -38,8 +38,6 @@
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchWriter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />
-    <Compile Include="AssetPatch\RewritePatcher\Datatypes.fs" />
-    <Compile Include="AssetPatch\RewritePatcher\RewriteMonad.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Root.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\AssetCondition.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Smon.fs" />
