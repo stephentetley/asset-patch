@@ -11,8 +11,8 @@ module PatchDiff =
     open Giraffe.GiraffeViewEngine
 
     open AssetPatch.Base
-    open AssetPatch.Base.AiwChangeFile
-    open AssetPatch.Base.AiwChangeFileParser
+    open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.ChangeFileParser
 
     type AssocDiff<'Key, 'T> = 
         | AssocInLeft of 'Key * 'T

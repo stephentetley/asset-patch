@@ -7,9 +7,9 @@ module CsvExport =
 
 
     open AssetPatch.Base
-    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.CsvFile
-    open AssetPatch.Base.Acronyms
+    open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.Acronyms
     
 
   

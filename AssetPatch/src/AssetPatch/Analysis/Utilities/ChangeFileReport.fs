@@ -10,9 +10,9 @@ module ChangeFileReport =
     open Giraffe.GiraffeViewEngine
 
     open AssetPatch.Base
-    open AssetPatch.Base.AiwChangeFile
-    open AssetPatch.Base.Acronyms
-    open AssetPatch.Base.AiwChangeFileParser
+    open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.Acronyms
+    open AssetPatch.Base.Aiw.ChangeFileParser
     
 
     let private cellValue (src : string) : XmlNode = 

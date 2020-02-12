@@ -7,8 +7,8 @@ namespace AssetPatch.Anaylsis.Utilities
 module TidyChangeFile = 
     
     open AssetPatch.Base.Common
-    open AssetPatch.Base.AiwChangeFileParser
-    open AssetPatch.Base.AiwChangeFilePrinter
+    open AssetPatch.Base.Aiw.ChangeFileParser
+    open AssetPatch.Base.Aiw.ChangeFilePrinter
     open AssetPatch.Analysis
 
     let tidyChangeFile (priorities : string list) 

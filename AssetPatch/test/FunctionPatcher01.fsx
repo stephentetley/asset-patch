@@ -30,11 +30,11 @@ open FSharp.Core
 #load "..\src\AssetPatch\Base\Addendum.fs"
 #load "..\src\AssetPatch\Base\Common.fs"
 #load "..\src\AssetPatch\Base\AssocList.fs"
-#load "..\src\AssetPatch\Base\AiwChangeFile.fs"
-#load "..\src\AssetPatch\Base\Acronyms.fs"
-#load "..\src\AssetPatch\Base\AiwChangeFileParser.fs"
-#load "..\src\AssetPatch\Base\AiwChangeFilePrinter.fs"
 #load "..\src\AssetPatch\Base\FuncLocPath.fs"
+#load "..\src\AssetPatch\Base\Aiw\ChangeFile.fs"
+#load "..\src\AssetPatch\Base\Aiw\Acronyms.fs"
+#load "..\src\AssetPatch\Base\Aiw\ChangeFileParser.fs"
+#load "..\src\AssetPatch\Base\Aiw\ChangeFilePrinter.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\CommonTypes.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\Template.fs"
@@ -102,7 +102,9 @@ let edcTemplate (parameters : RowParams) : Function =
                     _no_assemblies_
                     [ 
                       Lstn.lstn_level_transmitter "Storm Overflow Level Monitor Loop"
+                        System.DateTime.Now
                         ""
+
                         [ east_north_common
                           aib_reference [ s4_aib_reference () ]
                         ]
@@ -171,6 +173,7 @@ let caaTemplate (parameters : RowParams) : Site =
                             _no_assemblies_
                             [ 
                               Netw.telemetry_outstation "Telemetry Outstation"
+                                System.DateTime.Now
                                 ""
                                 [ east_north_common
                                   aib_reference                             

@@ -16,13 +16,13 @@ open FSharp.Core
 #load "..\..\AssetPatch\src\AssetPatch\Base\Addendum.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\Common.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Base\AssocList.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFile.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\Acronyms.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFileParser.fs"
-#load "..\..\AssetPatch\src\AssetPatch\Base\AiwChangeFilePrinter.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Aiw\ChangeFile.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Aiw\Acronyms.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Aiw\ChangeFileParser.fs"
+#load "..\..\AssetPatch\src\AssetPatch\Base\Aiw\ChangeFilePrinter.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\AbsChangeFile.fs"
 #load "..\..\AssetPatch\src\AssetPatch\Analysis\Utilities\TidyChangeFile.fs"
-open AssetPatch.Base.AiwChangeFileParser
+open AssetPatch.Base.Aiw.ChangeFileParser
 open AssetPatch.Anaylsis.Utilities.TidyChangeFile
 
 
