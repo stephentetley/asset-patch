@@ -7,7 +7,7 @@ namespace AssetPatch.TemplateCatalogue
 [<AutoOpen>]
 module Root =
     
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.Lib.OSGB36
 

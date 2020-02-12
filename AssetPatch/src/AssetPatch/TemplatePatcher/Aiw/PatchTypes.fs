@@ -12,10 +12,10 @@ module PatchTypes =
     open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.ValuaValue
     open AssetPatch.Base.Aiw.ChangeFile
    
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
-
+    
 
     let private makeAssocs (items : (string * string * string) list) : AssocList<string,string> = 
         items |> List.map (fun (x,_,y) -> (x,y)) |> AssocList.ofList
@@ -266,8 +266,8 @@ module PatchTypes =
         /// target system
         member x.ToAssocs() : AssocList<string, string> = 
             let atwrt = x.Value.CharacteristicValue |> Option.defaultValue ""         
-            let atflv = x.Value.NumericValueFrom |> Option.defaultValue ""
-            let atflb = x.Value.NumericValueTo |> Option.defaultValue ""
+            let atflv = x.Value.NumericValueFrom    |> Option.defaultValue ""
+            let atflb = x.Value.NumericValueTo      |> Option.defaultValue ""
             makeAssocs
                 [ ("EQUI",          "Equipment",                x.EquipmentId.ToString())
                 ; ("CLASSTYPE",     "Class Type",               x.ClassType.Number)

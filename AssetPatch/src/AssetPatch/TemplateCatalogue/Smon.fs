@@ -7,7 +7,7 @@ namespace AssetPatch.TemplateCatalogue
 
 module Smon =
     
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.Template
 
 

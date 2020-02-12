@@ -9,7 +9,7 @@ module Netw =
     
     open System
 
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.Template
 
 
@@ -59,7 +59,5 @@ module Netw =
         _characteristic "SPECIFIC_MODEL" (TextValue v)
 
     /// MANUFACTURERS_ASSET_LIFE_YR
-    let manufacturers_asset_life_yr (v : decimal) : Characteristic =         
-        // _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (DecimalValue v)
-        printfn "manufacturers_asset_life_yr - temporarily an int"
-        _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (intValue (int v))
+    let manufacturers_asset_life_yr (v : int) : Characteristic =         
+        _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (intValue v)

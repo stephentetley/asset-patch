@@ -10,7 +10,7 @@ module TemplateHierarchy =
     open System
 
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.Base.ValuaValue
     
 
     type S4Characteristic = 

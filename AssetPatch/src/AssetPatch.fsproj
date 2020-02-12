@@ -9,6 +9,7 @@
     <Compile Include="AssetPatch\Base\Common.fs" />
     <Compile Include="AssetPatch\Base\AssocList.fs" />
     <Compile Include="AssetPatch\Base\FuncLocPath.fs" />
+    <Compile Include="AssetPatch\Base\ValuaValue.fs" />
     <Compile Include="AssetPatch\Base\CsvFile.fs" />
     <Compile Include="AssetPatch\Base\Aiw\ChangeFile.fs" />
     <Compile Include="AssetPatch\Base\Aiw\Acronyms.fs" />
@@ -23,7 +24,6 @@
     <Compile Include="AssetPatch\Analysis\Utilities\CsvExport.fs" />
     <Compile Include="AssetPatch\Analysis\Utilities\ReadErrorLog.fs" />
     <Compile Include="AssetPatch\Analysis\PatchDiff.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Base\CommonTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\Template.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\CompilerMonad.fs" />
@@ -37,6 +37,8 @@
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\Base\UpdateTypes.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\Base\Uxl.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Root.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\AssetCondition.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Smon.fs" />

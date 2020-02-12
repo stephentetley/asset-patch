@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher.Base
+namespace AssetPatch.Base
 
 
 
-module CommonTypes =
+module ValuaValue =
     
     open System
    

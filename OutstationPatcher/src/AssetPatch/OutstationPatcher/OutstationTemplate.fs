@@ -65,7 +65,6 @@ module OutstationTemplate =
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwmo [
-                manufacturers_asset_life_yr 15.0M
                 uniclass_code ()
                 uniclass_desc ()
                 memo_line "SEE LONG TEXT"
@@ -89,7 +88,6 @@ module OutstationTemplate =
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwtl [
-                    manufacturers_asset_life_yr 7.5M
                     uniclass_code ()
                     uniclass_desc ()
                     memo_line "SEE LONG TEXT"

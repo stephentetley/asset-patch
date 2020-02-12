@@ -9,7 +9,7 @@ module Lstn =
     
     open System
 
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.Template
 
     let lstn_level_transmitter (name : string) (installDate: DateTime) (memoLine : string)

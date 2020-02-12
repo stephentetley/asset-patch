@@ -12,7 +12,7 @@ module Template =
     open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.Base.CommonTypes
+    open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.TemplateHierarchy    
 
 
