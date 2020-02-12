@@ -7,17 +7,19 @@ namespace AssetPatch.TemplateCatalogue
 
 module Netw =
     
+    open System
+
     open AssetPatch.TemplatePatcher.Base.CommonTypes
     open AssetPatch.TemplatePatcher.Base.Template
 
 
-    let telemetry_outstation (name : string) (memoLine : string)
+    let telemetry_outstation (name : string) (startupDate: DateTime) (memoLine : string)
                 : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "NETW" "NETWTL" memoLine
+        _equipment name "I" "NETW" "NETWTL" startupDate memoLine
 
-    let modem (name : string) (memoLine : string)
+    let modem (name : string) (startupDate: DateTime) (memoLine : string)
                 : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "NETW" "NETWMO" memoLine
+        _equipment name "I" "NETW" "NETWMO" startupDate memoLine
 
 
     /// Class:NETWTL

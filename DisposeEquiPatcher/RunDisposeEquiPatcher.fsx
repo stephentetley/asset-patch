@@ -1,6 +1,7 @@
 ﻿#r "netstandard"
 #r "System.Xml.Linq.dll"
 #r "System.Text.Encoding.dll"
+open System
 
 // Use FSharp.Data for CSV reading and writing
 #I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.3.3\lib\netstandard2.0"
@@ -47,21 +48,21 @@ open AssetPatch.DisposeEquiPatcher.AiwDisposeEquiPatcher
 open AssetPatch.DisposeEquiPatcher.UxlDisposeEquiPatcher
 
 
-// TODO - derive filename from input file?
+
 let aiwRetireMm3x () = 
     let opts = 
         { UserName          = "TETLEYS"
-          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MM3X_preprod_2019_retire_worklist1.xlsx"
-          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\"
+          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
+          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\"
         }
     runAiwDisposeEquiPatcher opts
 
 let uxlRetireMm3x () = 
     let opts = 
         { ProcessRequester  = "ASSET DATA"
-          ChangeRequestDescription = "S3975 Retire MM3X 04/02/20"
-          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MM3X_preprod_2019_retire_worklist1.xlsx"
-          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\"          
+          ChangeRequestDescription = sprintf "S3953 Retire MM3X %s" (DateTime.Now.ToShortDateString())
+          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
+          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"          
         }
     runUxlDisposeEquiPatcher opts
 

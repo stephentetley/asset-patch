@@ -147,3 +147,4 @@ module AssetCondition =
                 loading_factor_reason "New"
                 survey_date year
             ]
+

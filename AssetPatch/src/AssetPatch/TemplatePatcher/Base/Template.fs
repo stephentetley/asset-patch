@@ -106,16 +106,16 @@ module Template =
         Template <| fun env -> 
             apply1 ma { env with CurrentFloc = Some floc } 
 
-    let private asks () : Template<TemplateEnv> = 
+    let private ask () : Template<TemplateEnv> = 
         Template <| fun env -> Ok env
         
-    let asksFloc () : Template<FuncLocPath> = 
+    let askFloc () : Template<FuncLocPath> = 
         Template <| fun env -> 
             match env.CurrentFloc with
             | None -> Error "askFloc - no CurrentFloc "
             | Some a -> Ok a
 
-    let asksFuncLocProperties () : Template<FuncLocProperties> = 
+    let askFuncLocProperties () : Template<FuncLocProperties> = 
         Template <| fun env -> 
             let props : FuncLocProperties = 
                 { StartupDate = env.Properties.StartupDate
@@ -198,14 +198,15 @@ module Template =
                     (category : string) 
                     (objectType : string)
                     (zzClass : string)
+                    (startupDate: DateTime)
                     (memoLine : string)
                     (classes : Classification list) 
                     (subordinateEquipment : Equipment list) 
                     (attributes : EquipmentAttribute list) : Equipment = 
         let equip1 = 
             template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! es = unlistM subordinateEquipment
                 return {
@@ -215,6 +216,7 @@ module Template =
                     Category = category
                     ZZClass = zzClass
                     ObjectType = objectType
+                    StartupDate = startupDate
                     Manufacturer = None
                     Model = None
                     SerialNumber = None
@@ -240,8 +242,8 @@ module Template =
                    (classes : Classification list) (equipment : Equipment list) : Component = 
         extendFloc flocToken
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! es = unlistM equipment
                 return { 
@@ -261,8 +263,8 @@ module Template =
                 (components : Component list) (equipment : Equipment list) : Item = 
         extendFloc flocToken
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! xs = unlistM components
                 let! es = unlistM equipment
@@ -284,8 +286,8 @@ module Template =
                     (items : Item list) (equipment : Equipment list) : Assembly = 
         extendFloc flocToken
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! xs = unlistM items
                 let! es = unlistM equipment
@@ -307,8 +309,8 @@ module Template =
                 (assemblies : Assembly list) (equipment : Equipment list) : System = 
         extendFloc flocToken
             <| template {
-                let! floc =  asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc =  askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! xs = unlistM assemblies
                 let! es = unlistM equipment
@@ -330,8 +332,8 @@ module Template =
                     (systems : System list) : Process = 
         extendFloc flocToken
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! xs = unlistM systems
                 return { 
@@ -351,8 +353,8 @@ module Template =
                         (processes : Process list) : ProcessGroup = 
         extendFloc flocToken
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()               
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()               
                 let! cs = unlistM classes
                 let! xs = unlistM processes
                 return { 
@@ -372,8 +374,8 @@ module Template =
                   (processGroups : ProcessGroup list) : Function = 
         extendFloc flocToken
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! xs = unlistM processGroups
                 return { 
@@ -393,8 +395,8 @@ module Template =
                 (functions : Function list) : Site = 
         rootFloc (FuncLocPath.Create siteCode)
             <| template {
-                let! floc = asksFloc ()
-                let! props = asksFuncLocProperties ()
+                let! floc = askFloc ()
+                let! props = askFuncLocProperties ()
                 let! cs = unlistM classes
                 let! xs = unlistM functions
                 return { 

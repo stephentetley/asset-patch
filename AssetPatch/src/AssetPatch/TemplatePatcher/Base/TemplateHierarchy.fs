@@ -43,6 +43,7 @@ module TemplateHierarchy =
 
     /// This represents new equipment so it does not have a 
     /// (system generated) EquipmentId
+    /// The "direct" StartupDate overrides the one inherited from FlocProperties
     type S4Equipment = 
         { FuncLoc : FuncLocPath
           FlocProperties : FuncLocProperties
@@ -50,6 +51,7 @@ module TemplateHierarchy =
           Category : string
           ObjectType : string
           ZZClass: string
+          StartupDate: DateTime
           Manufacturer : string option
           Model : string option
           SerialNumber : string option

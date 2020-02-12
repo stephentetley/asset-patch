@@ -193,22 +193,3 @@ module Root =
             east_north [ easting ea.Easting ;  northing ea.Northing ]
 
     
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-
-
-   

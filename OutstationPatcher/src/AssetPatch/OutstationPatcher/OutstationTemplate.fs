@@ -18,12 +18,13 @@ module OutstationTemplate =
     open AssetPatch.OutstationPatcher.InputData
 
 
-    /// Note - this is very flaky as ExcelProvider seems to have difficulty 
-    /// with Excel's type casting.
-    let getInstallDate (source : string) : DateTime = 
-        match tryGetUSDate source with
-        | Some date -> date
-        | None -> new DateTime(year=1970, month=1, day=1)
+    ///// Note - this is very flaky as ExcelProvider seems to have difficulty 
+    ///// with Excel's type casting.
+    //let getInstallDate (source : string) : DateTime = 
+    //    printfn "getInstallDate source= `%s`" source
+    //    match tryGetUSDate source with
+    //    | Some date -> printfn "%O" date; date
+    //    | None -> new DateTime(year=1970, month=1, day=1)
 
 
     let private startupDateTrafo (parameters: {| InstallDate: string |}) : EnvTransformer = 
@@ -57,8 +58,9 @@ module OutstationTemplate =
     // Hierarchy templates
 
     let makeModem (parameters : WorkListRow) : Equipment = 
-        let installDate = getInstallDate parameters.``Outstation Install Date``
+        let installDate = getUSDate parameters.``Outstation Install Date``
         modem parameters.``Modem Name`` 
+              installDate
               parameters.``Modem Memo Line``
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
@@ -79,18 +81,19 @@ module OutstationTemplate =
             ]
 
     let makeTelemetryOustation (parameters : WorkListRow) : Equipment = 
-        let installDate = getInstallDate parameters.``Outstation Install Date``
-
-        telemetry_outstation parameters.``Telemetry Outstation Name``
-                parameters.``Outstation Memo Line``
+        let installDate = getUSDate parameters.``Outstation Install Date``
+        telemetry_outstation 
+            parameters.``Telemetry Outstation Name``
+            installDate
+            parameters.``Outstation Memo Line``
             [ east_north_common parameters.NGR
               aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwtl [
-                manufacturers_asset_life_yr 7.5M
-                uniclass_code ()
-                uniclass_desc ()
-                memo_line "SEE LONG TEXT"
-                ] 
+                    manufacturers_asset_life_yr 7.5M
+                    uniclass_code ()
+                    uniclass_desc ()
+                    memo_line "SEE LONG TEXT"
+                    ] 
               asset_condition_common installDate.Year
             ]
             _no_subordinate_equipment_ 

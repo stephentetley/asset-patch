@@ -15,6 +15,10 @@ module AiwDisposeEquiPatcher =
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.DisposeEquiPatcher.InputData
 
+    // Note - this is a rewrite patcher.
+    // It only touches Equi properties `Description (medium text)` and
+    // `Status of an Object`.
+
 
     let private makeAssocs (items : (string * string * string) list) : AssocList<string,string> = 
         items |> List.map (fun (x,_,y) -> (x,y)) |> AssocList.ofList

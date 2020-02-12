@@ -114,23 +114,21 @@ module EdcTemplate =
     // Hierarchy templates
 
     let makeLevelTransmitter (parameters : WorkListRow) : Equipment = 
-        let year : int = (getInstallDate parameters.``Install Date``).Year
-        let month : int = (getInstallDate parameters.``Install Date``).Month
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| lstn_level_transmitter parameters.``Level Controller Name``
-                    parameters.``Memo Line``
+        let installDate = getUSDate parameters.``Install Date``
+        lstn_level_transmitter parameters.``Level Controller Name``
+                installDate    
+                parameters.``Memo Line``
                 [ east_north_common parameters.NGR
                   aib_reference_equipment_common parameters.``AI2 Equipment Sainum`` parameters.``AI2 Equipment PLI Code``
                   lstnut_leaf_instance parameters
-                  asset_condition_common year
+                  asset_condition_common installDate.Year
                 ]
                 _no_subordinate_equipment_
                 [ manufacturer parameters.``Controller Manufacturer``
                   model parameters.``Controller Model``
                   serial_number parameters.``Controller Serial Number``
-                  construction_year year
-
-                  construction_month month
+                  construction_year installDate.Year
+                  construction_month installDate.Month
                 ]
 
 

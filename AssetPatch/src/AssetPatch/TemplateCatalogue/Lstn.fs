@@ -7,12 +7,14 @@ namespace AssetPatch.TemplateCatalogue
 
 module Lstn =
     
+    open System
+
     open AssetPatch.TemplatePatcher.Base.CommonTypes
     open AssetPatch.TemplatePatcher.Base.Template
 
-    let lstn_level_transmitter (name : string) (memoLine : string)
+    let lstn_level_transmitter (name : string) (installDate: DateTime) (memoLine : string)
                 : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-        _equipment name "I" "LSTN" "LSTNUT" memoLine
+        _equipment name "I" "LSTN" "LSTNUT" installDate memoLine
 
 
     /// Class:LSTNUT

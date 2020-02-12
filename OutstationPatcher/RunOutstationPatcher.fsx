@@ -1,6 +1,7 @@
 ﻿#r "netstandard"
 #r "System.Xml.Linq.dll"
 #r "System.Text.Encoding.dll"
+open System
 
 // Use FSharp.Data for CSV reading and writing
 #I @"C:\Users\stephen\.nuget\packages\FSharp.Data\3.3.3\lib\netstandard2.0"
@@ -61,28 +62,30 @@ open AssetPatch.OutstationPatcher.UxlPatcher
 
 let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist_part3.xlsx" 
-        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output"        
+        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist_first5.xlsx" 
+        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"        
     }
 
-let main01 () = 
+let aiwOutstationUpgrades01 () = 
     runAiwOutstationPatcherPhase1 aiwOptions 
 
 
 // Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
 // once it has been activated and downloaded...
 // Note - parsing the equi file is currently far from robust.
-let main02 () = 
+let aiwOutstationUpgrades02 () = 
     let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
     runAiwOutstationPatcherPhase2 aiwOptions equiFile  
 
+
+
 let uxlOptions : UxlOptions = 
     { ProcessRequester  = "ASSET DATA"
-      ChangeRequestDescription = "S3953 MMIM Updates"
-      WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\MMIM_preprod_upgrade_2019_worklist_part3.xlsx" 
-      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\csv" 
+      ChangeRequestDescription = sprintf "S3953 MMIM Upgrades %s" (DateTime.Now.ToShortDateString())
+      WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist_first5.xlsx" 
+      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv" 
     }
 
-let main03 () = 
+let uxlOutstationUpgrades01 () = 
     runUxlOutstationPatcher uxlOptions
 

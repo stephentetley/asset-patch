@@ -90,9 +90,7 @@ module PatchTypes =
           FunLocCategory: int option
           StructureIndicator: string          
           ObjectType: string
-          StartupDate: DateTime option
-          ConstructYear: int option
-          ConstructMonth: int option
+          StartupDate: DateTime
           SuperiorFuncLoc: FuncLocPath option
           EquipInstall: bool option
           StatusOfAnObject: string
@@ -108,11 +106,11 @@ module PatchTypes =
             ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                  "")
             ; ("Unit of weight",                "")
-            ; ("Start-up date",                 optionalDate x.StartupDate)
+            ; ("Start-up date",                 showS4Date x.StartupDate)
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
-            ; ("ConstructYear",                 optionalInt x.ConstructYear)
-            ; ("ConstructMth",                  optionalInt x.ConstructMonth)
+            ; ("ConstructYear",                 x.StartupDate.Year.ToString())
+            ; ("ConstructMth",                  x.StartupDate.Month.ToString())
             ; ("Company Code",                  "")
             ; ("Position",                      "")
             ; ("SupFunctLoc.",                  optionalFloc x.SuperiorFuncLoc)
@@ -164,13 +162,11 @@ module PatchTypes =
           EquipCategory: string  
           DescriptionMedium: string 
           ObjectType: string
-          StartupDate: DateTime option
+          StartupDate: DateTime
           Manufacturer: string
           ModelNumber: string
           ManufPartNumber: string
           ManufSerialNumber: string
-          ConstructionYear: int option
-          ConstructionMonth: int option
           CompanyCode: string
           FunctionalLocation: FuncLocPath option
           SuperordEquip: string
@@ -184,7 +180,7 @@ module PatchTypes =
             ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                  "")
             ; ("Unit of weight",                "")
-            ; ("Start-up date",                 optionalDate x.StartupDate)
+            ; ("Start-up date",                 showS4Date x.StartupDate)
             ; ("AcquistnValue",                 "")
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
@@ -193,8 +189,8 @@ module PatchTypes =
             ; ("ManufPartNo.",                  x.ManufPartNumber)
             ; ("ManufSerialNo.",                x.ManufSerialNumber)
             ; ("ManufCountry",                  "")
-            ; ("ConstructYear",                 optionalInt x.ConstructionYear)
-            ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
+            ; ("ConstructYear",                 x.StartupDate.Year.ToString())
+            ; ("ConstructMth",                  x.StartupDate.Month.ToString())
             ; ("Company Code",                  x.CompanyCode)         
             ; ("Functional loc.",               optionalFloc x.FunctionalLocation)
             ; ("Superord.Equip.",               x.SuperordEquip)
