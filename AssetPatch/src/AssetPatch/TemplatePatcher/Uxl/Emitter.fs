@@ -9,12 +9,12 @@ module Emitter =
     open FSharp.Core
 
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.Uxl.FileTypes
     open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     
     open AssetPatch.TemplatePatcher.Uxl.Base
-    open AssetPatch.TemplatePatcher.Uxl.PatchTypes
-
+    
     type EquiData =
         { Equipment: EquimentData
           MultilingualText: EquiMultilingualText
@@ -81,7 +81,7 @@ module Emitter =
                 Priority = ""
                 DueDate = None
                 Reason = ""
-                ChangeRequestType = changeType
+                TypeOfChangeRequest = changeType
                 ChangeRequestGroup = ""
                 FuncLocOrEquipment = item
                 ProcessRequester = requester
@@ -100,12 +100,12 @@ module Emitter =
                                     (className: string)
                                     (charac : S4Characteristic) : FlocClassification = 
         { FunctionalLocation = funcLoc
-          ClassDeletionInd = false
+          ClassDeletionInd = None
           Class = className
           Status = ""
           CharacteristicName = charac.Name
           CharacteristicValue = charac.Value.UxlValue
-          CharDeletionInd = false
+          CharDeletionInd = None
         }
 
     let makeFlocClassifications (funcLoc : FuncLocPath)
@@ -148,9 +148,11 @@ module Emitter =
           StartupDate = equipment.StartupDate
           Manufacturer = Option.defaultValue "TO BE DETERMINED" equipment.Manufacturer
           ModelNumber = Option.defaultValue "TO BE DETERMINED" equipment.Model
-          ManufPartNumber = ""
-          ManufSerialNumber = Option.defaultValue "UNKNOWN" equipment.SerialNumber
+          ManufPartNum = ""
+          ManufSerialNum = Option.defaultValue "UNKNOWN" equipment.SerialNumber
           CompanyCode = ""
+          ConstructionYear = Some equipment.StartupDate.Year
+          ConstructionMonth = Some equipment.StartupDate.Month
           FunctionalLocation = Some equipment.FuncLoc
           SuperordEquip = ""
           StatusOfAnObject = ""
@@ -212,7 +214,10 @@ module Emitter =
           FunLocCategory = Some path.Level
           StructureIndicator = props.StructureIndicator
           ObjectType = objectType
-          StartupDate = props.StartupDate
+          StartupDate = Some props.StartupDate
+          ConstructionYear = Some props.StartupDate.Year
+          ConstructionMonth = Some props.StartupDate.Month
+          CompanyCode = ""
           SuperiorFuncLoc = parent path
           EquipInstall = path.Level >= 5 |> Some
           StatusOfAnObject = ""

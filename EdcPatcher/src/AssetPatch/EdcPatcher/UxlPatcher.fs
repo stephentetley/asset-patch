@@ -13,7 +13,6 @@ module UxlPatcher =
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Uxl.Base
-    open AssetPatch.TemplatePatcher.Uxl.PatchTypes
     open AssetPatch.TemplatePatcher.Uxl.Emitter
     open AssetPatch.TemplatePatcher.Uxl.PatchCompiler
 

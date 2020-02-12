@@ -14,6 +14,7 @@
     <Compile Include="AssetPatch\Base\AiwChangeFileParser.fs" />
     <Compile Include="AssetPatch\Base\AiwChangeFilePrinter.fs" />
     <Compile Include="AssetPatch\Base\FuncLocPath.fs" />
+    <Compile Include="AssetPatch\Base\Uxl\FileTypes.fs" />
     <Compile Include="AssetPatch\Lib\Common.fs" />
     <Compile Include="AssetPatch\Lib\OSGB36.fs" />
     <Compile Include="AssetPatch\Analysis\AbsChangeFile.fs" />
@@ -34,8 +35,6 @@
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchTypes.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchWriter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Root.fs" />

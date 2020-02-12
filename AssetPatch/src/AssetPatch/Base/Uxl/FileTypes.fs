@@ -1,18 +1,23 @@
 ﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplatePatcher.Uxl
+namespace AssetPatch.Base.Uxl
 
 
-module PatchTypes =
+module FileTypes =
     
     open System
 
     open AssetPatch.Base
     open AssetPatch.Base.Common
+    open AssetPatch.Base.CsvFile
     open AssetPatch.Base.FuncLocPath
 
-    
+    // Common type to generate Create (from Templates) and Rewrite files.
+    // Generally "cell values" should permit no value / empty as Rewrite files
+    // only specify what has changed.
+
+
     type EquipmentId = string
 
 
@@ -51,12 +56,14 @@ module PatchTypes =
 
     /// This represents one row (MMOP configuration)
     /// MBOM-* fields are left out
+    /// `FL-Functional Location` and `EQ-Equipment` are coalesced as we must 
+    /// have one or the other.
     type ChangeRequestDetails = 
         { DescriptionLong: string
           Priority: string
           DueDate: DateTime option
           Reason: string
-          ChangeRequestType: string
+          TypeOfChangeRequest: string
           ChangeRequestGroup: string
           FuncLocOrEquipment:  Choice<FuncLocPath, EquipmentId>
           ProcessRequester: string
@@ -72,7 +79,7 @@ module PatchTypes =
             ; ("Priority",                      x.Priority)
             ; ("Due Date",                      optionalDate x.DueDate)
             ; ("Reason",                        x.Reason)
-            ; ("Type of Change Request",        x.ChangeRequestType)
+            ; ("Type of Change Request",        x.TypeOfChangeRequest)
             ; ("Change Request Group",          x.ChangeRequestGroup)
             ; ("MBOM-Material",                 "")
             ; ("MBOM-Plant",                    "")
@@ -90,7 +97,10 @@ module PatchTypes =
           FunLocCategory: int option
           StructureIndicator: string          
           ObjectType: string
-          StartupDate: DateTime
+          StartupDate: DateTime option
+          ConstructionYear: int option
+          ConstructionMonth: int option
+          CompanyCode: string
           SuperiorFuncLoc: FuncLocPath option
           EquipInstall: bool option
           StatusOfAnObject: string
@@ -106,12 +116,12 @@ module PatchTypes =
             ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                  "")
             ; ("Unit of weight",                "")
-            ; ("Start-up date",                 showS4Date x.StartupDate)
+            ; ("Start-up date",                 optionalS4Date x.StartupDate)
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
-            ; ("ConstructYear",                 x.StartupDate.Year.ToString())
-            ; ("ConstructMth",                  x.StartupDate.Month.ToString())
-            ; ("Company Code",                  "")
+            ; ("ConstructYear",                 optionalInt x.ConstructionYear)
+            ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
+            ; ("Company Code",                  x.CompanyCode)
             ; ("Position",                      "")
             ; ("SupFunctLoc.",                  optionalFloc x.SuperiorFuncLoc)
             ; ("EquipInstall.",                 optionalBool x.EquipInstall)
@@ -129,31 +139,31 @@ module PatchTypes =
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
-            ; ("Delete Indicator",              if x.DeleteIndicator then "X" else "")            
+            ; ("Delete Indicator",              showS4Bool x.DeleteIndicator)
             ; ("Language",                      x.Language)
             ; ("Description",                   x.Description) 
             ; ("Long Text",                     x.LongText)
             ] |> AssocList.ofList
 
-
+    /// ClassType is always "003"
     type FlocClassification = 
         { FunctionalLocation: FuncLocPath
-          ClassDeletionInd: bool
+          ClassDeletionInd: bool option
           Class: string
           Status: string
           CharacteristicName: string
           CharacteristicValue: string
-          CharDeletionInd: bool
+          CharDeletionInd: bool option
         }
         member x.ToAssocs() = 
             [ ("Functional Location",           x.FunctionalLocation.ToString())
-            ; ("Deletion Ind",                  showS4Bool x.ClassDeletionInd)
+            ; ("Deletion Ind",                  optionalBool x.ClassDeletionInd)
             ; ("Class Type",                    "003")
             ; ("Class",                         x.Class)
             ; ("Status",                        x.Status)
             ; ("Characteristics",               x.CharacteristicName)
             ; ("Char Value",                    x.CharacteristicValue)
-            ; ("Ch.Deletion Ind.",              showS4Bool x.CharDeletionInd)
+            ; ("Ch.Deletion Ind.",              optionalBool x.CharDeletionInd)
             ] |> AssocList.ofList
 
 
@@ -165,8 +175,10 @@ module PatchTypes =
           StartupDate: DateTime
           Manufacturer: string
           ModelNumber: string
-          ManufPartNumber: string
-          ManufSerialNumber: string
+          ManufPartNum: string
+          ManufSerialNum: string
+          ConstructionYear: int option
+          ConstructionMonth: int option
           CompanyCode: string
           FunctionalLocation: FuncLocPath option
           SuperordEquip: string
@@ -186,11 +198,11 @@ module PatchTypes =
             ; ("Acquistion date",               "")
             ; ("Manufacturer",                  x.Manufacturer)
             ; ("Model number",                  x.ModelNumber)
-            ; ("ManufPartNo.",                  x.ManufPartNumber)
-            ; ("ManufSerialNo.",                x.ManufSerialNumber)
+            ; ("ManufPartNo.",                  x.ManufPartNum)
+            ; ("ManufSerialNo.",                unknownIfBlank x.ManufSerialNum)
             ; ("ManufCountry",                  "")
-            ; ("ConstructYear",                 x.StartupDate.Year.ToString())
-            ; ("ConstructMth",                  x.StartupDate.Month.ToString())
+            ; ("ConstructYear",                 optionalInt x.ConstructionYear)
+            ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
             ; ("Company Code",                  x.CompanyCode)         
             ; ("Functional loc.",               optionalFloc x.FunctionalLocation)
             ; ("Superord.Equip.",               x.SuperordEquip)
@@ -237,3 +249,157 @@ module PatchTypes =
 
 
 
+    let private makeCsvFile (rows : AssocList<string, string> list) : Result<CsvFileWithHeaders, string> = 
+        match Seq.tryHead rows with
+        | None -> Error "makeCsv - empty"
+        | Some row1 ->
+            let headers = AssocList.keys row1
+            let hs = List.ofArray headers
+            let csvRows = List.map (AssocList.values << AssocList.select hs) rows |> List.toArray
+            Ok { Headers = headers; Rows = csvRows }
+
+
+    // ************************************************************************
+    // Change Request Details csv
+
+    /// Render data for the `Change Request Details` tab
+    let private makeChangeRequestDetails (rows : ChangeRequestDetails list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun (x: ChangeRequestDetails) -> x.SortKey)
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the `Change Request Details` tab
+    /// The input list should not be empty (any change needs 
+    /// this data filling out).
+    let writeChangeRequestDetails (changeRequests : ChangeRequestDetails list)
+                                    (outPath: string) : Result<unit, string> = 
+
+        match changeRequests with
+        | [] -> Error "writeChangeRequestDetails - empty input"
+        | _ -> 
+            makeChangeRequestDetails changeRequests 
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+
+            
+    // ************************************************************************
+    // FuncLocs csv
+
+    /// Render data for the `Functional Location Data` tab
+    let private makeFunctionalLocationData (rows : FunctionalLocationData list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the `Functional Location Data` tab
+    let writeFunctionalLocationData (source : FunctionalLocationData list)
+                                (outPath: string) : Result<unit, string> = 
+        match source with
+        | [] ->  Ok ()
+        | _ -> 
+            makeFunctionalLocationData source
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+
+
+    // ************************************************************************
+    // FuncLocs multilingual text csv
+
+    /// Render data for the `FL-Multilingual Text` tab
+    let private makeFlocMultilingualText (rows : FlocMultilingualText list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the `FL-Multilingual Text` tab
+    let writeFlocMultilingualText (source : FlocMultilingualText list)
+                                    (outPath: string) : Result<unit, string> = 
+        match source with
+        | [] -> Ok ()
+        | _ -> 
+            makeFlocMultilingualText source
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+            
+
+    // ************************************************************************
+    // FuncLocs class/characteristics csv
+
+    /// Render data for the `FL-Classification` tab
+    let private makeFlocClassification (rows : FlocClassification list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun row -> row.FunctionalLocation.ToString()) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the `FL-Classification` tab
+    let writeFlocClassification (source : FlocClassification list)
+                                        (outPath: string) : Result<unit, string> = 
+        match source with
+        | [] -> Ok ()
+        | _ -> 
+            makeFlocClassification source
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+
+
+    // ************************************************************************
+    // Equipment csv
+
+    /// Render data for the `Equipment Data` tab
+    let private makeEquipmentData (rows : EquimentData list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun row -> row.EquipmentId) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the `Equipment Data` tab
+    let writeEquipmentData (source : EquimentData list)
+                                (outPath: string) : Result<unit, string> = 
+        match source with
+        | [] -> Ok ()
+        | _ -> 
+            makeEquipmentData source
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+
+
+    // ************************************************************************
+    // Equipment multilingual csv
+
+    /// Render data for the `EQ-Multilingual Text` tab
+    let private makeEquiMultilingualText (rows : EquiMultilingualText list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun row -> row.EquipmentId) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the `EQ-Multilingual Text` tab
+    let writeEquiMultilingualText (source : EquiMultilingualText list)
+                                    (outPath: string) : Result<unit, string> = 
+
+        match source with
+        | [] -> Ok ()
+        | _ -> 
+            makeEquiMultilingualText source
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+            
+
+
+    // ************************************************************************
+    // Equipment class/characteristics csv
+
+    /// Render data for the `FL-Classification` tab
+    let private makeEquiClassification (rows : EquiClassification list) : Result<CsvFileWithHeaders, string> = 
+        rows
+            |> List.sortBy (fun row -> row.EquipmentId) 
+            |> List.map (fun x -> x.ToAssocs())      
+            |> makeCsvFile 
+
+    /// Write data for the EQ-Classification` tab
+    let writeEquiClassification (source : EquiClassification list)
+                                (outPath: string) : Result<unit, string> = 
+        match source with
+        | [] -> Ok ()
+        | _ -> 
+            makeEquiClassification source
+                |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
+            

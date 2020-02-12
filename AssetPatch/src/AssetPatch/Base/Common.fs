@@ -37,12 +37,18 @@ module Common =
     let showS4Date (date : DateTime) : string = 
         date.ToString(format = "dd.MM.yyyy")
 
+    let optionalS4Date (source : DateTime option) : string = 
+        Option.defaultValue "" <| Option.map showS4Date source
+
     let readS4Date (source : string) : DateTime option = 
         try 
             DateTime.ParseExact(s = source, format = "dd.MM.yyyy", provider = Globalization.CultureInfo.InvariantCulture) 
                 |> Some
         with
         |_ -> None
+
+    let unknownIfBlank (source: string): string = 
+        if String.IsNullOrWhiteSpace source then "UNKNOWN" else source
         
            
 

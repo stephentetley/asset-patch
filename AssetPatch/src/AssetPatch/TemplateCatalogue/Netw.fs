@@ -60,4 +60,6 @@ module Netw =
 
     /// MANUFACTURERS_ASSET_LIFE_YR
     let manufacturers_asset_life_yr (v : decimal) : Characteristic =         
-        _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (DecimalValue v)
+        // _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (DecimalValue v)
+        printfn "manufacturers_asset_life_yr - temporarily an int"
+        _characteristic "MANUFACTURERS_ASSET_LIFE_YR" (intValue (int v))
