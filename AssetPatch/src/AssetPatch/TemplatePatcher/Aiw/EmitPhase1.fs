@@ -7,8 +7,8 @@ namespace AssetPatch.TemplatePatcher.Aiw
 
 module EmitPhase1 =
     
-    open AssetPatch.Base.AiwChangeFile
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.Aiw.ChangeFile
     open AssetPatch.TemplatePatcher.Base.TemplateHierarchy
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Aiw.Base

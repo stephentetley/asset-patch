@@ -10,7 +10,6 @@ module UxlAddAttributesPatcher =
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.TemplatePatcher.Uxl.Base
-    // open AssetPatch.TemplatePatcher.Uxl.EmitNewAttributes
     open AssetPatch.TemplatePatcher.Uxl.PatchCompiler
 
     type UxlOptions = 

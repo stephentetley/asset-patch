@@ -172,7 +172,7 @@ module FileTypes =
           EquipCategory: string  
           DescriptionMedium: string 
           ObjectType: string
-          StartupDate: DateTime
+          StartupDate: DateTime option
           Manufacturer: string
           ModelNumber: string
           ManufPartNum: string
@@ -192,7 +192,7 @@ module FileTypes =
             ; ("Object type",                   x.ObjectType)
             ; ("Gross Weight",                  "")
             ; ("Unit of weight",                "")
-            ; ("Start-up date",                 showS4Date x.StartupDate)
+            ; ("Start-up date",                 optionalS4Date x.StartupDate)
             ; ("AcquistnValue",                 "")
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")

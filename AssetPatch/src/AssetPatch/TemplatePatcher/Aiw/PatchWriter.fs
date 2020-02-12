@@ -13,9 +13,9 @@ module PatchWriter =
     open FSharp.Core
 
     open AssetPatch.Base
-    open AssetPatch.Base.AiwChangeFile
-    open AssetPatch.Base.Acronyms
-    open AssetPatch.Base.AiwChangeFilePrinter
+    open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.Acronyms
+    open AssetPatch.Base.Aiw.ChangeFilePrinter
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Aiw.Base
     open AssetPatch.TemplatePatcher.Aiw.PatchTypes

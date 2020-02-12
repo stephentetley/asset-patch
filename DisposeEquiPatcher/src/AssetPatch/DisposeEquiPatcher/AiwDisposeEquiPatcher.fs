@@ -9,10 +9,10 @@ module AiwDisposeEquiPatcher =
     open System.IO
 
     open AssetPatch.Base
-    open AssetPatch.Base.AiwChangeFile
-    open AssetPatch.Base.Acronyms
-    open AssetPatch.Base.AiwChangeFilePrinter
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.Acronyms
+    open AssetPatch.Base.Aiw.ChangeFilePrinter
     open AssetPatch.DisposeEquiPatcher.InputData
 
     // Note - this is a rewrite patcher.

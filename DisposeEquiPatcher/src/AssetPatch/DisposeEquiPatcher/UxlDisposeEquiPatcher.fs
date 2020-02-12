@@ -7,10 +7,9 @@ module UxlDisposeEquiPatcher =
     
     open System.IO
 
+    open AssetPatch.Base.Uxl.FileTypes
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
     open AssetPatch.TemplatePatcher.Uxl.Base
-    open AssetPatch.TemplatePatcher.Uxl.PatchTypes
-    open AssetPatch.TemplatePatcher.Uxl.PatchWriter
     open AssetPatch.DisposeEquiPatcher.InputData
 
     type UxlOptions = 
@@ -42,7 +41,7 @@ module UxlDisposeEquiPatcher =
           Priority = ""
           DueDate = None
           Reason = ""
-          ChangeRequestType = "AIWEAM0P"
+          TypeOfChangeRequest = "AIWEAM0P"
           ChangeRequestGroup = ""
           FuncLocOrEquipment = Choice2Of2 source.EquipmentId
           ProcessRequester = source.ProcessRequester
@@ -57,8 +56,10 @@ module UxlDisposeEquiPatcher =
           StartupDate = None
           Manufacturer = ""
           ModelNumber = ""
-          ManufPartNumber = ""
-          ManufSerialNumber = ""
+          ManufPartNum = ""
+          ManufSerialNum = ""
+          ConstructionYear = None
+          ConstructionMonth = None
           CompanyCode = ""
           FunctionalLocation = None
           SuperordEquip = ""
@@ -76,11 +77,11 @@ module UxlDisposeEquiPatcher =
                 /// Change Request
                 let name1 = "01_dispose_equi_change_request_details.csv"
                 let output1 = Path.Combine(opts.OutputDirectory, name1)
-                do! writeChangeRequestDetails (List.map emitChangeRequestDetails worklist) output1
+                do! liftResult <| writeChangeRequestDetails (List.map emitChangeRequestDetails worklist) output1
                 
                 /// Equipment Data
                 let name2 = "01_dispose_equipment_data.csv"
                 let output2 = Path.Combine(opts.OutputDirectory, name2)
-                do! writeEquipmentData (List.map emitEquipmentData worklist) output2
+                do! liftResult <| writeEquipmentData (List.map emitEquipmentData worklist) output2
                 return ()
             }

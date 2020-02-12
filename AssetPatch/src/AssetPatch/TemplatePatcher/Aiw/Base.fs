@@ -12,8 +12,8 @@ module Base =
     
     open AssetPatch.Base
     open AssetPatch.Base.Common
-    open AssetPatch.Base.AiwChangeFileParser
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.Aiw.ChangeFileParser
     open AssetPatch.TemplatePatcher.Base.CompilerMonad
 
 

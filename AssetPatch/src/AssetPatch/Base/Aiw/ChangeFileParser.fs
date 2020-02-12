@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.Base
+namespace AssetPatch.Base.Aiw
 
-module AiwChangeFileParser =
+module ChangeFileParser =
 
     open FParsec
     open System
 
     open AssetPatch.Base.Common
-    open AssetPatch.Base.AiwChangeFile
+    open AssetPatch.Base.Aiw.ChangeFile
 
     type AiwChangeFileParser<'ans> = Parser<'ans, unit>
 

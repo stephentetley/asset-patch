@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.Base
+namespace AssetPatch.Base.Aiw
 
-module AiwChangeFile =
+module ChangeFile =
 
     open System
     open AssetPatch.Base
