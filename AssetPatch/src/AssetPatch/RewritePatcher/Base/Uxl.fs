@@ -108,6 +108,14 @@ module Uxl =
           CharDeletionInd = None
         }
 
+    let flocDeleteMultilingual (funcLoc: FuncLocPath) : FlocMultilingualText = 
+        { FunctionalLocation = funcLoc
+          DeleteIndicator = true
+          Language = ""
+          Description = ""
+          LongText = ""
+        }
+
     let flocUpdateMultilingualText (funcLoc: FuncLocPath) 
                                     (text: string) : FlocMultilingualText = 
         { FunctionalLocation = funcLoc
@@ -119,6 +127,12 @@ module Uxl =
 
     let functionalLocationChanges1 (source: FlocChange) : FuncLocChanges = 
         match source with
+        | FlocChange.DeleteMultilingualText(funcLoc) -> 
+            { FuncLocDataChanges = []
+              MultilingualTextChanges = [flocDeleteMultilingual funcLoc]
+              ClassificationChanges = []
+            }
+
         | FlocChange.DeleteClass(funcLoc, className) -> 
             { FuncLocDataChanges = []
               MultilingualTextChanges = []
@@ -261,6 +275,14 @@ module Uxl =
           CharDeleteInd = false
         }
 
+    let equiDeleteMultilingualText (equiId: string) : EquiMultilingualText = 
+           { EquipmentId = equiId
+             DeleteIndicator = true
+             Language = ""
+             DescriptionMedium = ""
+             LongText = ""
+           }
+
     let equiUpdateMultilingualText (equiId: string) 
                                     (text: string) : EquiMultilingualText = 
         { EquipmentId = equiId
@@ -272,6 +294,12 @@ module Uxl =
 
     let equipmentChanges1 (source: EquiChange) : EquipmentChanges = 
         match source with
+        | EquiChange.DeleteMultilingualText(equiId) -> 
+            { EquimentDataChanges = []
+              MultilingualTextChanges = []
+              ClassificationChanges = [equiDeleteMultilingualText equiId]
+            }
+
         | EquiChange.DeleteClass(equiId, className) -> 
             { EquimentDataChanges = []
               MultilingualTextChanges = []

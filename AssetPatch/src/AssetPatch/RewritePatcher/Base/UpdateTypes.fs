@@ -43,6 +43,7 @@ module UpdateTypes =
     
     type EquiChange = 
         | UpdateProperties of equiId: string * changes: (EquiProperty * ValuaValue) list        
+        | DeleteMultilingualText of equiId: string
         | UpdateMultilingualText of equiId: string * text: string
         | DeleteClass of equiId: string * className: string
         | DeleteChar of equiId: string * className: string * charName: string
@@ -50,6 +51,7 @@ module UpdateTypes =
          
     type FlocChange = 
         | UpdateProperties of funcLoc: FuncLocPath * changes: (FlocProperty * ValuaValue) list
+        | DeleteMultilingualText of funcLoc: FuncLocPath
         | UpdateMultilingualText of funcLoc: FuncLocPath * text: string
         | DeleteClass of funcLoc: FuncLocPath * className: string
         | DeleteChar of funcLoc: FuncLocPath * className: string * charName: string

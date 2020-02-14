@@ -70,11 +70,45 @@ module Rewrite =
 
     let primitiveRewrite (change: 'change): Rewrite<unit, 'change> = Rewrite(Ok((), One(change)))
 
+    // ************************************************************************
+    // Functional locations
+
+    let deleteFlocMultilingualText (funcLoc : FuncLocPath) : FlocRewrite<unit> = 
+        primitiveRewrite (FlocChange.DeleteMultilingualText(funcLoc))
+
     let deleteFlocClass (funcLoc : FuncLocPath) (className: string): FlocRewrite<unit> = 
         primitiveRewrite (FlocChange.DeleteClass(funcLoc, className))
+
+    let deleteFlocChar (funcLoc : FuncLocPath) (className: string) (charName: string): FlocRewrite<unit> = 
+        primitiveRewrite (FlocChange.DeleteChar(funcLoc, className, charName))
+
+    let updateFlocProperty (funcLoc : FuncLocPath)  (prop: FlocProperty) (value: ValuaValue): FlocRewrite<unit>  = 
+        primitiveRewrite (FlocChange.UpdateProperties(funcLoc, [(prop, value)]))
+
+    let updateFlocChar (funcLoc : FuncLocPath)  
+                        (className: string) 
+                        (charName: string) (value: ValuaValue) : FlocRewrite<unit> = 
+        primitiveRewrite (FlocChange.UpdateChar(funcLoc, className, charName, value))
+
+
+
+
+    // ************************************************************************
+    // Equipment 
+
+    let deleteEquiMultilingualText (equiId : string): EquiRewrite<unit> = 
+        primitiveRewrite (EquiChange.DeleteMultilingualText(equiId))
 
     let deleteEquiClass (equiId : string) (className: string): EquiRewrite<unit> = 
         primitiveRewrite (EquiChange.DeleteClass(equiId, className))
 
+    let deleteEquiChar (equiId : string) (className: string) (charName: string) : EquiRewrite<unit> = 
+        primitiveRewrite (EquiChange.DeleteChar(equiId, className, charName))
 
+    let updateEquiProperty (equiId : string) (prop: EquiProperty) (value: ValuaValue): EquiRewrite<unit>  = 
+        primitiveRewrite (EquiChange.UpdateProperties(equiId, [(prop, value)]))
 
+    let updateEquiChar (equiId: string)  
+                        (className: string) 
+                        (charName: string) (value: ValuaValue) : EquiRewrite<unit> = 
+        primitiveRewrite (EquiChange.UpdateChar(equiId, className, charName, value))
