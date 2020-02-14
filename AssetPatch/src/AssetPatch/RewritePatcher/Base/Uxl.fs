@@ -149,6 +149,14 @@ module Uxl =
               ClassificationChanges = []
             }
 
+
+    let functionalLocationChanges (source: FlocChange list) : FuncLocChanges = 
+        groupFlocPropertyChanges source
+            |> List.map functionalLocationChanges1
+            |> concatFuncLocChanges
+            
+
+
     // ************************************************************************
     // Equipment
 
@@ -293,3 +301,8 @@ module Uxl =
               MultilingualTextChanges = [equiUpdateMultilingualText equiId text]
               ClassificationChanges = []
             }
+
+    let equipmentChanges (source: EquiChange list) : EquipmentChanges = 
+        groupEquiPropertyChanges source
+            |> List.map equipmentChanges1
+            |> concatEquipmentChanges

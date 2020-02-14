@@ -39,6 +39,7 @@
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\UpdateTypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\Uxl.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\Base\Rewrite.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Root.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\AssetCondition.fs" />
     <Compile Include="AssetPatch\TemplateCatalogue\Smon.fs" />
