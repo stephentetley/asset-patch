@@ -76,7 +76,28 @@ module ValuaValue =
     let textUpperCase (s : string) : ValuaValue = 
         TextValue <| s.ToUpper().Trim()
 
+    // Should either see TextValue or Null value.
+    let uxlStringValue(v: ValuaValue): string = 
+        match v with
+        | NullValue -> ""
+        | TextValue s -> s
+        | _ -> ""
+
+    // Should either see DateValue or Null value.
+    let uxlDataTimeOptionValue(v: ValuaValue): DateTime option = 
+        match v with
+        | NullValue -> None
+        | DateValue dt -> Some dt
+        | _ -> None
     
+    // Should either see IntValue or Null value.
+    let uxlIntOptionValue(v: ValuaValue): int option = 
+        match v with
+        | NullValue -> None
+        | IntValue i -> Some (int i)
+        | _ -> None
+
+
 
     // ************************************************************************
     // Other helpers

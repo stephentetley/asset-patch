@@ -10,6 +10,7 @@
     <Compile Include="src\AssetPatch\DisposeEquiPatcher\AiwDisposeEquiPatcher.fs" />
     <Compile Include="src\AssetPatch\DisposeEquiPatcher\UxlDisposeEquiPatcher.fs" />
     <None Include="RunDisposeEquiPatcher.fsx" />
+    <None Include="RunDisposeEquiRewriter.fsx" />
   </ItemGroup>
 
   <ItemGroup>

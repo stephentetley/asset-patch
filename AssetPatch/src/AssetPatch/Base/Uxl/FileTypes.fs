@@ -101,7 +101,7 @@ module FileTypes =
           ConstructionYear: int option
           ConstructionMonth: int option
           CompanyCode: string
-          SuperiorFuncLoc: FuncLocPath option
+          SuperiorFuncLoc: string   // this is only printed, so it is a string
           EquipInstall: bool option
           StatusOfAnObject: string
           StatusWithoutStatusNum: string
@@ -123,7 +123,7 @@ module FileTypes =
             ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
             ; ("Company Code",                  x.CompanyCode)
             ; ("Position",                      "")
-            ; ("SupFunctLoc.",                  optionalFloc x.SuperiorFuncLoc)
+            ; ("SupFunctLoc.",                  x.SuperiorFuncLoc)
             ; ("EquipInstall.",                 optionalBool x.EquipInstall)
             ; ("Status of an object",           x.StatusOfAnObject)
             ; ("Status without stsno",          x.StatusWithoutStatusNum)
@@ -180,7 +180,7 @@ module FileTypes =
           ConstructionYear: int option
           ConstructionMonth: int option
           CompanyCode: string
-          FunctionalLocation: FuncLocPath option
+          FunctionalLocation: string // this is only printed, so it is a string
           SuperordEquip: string
           StatusOfAnObject: string
           StatusWithoutStatusNum: string
@@ -204,7 +204,7 @@ module FileTypes =
             ; ("ConstructYear",                 optionalInt x.ConstructionYear)
             ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
             ; ("Company Code",                  x.CompanyCode)         
-            ; ("Functional loc.",               optionalFloc x.FunctionalLocation)
+            ; ("Functional loc.",               x.FunctionalLocation)
             ; ("Superord.Equip.",               x.SuperordEquip)
             ; ("Position",                      "")
             ; ("TechIdentNo.",                  "")

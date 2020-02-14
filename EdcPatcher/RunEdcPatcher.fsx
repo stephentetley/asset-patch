@@ -63,28 +63,28 @@ open AssetPatch.EdcPatcher.UxlPatcher
 
 let aiwOptions : AiwOptions = 
     { UserName          = "TETLEYS"
-      WorkListPath      = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\EA_discharge_2019_worklist1.xlsx" 
-      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output"
+      WorkListPath      = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\EA_discharge_2019_sample1.xlsx" 
+      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\patch_output"
     }
 
-let main01 () = 
+let aiwEdcPatches01 () = 
     runAiwEdcPatcherPhase1 aiwOptions 
 
 
 // Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
 // once it has been activated and downloaded...
-let main02 () = 
-    let equiFile = @"G:\work\Projects\assets\asset_patch\env_discharge_worklist1_mocked_download.txt"
+let aiwEdcPatches02 () = 
+    let equiFile = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\env_discharge_worklist1_mocked_download.txt"
     runAiwEdcPatcherPhase2 aiwOptions equiFile
 
 
 let uxlOptions : UxlOptions = 
     { ProcessRequester  = "ASSET DATA"
       ChangeRequestDescription = "T0875 Event Duration Monitoring"
-      WorkListPath      = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\EA_discharge_2019_worklist1.xlsx" 
-      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\patch_output\cvs"
+      WorkListPath      = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\EA_discharge_2019_sample1.xlsx" 
+      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\patch_output\csv"
     }
 
 
-let main03 () = 
+let uxlEdcPatches01 () = 
     runUxlEdcPatcher uxlOptions

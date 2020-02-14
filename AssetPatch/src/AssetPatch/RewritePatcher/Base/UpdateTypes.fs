@@ -6,49 +6,54 @@ namespace AssetPatch.RewritePatcher.Base
 module UpdateTypes = 
 
     open System
+    open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.ValuaValue
 
-    type EqCharacteristicChange = 
-        | CharValue of string
-        | ChDeleteId of bool
+    type EquiProperty =
+        | EquipCategory
+        | DescriptionMedium
+        | ObjectType
+        | StartupDate
+        | Manufacturer
+        | ModelNumber
+        | ManufPartNum
+        | ManufSerialNum
+        | ConstructionYear 
+        | ConstructionMonth
+        | CompanyCode
+        | FunctionalLocation
+        | SuperordEquip
+        | StatusOfAnObject
+        | StatusWithoutStatusNum
 
-    type EqClassChange = 
-        | EqCharacteristicChange of charName: string * change: EqCharacteristicChange
-        | DeleteInd of bool
+    type FlocProperty = 
+        | DescriptionMedium
+        | FunLocCategory
+        | StructureIndicator
+        | ObjectType
+        | StartupDate
+        | ConstructionYear
+        | ConstructionMonth
+        | CompanyCode
+        | SuperiorFuncLoc
+        | EquipInstall
+        | StatusOfAnObject
+        | StatusWithoutStatusNum
         
-
-    type EqMultilingualTextChange = 
-        | LongText of string
-        | DeleteIndicator of bool
-        | Language of string
-
-    let eqMultilingualTextChangesMap (source: EqMultilingualTextChange list): Map<string, 
-
-    type EquipmentDataChange = 
-        | EqClassChange of className: string * change: EqClassChange
-        | EqMultiLingualTextChange of change: EqMultilingualTextChange
-        | EquipmentCategory of string
-        | Description of string
-        | ObjectType of string
-        | StartupDate of DateTime option
-        | Manufacturer of string
-        | ModelNumber of string
-        | ManufPartNum of string
-
-
-    type FlocCharacteristicChange = 
-        | CharValue of string
-        | ChDeleteId of bool
-
-    type FlocClassChange = 
-        | EqCharacteristicChange of charName: string * change: EqCharacteristicChange
-        | DeleteInd of bool
-        
-
-    type FlocMultilingualTextChange = 
-        | LongText of string
-        | DeleteIndicator of bool
-        | Language of string
-       
-
-
     
+    type EquiChange = 
+        | DeleteClass of equiId: string * className: string
+        | DeleteChar of equiId: string * className: string * charName: string
+        | UpdateProperties of equiId: string * changes: (EquiProperty * ValuaValue) list        
+        | UpdateChar of equiId: string * className: string * charName: string * value: ValuaValue
+        | UpdateMultilingualText of equiId: string * text: string
+         
+    type FlocChange = 
+        | DeleteClass of funcLoc: FuncLocPath * className: string
+        | DeleteChar of funcLoc: FuncLocPath * className: string * charName: string
+        | UpdateProperties of funcLoc: FuncLocPath * changes: (FlocProperty * ValuaValue) list
+        | UpdateChar of funcLoc: FuncLocPath * className: string * charName: string * value: ValuaValue
+        | UpdateMultilingualText of funcLoc: FuncLocPath * text: string
+
+
+ 

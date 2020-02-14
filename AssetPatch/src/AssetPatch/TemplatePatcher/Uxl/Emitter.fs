@@ -153,7 +153,7 @@ module Emitter =
           CompanyCode = ""
           ConstructionYear = Some equipment.StartupDate.Year
           ConstructionMonth = Some equipment.StartupDate.Month
-          FunctionalLocation = Some equipment.FuncLoc
+          FunctionalLocation = equipment.FuncLoc.ToString()
           SuperordEquip = ""
           StatusOfAnObject = ""
           StatusWithoutStatusNum = ""
@@ -218,7 +218,7 @@ module Emitter =
           ConstructionYear = Some props.StartupDate.Year
           ConstructionMonth = Some props.StartupDate.Month
           CompanyCode = ""
-          SuperiorFuncLoc = parent path
+          SuperiorFuncLoc = (parent path).ToString()
           EquipInstall = path.Level >= 5 |> Some
           StatusOfAnObject = ""
           StatusWithoutStatusNum = ""
