@@ -27,32 +27,47 @@ module Rewrite =
                 work a ac1 cont)
         work source [] (fun x -> x)
 
-    let private append (a: JoinList<'a>) (b: JoinList<'a>) : JoinList<'a> = Join(a,b)
+    let private join (a: JoinList<'a>) (b: JoinList<'a>) : JoinList<'a> = Join(a,b)
 
-    /// Writer + Error 
-    type Rewrite<'a, 'change> = 
-        private | Rewrite of (Result<'a * JoinList<'change>, ErrMsg>)
 
-    let private getRewrite (src: Rewrite<'a, 'change>): Result<'a * JoinList<'change>, ErrMsg> = 
-        let (Rewrite body) = src in body
+        
+    /// Reader + Writer + Error 
+    ///
+    /// The source should be able to supply EquiId of FuncLoc for the 
+    /// relevant rewrites but it is expected to be a "larger" object 
+    /// like a Csv row.
+    /// 
+    /// Target is one of FlocChange or EquiChange
+    ///
+    type Rewrite<'a, 'source, 'target> = 
+        private | Rewrite of ('source -> Result<'a * JoinList<'target>, ErrMsg>)
 
-    let runRewrite (rw: Rewrite<'a, 'change>): Result<'a * 'change list, ErrMsg> = 
-        match getRewrite rw with
-        | Ok(a, js) -> Ok(a, toList js)
-        | Error msg -> Error msg
+    let private apply1 (rw: Rewrite<'a, 'source, 'target>) 
+                        (source: 'source) : Result<'a * JoinList<'target>, ErrMsg> = 
+        let (Rewrite f) = rw in f source
 
-    let mreturn (x: 'a) : Rewrite<'a, 'change> = Rewrite(Ok(x, Empty))
+    let runRewrite (rw: Rewrite<'a, 'source, 'target>) (src: 'source) : Result<'a * 'target list, ErrMsg> = 
+        match apply1 rw src with
+        | Error msg -> Error  msg
+        | Ok(a, js) -> Ok (a, toList js)
 
-    let inline private bindM (ma: Rewrite<'a, 'change>) 
-                                (k: 'a -> Rewrite<'b, 'change>): Rewrite<'b, 'change> = 
-        match getRewrite ma with
-        | Error msg -> Rewrite(Error msg)
-        | Ok(a, js1) -> 
-            match getRewrite (k a) with
-            | Error msg -> Rewrite(Error msg)
-            | Ok(b, js2) -> Rewrite(Ok(b, append js1 js2))
 
-    let inline private delayM (fn : unit -> Rewrite<'a, 'change>) : Rewrite<'a, 'change> = 
+        
+
+    let mreturn (x: 'a) : Rewrite<'a, 'source, 'change> = 
+        Rewrite <| fun src -> (Ok(x, Empty))
+
+    let inline private bindM (ma: Rewrite<'a, 'source, 'change>) 
+                                (k: 'a -> Rewrite<'b, 'source, 'change>): Rewrite<'b, 'source, 'change> = 
+        Rewrite <| fun src -> 
+            match apply1 ma src with
+            | Error msg -> Error msg
+            | Ok(a, js1) -> 
+                match apply1 (k a) src with
+                | Error msg -> Error msg
+                | Ok(b, js2) -> Ok(b, join js1 js2)
+
+    let inline private delayM (fn : unit -> Rewrite<'a, 'source, 'change>) : Rewrite<'a, 'source, 'change> = 
         bindM (mreturn ()) fn 
 
     type RewriteBuilder() = 
@@ -64,78 +79,79 @@ module Rewrite =
 
     let (rewrite : RewriteBuilder) = new RewriteBuilder()
 
-    type FlocRewrite<'a> = Rewrite<'a, FlocChange>
+    type FlocRewrite<'a, 'src> = Rewrite<'a, 'src, FlocChange>
 
-    type EquiRewrite<'a> = Rewrite<'a, EquiChange>
+    type HasFuncLoc = 
+        abstract FuncLoc : FuncLocPath
+   
 
-    let primitiveRewrite (change: 'change): Rewrite<unit, 'change> = Rewrite(Ok((), One(change)))
+
+    type EquiRewrite<'a, 'src> = Rewrite<'a, 'src, EquiChange>
+
+    type HasEquiId = 
+        abstract EquiId : string
+    
+
+
+    let internal primitiveFlocRewrite (change: FuncLocPath -> 'change): Rewrite<unit, #HasFuncLoc, 'change> = 
+        Rewrite <| fun src -> 
+            let floc = src.FuncLoc
+            Ok((), One(change floc))
+
+    let internal primitiveEquiRewrite (change: string -> 'change): Rewrite<unit, #HasEquiId, 'change> = 
+        Rewrite <| fun src -> 
+            let equiId = src.EquiId
+            Ok((), One(change equiId))
+
+    /// Apply the rewrite to all items in the source list. All must succeed.
+    let rewriteAll (rw: Rewrite<'a, 'source, 'target>) 
+                    (sources: 'source list) : Result<'a list * 'target list, ErrMsg> = 
+        let rec work xs fk sk = 
+            match xs with
+            | [] -> sk [] Empty
+            | x :: rs -> 
+                match apply1 rw x with
+                | Error msg -> fk msg
+                | Ok(v1, js) -> work rs fk (fun vs js2 -> sk (v1 :: vs) (join js js2))
+        work sources (fun msg -> Error msg) (fun xs jl -> Ok(xs, toList jl))
+
+
 
     // ************************************************************************
-    // Functional locations
+    // Reader
 
-    let deleteFlocMultilingualText (funcLoc : FuncLocPath) : FlocRewrite<unit> = 
-        primitiveRewrite (FlocChange.DeleteMultilingualText(funcLoc))
+    let ask () : Rewrite<'source, 'source, 'change> = 
+        Rewrite <| fun src -> Ok(src, Empty)
 
-    let deleteFlocClass (funcLoc : FuncLocPath) (className: string): FlocRewrite<unit> = 
-        primitiveRewrite (FlocChange.DeleteClass(funcLoc, className))
+    let asks (select: 'source -> 'a) : Rewrite<'a, 'source, 'change> = 
+        Rewrite <| fun src -> Ok(select src, Empty)
 
-    let deleteFlocChar (funcLoc : FuncLocPath) (className: string) (charName: string): FlocRewrite<unit> = 
-        primitiveRewrite (FlocChange.DeleteChar(funcLoc, className, charName))
-
-    let updateFlocProperty (funcLoc : FuncLocPath)  (prop: FlocProperty) (value: ValuaValue): FlocRewrite<unit>  = 
-        primitiveRewrite (FlocChange.UpdateProperties(funcLoc, [(prop, value)]))
-
-    let updateFlocChar (funcLoc : FuncLocPath)  
-                        (className: string) 
-                        (charName: string) (value: ValuaValue) : FlocRewrite<unit> = 
-        primitiveRewrite (FlocChange.UpdateChar(funcLoc, className, charName, value))
-
-
-
-
-    // ************************************************************************
-    // Equipment 
-
-    let deleteEquiMultilingualText (equiId : string): EquiRewrite<unit> = 
-        primitiveRewrite (EquiChange.DeleteMultilingualText(equiId))
-
-    let deleteEquiClass (equiId : string) (className: string): EquiRewrite<unit> = 
-        primitiveRewrite (EquiChange.DeleteClass(equiId, className))
-
-    let deleteEquiChar (equiId : string) (className: string) (charName: string) : EquiRewrite<unit> = 
-        primitiveRewrite (EquiChange.DeleteChar(equiId, className, charName))
-
-    let updateEquiProperty (equiId : string) (prop: EquiProperty) (value: ValuaValue): EquiRewrite<unit>  = 
-        primitiveRewrite (EquiChange.UpdateProperties(equiId, [(prop, value)]))
-
-    let updateEquiChar (equiId: string)  
-                        (className: string) 
-                        (charName: string) (value: ValuaValue) : EquiRewrite<unit> = 
-        primitiveRewrite (EquiChange.UpdateChar(equiId, className, charName, value))
+    /// Note - don't provide `local`, we don't want clients changing the 
+    /// source of a rewrite suring a rewrite.
 
 
     // ************************************************************************
     // Monadic combinators
 
-    let fmap (fn : 'a -> 'b) (ma : Rewrite<'a, 'change>) : Rewrite<'b, 'change> = 
-        Rewrite <| 
-            match getRewrite ma with
+    let fmap (fn : 'a -> 'b) (ma : Rewrite<'a, 'src, 'change>) : Rewrite<'b, 'src, 'change> = 
+        Rewrite <| fun src -> 
+            match apply1 ma src with
             | Ok (a,w) -> Ok (fn a, w)
             | Error msg -> Error msg
 
     /// Operator for fmap.
-    let ( |>> ) (action : Rewrite<'a, 'uenv>) 
-                (update : 'a -> 'b) : Rewrite<'b, 'uenv> = 
+    let ( |>> ) (action : Rewrite<'a, 'src, 'target>) 
+                (update : 'a -> 'b) : Rewrite<'b, 'src, 'target> = 
         fmap update action
 
     /// Flipped fmap.
     let ( <<| ) (update : 'a -> 'b) 
-                (action : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+                (action : Rewrite<'a, 'src, 'target>) : Rewrite<'b, 'src, 'target> = 
         fmap update action
 
     /// Haskell Applicative's (<*>)
-    let apM (mf : Rewrite<'a -> 'b, 'uenv>) 
-            (ma : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+    let apM (mf : Rewrite<'a -> 'b, 'src, 'target>) 
+            (ma : Rewrite<'a, 'src, 'target>) : Rewrite<'b, 'src, 'target> = 
         rewrite { 
             let! fn = mf
             let! a = ma
@@ -143,16 +159,16 @@ module Rewrite =
         }
 
     /// Operator for apM
-    let ( <*> ) (ma : Rewrite<'a -> 'b, 'uenv>) 
-                (mb : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+    let ( <*> ) (ma : Rewrite<'a -> 'b, 'src, 'target>) 
+                (mb : Rewrite<'a, 'src, 'target>) : Rewrite<'b, 'src, 'target> = 
         apM ma mb
 
     /// Bind operator
-    let ( >>= ) (ma : Rewrite<'a, 'uenv>) 
-                (fn : 'a -> Rewrite<'b, 'uenv>) : Rewrite<'b, 'uenv> = 
+    let ( >>= ) (ma : Rewrite<'a, 'src, 'target>) 
+                (fn : 'a -> Rewrite<'b, 'src, 'target>) : Rewrite<'b, 'src, 'target> = 
         bindM ma fn
 
     /// Flipped Bind operator
-    let ( =<< ) (fn : 'a -> Rewrite<'b, 'uenv>) 
-                (ma : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+    let ( =<< ) (fn : 'a -> Rewrite<'b, 'src, 'target>) 
+                (ma : Rewrite<'a, 'src, 'target>) : Rewrite<'b, 'src, 'target> = 
         bindM ma fn

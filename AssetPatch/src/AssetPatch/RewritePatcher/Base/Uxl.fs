@@ -7,10 +7,13 @@ module Uxl =
 
     open System
 
+    
+    open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.Base.ValuaValue
     open AssetPatch.Base.Uxl.FileTypes
     open AssetPatch.RewritePatcher.Base.UpdateTypes
+    open AssetPatch.RewritePatcher.Base.Rewrite
 
     // ************************************************************************
     // Functional Locations
@@ -169,26 +172,31 @@ module Uxl =
             |> List.map functionalLocationChanges1
             |> concatFuncLocChanges
             
-
+    let funcLocChangeFlocs (changes: FuncLocChanges): FuncLocPath list = 
+        let xs = changes.FuncLocDataChanges |> List.map (fun x -> x.FunctionalLocation)
+        let ys = changes.MultilingualTextChanges |> List.map (fun x -> x.FunctionalLocation)
+        let zs = changes.ClassificationChanges |> List.map (fun x -> x.FunctionalLocation)
+        xs @ ys @ zs 
+            |> List.distinct |> List.sort
 
     // ************************************************************************
     // Equipment
 
     type EquipmentChanges = 
-        { EquimentDataChanges : EquimentData list
+        { EquipmentDataChanges : EquimentData list
           MultilingualTextChanges : EquiMultilingualText list
           ClassificationChanges : EquiClassification list
         }
 
     let appendEquipmentChanges (e1: EquipmentChanges) (e2: EquipmentChanges): EquipmentChanges = 
-        { EquimentDataChanges = e1.EquimentDataChanges @ e2.EquimentDataChanges
+        { EquipmentDataChanges = e1.EquipmentDataChanges @ e2.EquipmentDataChanges
           MultilingualTextChanges = e1.MultilingualTextChanges @ e2.MultilingualTextChanges
           ClassificationChanges = e1.ClassificationChanges @ e2.ClassificationChanges
         }
 
     let concatEquipmentChanges (changes: EquipmentChanges list): EquipmentChanges = 
         let zero = 
-            { EquimentDataChanges = []
+            { EquipmentDataChanges = []
               MultilingualTextChanges = []
               ClassificationChanges = []
             }        
@@ -295,37 +303,37 @@ module Uxl =
     let equipmentChanges1 (source: EquiChange) : EquipmentChanges = 
         match source with
         | EquiChange.DeleteMultilingualText(equiId) -> 
-            { EquimentDataChanges = []
+            { EquipmentDataChanges = []
               MultilingualTextChanges = [equiDeleteMultilingualText equiId]
               ClassificationChanges = []
             }
 
         | EquiChange.DeleteClass(equiId, className) -> 
-            { EquimentDataChanges = []
+            { EquipmentDataChanges = []
               MultilingualTextChanges = []
               ClassificationChanges = [equiDeleteClass equiId className]
             }
 
         | EquiChange.DeleteChar(equiId, className, charName) -> 
-            { EquimentDataChanges = []
+            { EquipmentDataChanges = []
               MultilingualTextChanges = []
               ClassificationChanges = [equiDeleteChar equiId className charName]
             }
      
         | EquiChange.UpdateProperties(equiId, changes) ->
-            { EquimentDataChanges = [equiUpdateProperties equiId changes]
+            { EquipmentDataChanges = [equiUpdateProperties equiId changes]
               MultilingualTextChanges = []
               ClassificationChanges = []
             }
         
         | EquiChange.UpdateChar(equiId, className, charName, value) -> 
-            { EquimentDataChanges = []
+            { EquipmentDataChanges = []
               MultilingualTextChanges = []
               ClassificationChanges = [equiUpdateChar equiId className charName value]
             }
         
         | EquiChange.UpdateMultilingualText(equiId, text) -> 
-            { EquimentDataChanges = []
+            { EquipmentDataChanges = []
               MultilingualTextChanges = [equiUpdateMultilingualText equiId text]
               ClassificationChanges = []
             }
@@ -334,3 +342,16 @@ module Uxl =
         groupEquiPropertyChanges source
             |> List.map equipmentChanges1
             |> concatEquipmentChanges
+
+    let equipmentChangeIds (changes: EquipmentChanges): EquipmentId list = 
+        let xs = changes.EquipmentDataChanges |> List.map (fun x -> x.EquipmentId)
+        let ys = changes.MultilingualTextChanges |> List.map (fun x -> x.EquipmentId)
+        let zs = changes.ClassificationChanges |> List.map (fun x -> x.EquipmentId)
+        xs @ ys @ zs 
+            |> List.distinct |> List.sort
+
+    let rewriteEquiAll (rw: EquiRewrite<'a, 'src>)
+                        (sources: 'src list) : Result<EquipmentChanges, ErrMsg> = 
+        rewriteAll rw sources
+            |> Result.map (fun (_,changes) -> equipmentChanges changes)
+

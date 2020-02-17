@@ -53,7 +53,7 @@ let demo03() =
     | Error msg -> printfn "FATAL:\n%s" msg
     | Ok vals -> 
         let csv : CsvFileWithHeaders = 
-            { Headers = [| "EquiId"; "ClassType"|] 
+            { Headers = [| "EquiId"; "ClassType" |] 
               Rows = List.map makeRow vals
             }
         writeCsvFile csvDefaults csv sampleOut

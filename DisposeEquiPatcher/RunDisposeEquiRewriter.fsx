@@ -35,8 +35,48 @@ open System
 #load "..\AssetPatch\src\AssetPatch\Base\Uxl\FileTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\UpdateTypes.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Rewrite.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Uxl.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Catalogue\EquiRoot.fs"
 #load "src\AssetPatch\DisposeEquiPatcher\InputData.fs"
+open AssetPatch.RewritePatcher.Base.Rewrite
+open AssetPatch.RewritePatcher.Base.Uxl
+open AssetPatch.RewritePatcher.Catalogue.EquiRoot
+open AssetPatch.DisposeEquiPatcher.InputData
 
-let demo01() = "TODO"
+
+
+/// To get an type that we are in control of (i.e. we can implement 
+/// the HasEquiId interface) we have to wrap the Row type provided by the
+/// type provider
+
+[< Struct>]
+type WorkRow = 
+    | WorkRow of WorkListRow
+
+    member x.Row 
+        with get () : WorkListRow = 
+            match x with | WorkRow x1 -> x1
+    
+    interface HasEquiId with
+        member x.EquiId = 
+            match x with 
+            | WorkRow x1 -> x1.``S4 Equipment Id`` 
+
+
+let equiDispose () : EquiRewrite<Unit, WorkRow> = 
+    rewrite { 
+        let! s1 = asks <| fun (x:WorkRow) -> x.Row.``Name ``
+        do! description (s1 + " (Del)")
+        do! statusOfAnObject "DISP"
+        return ()
+    }
+
+
+let test01 () = 
+    readWorkList @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
+        |> List.map WorkRow
+        |> rewriteEquiAll (equiDispose ()) 
+
+
 
