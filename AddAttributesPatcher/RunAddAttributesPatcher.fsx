@@ -24,6 +24,8 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\Base\Aiw\ChangeFileParser.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Aiw\ChangeFilePrinter.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Uxl\FileTypes.fs"
+#load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
+#load "..\AssetPatch\src\AssetPatch\Lib\OSGB36.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\Template.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\CompilerMonad.fs"
@@ -34,19 +36,17 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs"
-#load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
-#load "..\AssetPatch\src\AssetPatch\Lib\OSGB36.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Root.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\AssetCondition.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Lstn.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Smon.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Netw.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplateCatalogue\Pode.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Root.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Lstn.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Smon.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Netw.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Pode.fs"
 #load "src\AssetPatch\AddAttributesPatcher\AiwAddAttributesPatcher.fs"
 open AssetPatch.TemplatePatcher.Base.Template
-open AssetPatch.TemplateCatalogue.Root
-open AssetPatch.TemplateCatalogue.Netw
-open AssetPatch.TemplateCatalogue.Pode
+open AssetPatch.TemplatePatcher.Catalogue.Root
+open AssetPatch.TemplatePatcher.Catalogue.Netw
+open AssetPatch.TemplatePatcher.Catalogue.Pode
 open AssetPatch.AddAttributesPatcher.AiwAddAttributesPatcher
 
 // This patcher is a bit more general than the other ones

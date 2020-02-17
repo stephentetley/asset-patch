@@ -1,21 +1,24 @@
 ﻿// Copyright (c) Stephen Tetley 2019
 // License: BSD 3 Clause
 
-namespace AssetPatch.TemplateCatalogue
+namespace AssetPatch.TemplatePatcher.Catalogue
 
 
 
-module Smon =
+module Ctos =
     
     open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.Template
 
 
-    /// Class:SMONSY
-    let smonsy : Characteristic list -> Classification = 
-        _classification "SMONSY" 
+    /// Class:CTOSSY
+    let ctossy : Characteristic list -> Classification = 
+        _classification "CTOSSY" 
     
 
     /// SYSTEM_TYPE
+    /// Often "REMOTE TELEMETRY OUTSTATION"...
     let system_type (v : string) : Characteristic = 
         _characteristic "SYSTEM_TYPE" (TextValue v)
+
+        

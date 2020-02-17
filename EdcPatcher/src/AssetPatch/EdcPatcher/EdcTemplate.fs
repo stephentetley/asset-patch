@@ -10,10 +10,10 @@ module EdcTemplate =
 
     open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.Lib.Common
-    open AssetPatch.TemplateCatalogue
-    open AssetPatch.TemplateCatalogue.AssetCondition
-    open AssetPatch.TemplateCatalogue.Lstn
-    open AssetPatch.TemplateCatalogue.Smon
+    open AssetPatch.TemplatePatcher.Catalogue
+    open AssetPatch.TemplatePatcher.Catalogue.AssetCondition
+    open AssetPatch.TemplatePatcher.Catalogue.Lstn
+    open AssetPatch.TemplatePatcher.Catalogue.Smon
 
 
     open AssetPatch.EdcPatcher.InputData

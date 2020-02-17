@@ -37,16 +37,17 @@
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Root.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Smon.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Lstn.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Ctos.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Netw.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Pode.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\UpdateTypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\Uxl.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\Rewrite.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\Root.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\AssetCondition.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\Smon.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\Lstn.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\Ctos.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\Netw.fs" />
-    <Compile Include="AssetPatch\TemplateCatalogue\Pode.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\Catalogue\Root.fs" />
   </ItemGroup>
 
   <ItemGroup>

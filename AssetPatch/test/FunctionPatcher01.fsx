@@ -36,6 +36,8 @@ open FSharp.Core
 #load "..\src\AssetPatch\Base\Aiw\Acronyms.fs"
 #load "..\src\AssetPatch\Base\Aiw\ChangeFileParser.fs"
 #load "..\src\AssetPatch\Base\Aiw\ChangeFilePrinter.fs"
+#load "..\src\AssetPatch\Lib\Common.fs"
+#load "..\src\AssetPatch\Lib\OSGB36.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\Template.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Base\CompilerMonad.fs"
@@ -46,18 +48,16 @@ open FSharp.Core
 #load "..\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"
 #load "..\src\AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs"
-#load "..\src\AssetPatch\Lib\Common.fs"
-#load "..\src\AssetPatch\Lib\OSGB36.fs"
-#load "..\src\AssetPatch\TemplateCatalogue\Root.fs"
-#load "..\src\AssetPatch\TemplateCatalogue\Lstn.fs"
-#load "..\src\AssetPatch\TemplateCatalogue\Netw.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Catalogue\Root.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Catalogue\Lstn.fs"
+#load "..\src\AssetPatch\TemplatePatcher\Catalogue\Netw.fs"
 open AssetPatch.Base.FuncLocPath
 open AssetPatch.TemplatePatcher.Aiw.Base
 open AssetPatch.TemplatePatcher.Base.Template
 open AssetPatch.TemplatePatcher.Base.CompilerMonad
 open AssetPatch.TemplatePatcher.Aiw.EmitPhase1
 open AssetPatch.TemplatePatcher.Aiw.PatchCompiler
-open AssetPatch.TemplateCatalogue
+open AssetPatch.TemplatePatcher.Catalogue
 
 
 let outputDirectory (child : string) : string = 

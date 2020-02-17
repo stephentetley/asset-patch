@@ -9,10 +9,10 @@ module OutstationTemplate =
     open System
 
     open AssetPatch.TemplatePatcher.Base.Template
-    open AssetPatch.TemplateCatalogue
-    open AssetPatch.TemplateCatalogue.AssetCondition
-    open AssetPatch.TemplateCatalogue.Ctos
-    open AssetPatch.TemplateCatalogue.Netw
+    open AssetPatch.TemplatePatcher.Catalogue
+    open AssetPatch.TemplatePatcher.Catalogue.AssetCondition
+    open AssetPatch.TemplatePatcher.Catalogue.Ctos
+    open AssetPatch.TemplatePatcher.Catalogue.Netw
     open AssetPatch.Lib.Common
 
     open AssetPatch.OutstationPatcher.InputData

@@ -112,3 +112,47 @@ module Rewrite =
                         (className: string) 
                         (charName: string) (value: ValuaValue) : EquiRewrite<unit> = 
         primitiveRewrite (EquiChange.UpdateChar(equiId, className, charName, value))
+
+
+    // ************************************************************************
+    // Monadic combinators
+
+    let fmap (fn : 'a -> 'b) (ma : Rewrite<'a, 'change>) : Rewrite<'b, 'change> = 
+        Rewrite <| 
+            match getRewrite ma with
+            | Ok (a,w) -> Ok (fn a, w)
+            | Error msg -> Error msg
+
+    /// Operator for fmap.
+    let ( |>> ) (action : Rewrite<'a, 'uenv>) 
+                (update : 'a -> 'b) : Rewrite<'b, 'uenv> = 
+        fmap update action
+
+    /// Flipped fmap.
+    let ( <<| ) (update : 'a -> 'b) 
+                (action : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+        fmap update action
+
+    /// Haskell Applicative's (<*>)
+    let apM (mf : Rewrite<'a -> 'b, 'uenv>) 
+            (ma : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+        rewrite { 
+            let! fn = mf
+            let! a = ma
+            return (fn a) 
+        }
+
+    /// Operator for apM
+    let ( <*> ) (ma : Rewrite<'a -> 'b, 'uenv>) 
+                (mb : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+        apM ma mb
+
+    /// Bind operator
+    let ( >>= ) (ma : Rewrite<'a, 'uenv>) 
+                (fn : 'a -> Rewrite<'b, 'uenv>) : Rewrite<'b, 'uenv> = 
+        bindM ma fn
+
+    /// Flipped Bind operator
+    let ( =<< ) (fn : 'a -> Rewrite<'b, 'uenv>) 
+                (ma : Rewrite<'a, 'uenv>) : Rewrite<'b, 'uenv> = 
+        bindM ma fn

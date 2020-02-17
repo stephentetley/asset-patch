@@ -296,8 +296,8 @@ module Uxl =
         match source with
         | EquiChange.DeleteMultilingualText(equiId) -> 
             { EquimentDataChanges = []
-              MultilingualTextChanges = []
-              ClassificationChanges = [equiDeleteMultilingualText equiId]
+              MultilingualTextChanges = [equiDeleteMultilingualText equiId]
+              ClassificationChanges = []
             }
 
         | EquiChange.DeleteClass(equiId, className) -> 
