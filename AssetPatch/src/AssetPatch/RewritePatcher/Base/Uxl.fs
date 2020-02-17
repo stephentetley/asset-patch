@@ -5,7 +5,7 @@ namespace AssetPatch.RewritePatcher.Base
 
 module Uxl = 
 
-    open System
+    open System.IO
 
     
     open AssetPatch.Base.Common
@@ -14,6 +14,20 @@ module Uxl =
     open AssetPatch.Base.Uxl.FileTypes
     open AssetPatch.RewritePatcher.Base.UpdateTypes
     open AssetPatch.RewritePatcher.Base.Rewrite
+
+
+
+    // ************************************************************************/
+    // Gen file name
+
+    let private genFileName (directory : string)
+                            (filePrefix : string) 
+                            (namePart : string): string = 
+
+        let name1 = sprintf "%s_%s.csv" (safeName filePrefix) (safeName namePart)
+        Path.Combine(directory, name1)
+
+
 
     // ************************************************************************
     // Functional Locations
@@ -354,4 +368,36 @@ module Uxl =
                         (sources: 'src list) : Result<EquipmentChanges, ErrMsg> = 
         rewriteAll rw sources
             |> Result.map (fun (_,changes) -> equipmentChanges changes)
+
+    let makeEquiChangeRequestDetails1 (description: string) (equiId: string) : ChangeRequestDetails = 
+        { DescriptionLong = description
+          Priority = ""
+          DueDate = None
+          Reason = ""
+          TypeOfChangeRequest = "AIWEAM0P"
+          ChangeRequestGroup = ""
+          FuncLocOrEquipment = Choice2Of2 equiId
+          ProcessRequester = "ASSET DATA"
+        }
+
+    let emitEquipmentPatches (changes: EquipmentChanges)
+                                (changeRequestDescription: string)
+                                (directory : string)
+                                (filePrefix : string) : Result<Unit, ErrMsg> = 
+        let equiIds = equipmentChangeIds changes
+        let changeRequestItems = List.map (makeEquiChangeRequestDetails1 changeRequestDescription) equiIds
+        
+        let outPath01 = genFileName directory filePrefix "01_change_request_details_tab"
+        writeChangeRequestDetails changeRequestItems outPath01 |> ignore
+        
+
+        // Equipment
+        let outPath05 = genFileName directory filePrefix "05_equipment_data_tab"
+        writeEquipmentData changes.EquipmentDataChanges outPath05 |> ignore
+        let outPath06 = genFileName directory filePrefix "06_eq_mulitlingual_text_tab"
+        writeEquiMultilingualText changes.MultilingualTextChanges outPath06 |> ignore
+        let outPath07 = genFileName directory filePrefix "07_eq_classification_tab"
+        writeEquiClassification changes.ClassificationChanges outPath07
+        
+
 

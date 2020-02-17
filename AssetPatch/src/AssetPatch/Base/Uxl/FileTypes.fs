@@ -199,7 +199,7 @@ module FileTypes =
             ; ("Manufacturer",                  x.Manufacturer)
             ; ("Model number",                  x.ModelNumber)
             ; ("ManufPartNo.",                  x.ManufPartNum)
-            ; ("ManufSerialNo.",                unknownIfBlank x.ManufSerialNum)
+            ; ("ManufSerialNo.",                x.ManufSerialNum)
             ; ("ManufCountry",                  "")
             ; ("ConstructYear",                 optionalInt x.ConstructionYear)
             ; ("ConstructMth",                  optionalInt x.ConstructionMonth)

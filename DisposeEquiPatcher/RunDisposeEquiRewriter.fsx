@@ -72,11 +72,13 @@ let equiDispose () : EquiRewrite<Unit, WorkRow> =
         return ()
     }
 
+    
+let outputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"
 
 let test01 () = 
     readWorkList @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
         |> List.map WorkRow
         |> rewriteEquiAll (equiDispose ()) 
-
+        |> Result.bind (fun cs -> emitEquipmentPatches cs "S3953 MMIM Retires" outputDirectory "outstation_retire")
 
 
