@@ -15,6 +15,8 @@ module Emitter =
     
     open AssetPatch.TemplatePatcher.Uxl.Base
     
+
+
     type EquiData =
         { Equipment: EquimentData
           MultilingualText: EquiMultilingualText
@@ -218,7 +220,10 @@ module Emitter =
           ConstructionYear = Some props.StartupDate.Year
           ConstructionMonth = Some props.StartupDate.Month
           CompanyCode = ""
-          SuperiorFuncLoc = (parent path).ToString()
+          SuperiorFuncLoc = 
+                match parent path with 
+                | None -> ""
+                | Some x -> x.ToString()
           EquipInstall = path.Level >= 5 |> Some
           StatusOfAnObject = ""
           StatusWithoutStatusNum = ""

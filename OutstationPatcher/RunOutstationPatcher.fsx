@@ -61,7 +61,7 @@ open AssetPatch.OutstationPatcher.UxlPatcher
 
 let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist_first5.xlsx" 
+        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
         OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"        
     }
 
@@ -81,7 +81,7 @@ let aiwOutstationUpgrades02 () =
 let uxlOptions : UxlOptions = 
     { ProcessRequester  = "ASSET DATA"
       ChangeRequestDescription = sprintf "S3953 MMIM Upgrades %s" (DateTime.Now.ToShortDateString())
-      WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist_first5.xlsx" 
+      WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
       OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv" 
     }
 

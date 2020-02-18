@@ -114,7 +114,7 @@ module OutstationTemplate =
                 ]
                 _no_assemblies_
                 [ makeTelemetryOustation parameters
-                  makeModem parameters
+                  // makeModem parameters
                 ]
     
     /// Level 4
