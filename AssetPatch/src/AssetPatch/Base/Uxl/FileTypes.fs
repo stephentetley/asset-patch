@@ -346,19 +346,20 @@ module FileTypes =
     // Equipment csv
 
     /// Render data for the `Equipment Data` tab
+    /// This doesn't sort - a client should have sorted approriatly first.
     let private makeEquipmentData (rows : EquimentData list) : Result<CsvFileWithHeaders, string> = 
         rows
-            |> List.sortBy (fun row -> row.EquipmentId) 
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
     /// Write data for the `Equipment Data` tab
-    let writeEquipmentData (source : EquimentData list)
+    let writeEquipmentData (source : (string * EquimentData) list)
                                 (outPath: string) : Result<unit, string> = 
         match source with
         | [] -> Ok ()
         | _ -> 
-            makeEquipmentData source
+            let source1 = List.sortByDescending fst source |> List.map snd
+            makeEquipmentData source1
                 |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
 
 

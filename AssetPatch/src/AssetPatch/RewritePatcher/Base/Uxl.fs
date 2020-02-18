@@ -16,6 +16,9 @@ module Uxl =
     open AssetPatch.RewritePatcher.Base.Rewrite    
     open AssetPatch.RewritePatcher.Base.RewriteMonad
 
+    
+    let equipmentSortKey (equiId: string) (superId: string) = 
+        superId.PadLeft(16, '0') + equiId.PadLeft(16, '0')
 
 
     // ************************************************************************/
@@ -199,7 +202,7 @@ module Uxl =
     // Equipment
 
     type EquipmentChanges = 
-        { EquipmentDataChanges : EquimentData list
+        { EquipmentDataChanges : (string * EquimentData) list
           MultilingualTextChanges : EquiMultilingualText list
           ClassificationChanges : EquiClassification list
         }
@@ -284,9 +287,10 @@ module Uxl =
           CharDeleteInd = true
         }
 
-    let equiUpdateProperties (equiId: string) (changes: (EquiProperty * ValuaValue) list) : EquimentData = 
-        blankEquipmentData equiId
-            |> updateEquiProperties changes
+    let equiUpdateProperties (equiId: string) (superId: string) (changes: (EquiProperty * ValuaValue) list) : string * EquimentData = 
+        let sortKey = equipmentSortKey equiId superId
+        let equiData = blankEquipmentData equiId |> updateEquiProperties changes
+        (sortKey, equiData)
 
     let equiUpdateChar (equiId: string) (className: string) 
                         (charName: string) (value: ValuaValue) : EquiClassification = 
@@ -336,8 +340,8 @@ module Uxl =
               ClassificationChanges = [equiDeleteChar equiId className charName]
             }
      
-        | EquiChange.UpdateProperties(equiId, _, changes) ->
-            { EquipmentDataChanges = [equiUpdateProperties equiId changes]
+        | EquiChange.UpdateProperties(equiId, superId, changes) ->
+            { EquipmentDataChanges = [equiUpdateProperties equiId superId changes]
               MultilingualTextChanges = []
               ClassificationChanges = []
             }
@@ -360,7 +364,7 @@ module Uxl =
             |> concatEquipmentChanges
 
     let equipmentChangeIds (changes: EquipmentChanges): EquipmentId list = 
-        let xs = changes.EquipmentDataChanges |> List.map (fun x -> x.EquipmentId)
+        let xs = changes.EquipmentDataChanges |> List.map (fun (_,x) -> x.EquipmentId)
         let ys = changes.MultilingualTextChanges |> List.map (fun x -> x.EquipmentId)
         let zs = changes.ClassificationChanges |> List.map (fun x -> x.EquipmentId)
         xs @ ys @ zs 

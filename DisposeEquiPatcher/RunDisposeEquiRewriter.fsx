@@ -67,7 +67,9 @@ type WorkRow =
 
         member x.SuperOrdinateId = 
             match x with 
-            | WorkRow x1 -> x1.``Superior Equipment`` 
+            | WorkRow x1 -> 
+                let s1 = x1.``Superior Equipment``
+                if String.IsNullOrWhiteSpace s1 then "" else s1
 
 let equiDispose () : EquiRewrite<WorkRow> = 
     rewrite { 
@@ -94,3 +96,14 @@ let test01 () =
             }
 
 
+//let temp01 () = 
+//    List.sort [1;2;4;3;5;6;7;5]
+
+//let temp02 () = 
+//    List.sortBy (fun x -> 0 - x) [1;2;4;3;5;6;7;5]
+
+//let temp03 () = 
+//    List.sortByDescending id [1;2;4;3;5;6;7;5]
+
+//let equiSortKey (equiId: string) (superId: string) = 
+//    superId.PadLeft(16, '0') + equiId.PadLeft(16, '0')
