@@ -20,6 +20,10 @@ module FileTypes =
 
     type EquipmentId = string
 
+    let private optionalConstructionMonth (source: int option): string = 
+        match source with
+        | None -> ""
+        | Some i -> i.ToString().PadLeft(2, '0')
 
     let private optionalDate (source: DateTime option):  string = 
         match source with
@@ -120,7 +124,7 @@ module FileTypes =
             ; ("Currency",                      "")
             ; ("Acquistion date",               "")
             ; ("ConstructYear",                 optionalInt x.ConstructionYear)
-            ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
+            ; ("ConstructMth",                  optionalConstructionMonth x.ConstructionMonth)
             ; ("Company Code",                  x.CompanyCode)
             ; ("Position",                      "")
             ; ("SupFunctLoc.",                  x.SuperiorFuncLoc)
@@ -202,7 +206,7 @@ module FileTypes =
             ; ("ManufSerialNo.",                x.ManufSerialNum)
             ; ("ManufCountry",                  "")
             ; ("ConstructYear",                 optionalInt x.ConstructionYear)
-            ; ("ConstructMth",                  optionalInt x.ConstructionMonth)
+            ; ("ConstructMth",                  optionalConstructionMonth x.ConstructionMonth)
             ; ("Company Code",                  x.CompanyCode)         
             ; ("Functional loc.",               x.FunctionalLocation)
             ; ("Superord.Equip.",               x.SuperordEquip)

@@ -32,10 +32,11 @@ module UxlPatcher =
         | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitMmopCreate
         | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitMmopCreate
         | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
-               applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
+               // applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
                equipmentEmitMmopCreate eq1 >>= fun equiPatches1 -> 
-               equipmentEmitMmopCreate eq2 >>= fun equiPatches2 -> 
-               mreturn (MmopCreateData.Concat [equiPatches1; equiPatches2])
+               // equipmentEmitMmopCreate eq2 >>= fun equiPatches2 -> 
+               // mreturn (MmopCreateData.Concat [equiPatches1; equiPatches2])
+               mreturn equiPatches1
 
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
