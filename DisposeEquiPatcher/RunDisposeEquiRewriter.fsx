@@ -36,10 +36,12 @@ open System
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\UpdateTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Rewrite.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\RewriteMonad.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Uxl.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Catalogue\EquiRoot.fs"
 #load "src\AssetPatch\DisposeEquiPatcher\InputData.fs"
 open AssetPatch.RewritePatcher.Base.Rewrite
+open AssetPatch.RewritePatcher.Base.RewriteMonad
 open AssetPatch.RewritePatcher.Base.Uxl
 open AssetPatch.RewritePatcher.Catalogue.EquiRoot
 open AssetPatch.DisposeEquiPatcher.InputData
@@ -47,8 +49,8 @@ open AssetPatch.DisposeEquiPatcher.InputData
 
 
 /// To get an type that we are in control of (i.e. we can implement 
-/// the HasEquiId interface) we have to wrap the Row type provided by the
-/// type provider
+/// the HasEquiId interface) we have to wrap the Row type provided by
+/// ExcelProvider
 
 [< Struct>]
 type WorkRow = 
@@ -63,10 +65,13 @@ type WorkRow =
             match x with 
             | WorkRow x1 -> x1.``S4 Equipment Id`` 
 
+        member x.SuperOrdinateId = 
+            match x with 
+            | WorkRow x1 -> x1.``Superior Equipment`` 
 
-let equiDispose () : EquiRewrite<Unit, WorkRow> = 
+let equiDispose () : EquiRewrite<WorkRow> = 
     rewrite { 
-        let! s1 = asks <| fun (x:WorkRow) -> x.Row.``Name ``
+        let! s1 = gets <| fun (x:WorkRow) -> x.Row.``Name ``
         do! description (s1 + " (Del)")
         do! statusOfAnObject "DISP"
         return ()
@@ -76,9 +81,16 @@ let equiDispose () : EquiRewrite<Unit, WorkRow> =
 let outputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"
 
 let test01 () = 
-    readWorkList @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
-        |> List.map WorkRow
-        |> rewriteEquiAll (equiDispose ()) 
-        |> Result.bind (fun cs -> emitEquipmentPatches cs "S3953 MMIM Retires" outputDirectory "outstation_retire")
+    let worklist = 
+        readWorkList @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
+            |> List.map WorkRow
+    let changeRequestName = sprintf "S3953 MMIM Retires %s" (DateTime.Now.ToShortDateString())
+    
+    runRewriter (defaultEnv changeRequestName ())
+        <| rewriter { 
+                let! changes = rewriteEquiAll (equiDispose ()) worklist
+                do! writeChangeRequestAndEquipmentPatches changes outputDirectory "outstation_rewrite"
+                return ()
+            }
 
 

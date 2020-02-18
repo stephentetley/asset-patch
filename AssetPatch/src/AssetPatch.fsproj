@@ -46,6 +46,7 @@
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Pode.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\UpdateTypes.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\Rewrite.fs" />
+    <Compile Include="AssetPatch\RewritePatcher\Base\RewriteMonad.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Base\Uxl.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Catalogue\FlocRoot.fs" />
     <Compile Include="AssetPatch\RewritePatcher\Catalogue\EquiRoot.fs" />

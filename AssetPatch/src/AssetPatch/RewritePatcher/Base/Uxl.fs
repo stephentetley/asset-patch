@@ -13,7 +13,8 @@ module Uxl =
     open AssetPatch.Base.ValuaValue
     open AssetPatch.Base.Uxl.FileTypes
     open AssetPatch.RewritePatcher.Base.UpdateTypes
-    open AssetPatch.RewritePatcher.Base.Rewrite
+    open AssetPatch.RewritePatcher.Base.Rewrite    
+    open AssetPatch.RewritePatcher.Base.RewriteMonad
 
 
 
@@ -22,10 +23,11 @@ module Uxl =
 
     let private genFileName (directory : string)
                             (filePrefix : string) 
-                            (namePart : string): string = 
-
-        let name1 = sprintf "%s_%s.csv" (safeName filePrefix) (safeName namePart)
-        Path.Combine(directory, name1)
+                            (namePart : string): RewriteMonad<string, 'uenv> = 
+        rewriter {
+            let name1 = sprintf "%s_%s.csv" (safeName filePrefix) (safeName namePart)
+            return Path.Combine(directory, name1)
+        } 
 
 
 
@@ -217,7 +219,7 @@ module Uxl =
         List.fold appendEquipmentChanges zero changes
 
 
-    let private blankEquimentData (equiId: string): EquimentData = 
+    let private blankEquipmentData (equiId: string): EquimentData = 
         { EquipmentId = equiId
           EquipCategory = "" 
           DescriptionMedium = ""
@@ -283,7 +285,7 @@ module Uxl =
         }
 
     let equiUpdateProperties (equiId: string) (changes: (EquiProperty * ValuaValue) list) : EquimentData = 
-        blankEquimentData equiId
+        blankEquipmentData equiId
             |> updateEquiProperties changes
 
     let equiUpdateChar (equiId: string) (className: string) 
@@ -334,7 +336,7 @@ module Uxl =
               ClassificationChanges = [equiDeleteChar equiId className charName]
             }
      
-        | EquiChange.UpdateProperties(equiId, changes) ->
+        | EquiChange.UpdateProperties(equiId, _, changes) ->
             { EquipmentDataChanges = [equiUpdateProperties equiId changes]
               MultilingualTextChanges = []
               ClassificationChanges = []
@@ -364,40 +366,117 @@ module Uxl =
         xs @ ys @ zs 
             |> List.distinct |> List.sort
 
-    let rewriteEquiAll (rw: EquiRewrite<'a, 'src>)
-                        (sources: 'src list) : Result<EquipmentChanges, ErrMsg> = 
-        rewriteAll rw sources
-            |> Result.map (fun (_,changes) -> equipmentChanges changes)
 
-    let makeEquiChangeRequestDetails1 (description: string) (equiId: string) : ChangeRequestDetails = 
-        { DescriptionLong = description
-          Priority = ""
-          DueDate = None
-          Reason = ""
-          TypeOfChangeRequest = "AIWEAM0P"
-          ChangeRequestGroup = ""
-          FuncLocOrEquipment = Choice2Of2 equiId
-          ProcessRequester = "ASSET DATA"
+    let rewriteEquiAll (rw: EquiRewrite<'src>)
+                        (sources: 'src list) : RewriteMonad<EquipmentChanges, 'uenv> = 
+        rewriteAll rw sources
+            |>> fun (_, changes) -> equipmentChanges changes
+
+
+
+
+    // ************************************************************************
+    // Write patches
+
+    let makeChangeRequestDetails1 (item : Choice<FuncLocPath, EquipmentId>) : RewriteMonad<ChangeRequestDetails, 'uenv> = 
+        rewriter {
+            let! requester = askProcessRequester ()
+            let! changeType = askTypeOfChangeRequest ()
+            let! description = askChangeRequestDescription ()
+            return { 
+                DescriptionLong = description
+                Priority = ""
+                DueDate = None
+                Reason = ""
+                TypeOfChangeRequest = changeType
+                ChangeRequestGroup = ""
+                FuncLocOrEquipment = item
+                ProcessRequester = requester
+            }
         }
 
-    let emitEquipmentPatches (changes: EquipmentChanges)
-                                (changeRequestDescription: string)
+    let writeChangeRequestDetails (flocs: FuncLocPath list) 
+                                    (equiIds: EquipmentId list)
+                                    (directory : string)
+                                    (filePrefix : string) : RewriteMonad<Unit, 'uenv> = 
+        
+        rewriter {
+            let! changeRequestItems = 
+                let xs = List.map Choice1Of2 flocs
+                let ys = List.map Choice2Of2 equiIds
+                mapM makeChangeRequestDetails1 (xs @ ys)
+        
+            let! outPath01 = genFileName directory filePrefix "01_change_request_details_tab"
+            do! liftResult <| writeChangeRequestDetails changeRequestItems outPath01
+            return ()
+        }
+
+    let writeFuncLocPatches (changes: FuncLocChanges)
                                 (directory : string)
-                                (filePrefix : string) : Result<Unit, ErrMsg> = 
-        let equiIds = equipmentChangeIds changes
-        let changeRequestItems = List.map (makeEquiChangeRequestDetails1 changeRequestDescription) equiIds
+                                (filePrefix : string) : RewriteMonad<Unit, 'uenv> = 
         
-        let outPath01 = genFileName directory filePrefix "01_change_request_details_tab"
-        writeChangeRequestDetails changeRequestItems outPath01 |> ignore
-        
-
-        // Equipment
-        let outPath05 = genFileName directory filePrefix "05_equipment_data_tab"
-        writeEquipmentData changes.EquipmentDataChanges outPath05 |> ignore
-        let outPath06 = genFileName directory filePrefix "06_eq_mulitlingual_text_tab"
-        writeEquiMultilingualText changes.MultilingualTextChanges outPath06 |> ignore
-        let outPath07 = genFileName directory filePrefix "07_eq_classification_tab"
-        writeEquiClassification changes.ClassificationChanges outPath07
-        
+        rewriter {
+            // FuncLoccs
+            let! outPath02 = genFileName directory filePrefix "02_function_location_data_tab"
+            do! liftResult <| writeFunctionalLocationData changes.FuncLocDataChanges outPath02
+            
+            let! outPath03 = genFileName directory filePrefix "03_fl_mulitlingual_text_tab"
+            do!liftResult <|  writeFlocMultilingualText changes.MultilingualTextChanges outPath03
+            
+            let! outPath04 = genFileName directory filePrefix "04_fl_classification_tab"
+            do! liftResult <| writeFlocClassification changes.ClassificationChanges outPath04
+            return ()
+        }
 
 
+
+    let writeEquipmentPatches (changes: EquipmentChanges)
+                                (directory : string)
+                                (filePrefix : string) : RewriteMonad<Unit, 'uenv> = 
+        
+        rewriter {
+            // Equipment
+            let! outPath05 = genFileName directory filePrefix "05_equipment_data_tab"
+            do! liftResult <| writeEquipmentData changes.EquipmentDataChanges outPath05
+            
+            let! outPath06 = genFileName directory filePrefix "06_eq_mulitlingual_text_tab"
+            do! liftResult <| writeEquiMultilingualText changes.MultilingualTextChanges outPath06
+            
+            let! outPath07 = genFileName directory filePrefix "07_eq_classification_tab"
+            do! liftResult <| writeEquiClassification changes.ClassificationChanges outPath07
+            return ()
+        }
+
+
+    let writeChangeRequestAndFuncLocPatches (changes: FuncLocChanges)
+                                            (directory : string)
+                                            (filePrefix : string) : RewriteMonad<Unit, 'uenv> =         
+        rewriter {
+            let flocs = funcLocChangeFlocs changes
+            do! writeChangeRequestDetails flocs [] directory filePrefix
+            do! writeFuncLocPatches changes directory filePrefix
+            return ()
+        }
+
+    let writeChangeRequestAndEquipmentPatches (changes: EquipmentChanges)
+                                (directory : string)
+                                (filePrefix : string) : RewriteMonad<Unit, 'uenv> =         
+        rewriter {
+            let equiIds = equipmentChangeIds changes
+            do! writeChangeRequestDetails [] equiIds directory filePrefix
+            do! writeEquipmentPatches changes directory filePrefix
+            return ()
+        }
+
+    let writeChangeRequestFull (flocChanges: FuncLocChanges)
+                                (equiChanges: EquipmentChanges)
+                                (directory : string)
+                                (filePrefix : string) : RewriteMonad<Unit, 'uenv> =         
+        rewriter {
+            let flocs = funcLocChangeFlocs flocChanges
+            let equiIds = equipmentChangeIds equiChanges
+            do! writeChangeRequestDetails flocs equiIds directory filePrefix
+            do! writeFuncLocPatches flocChanges directory filePrefix
+            do! writeEquipmentPatches equiChanges directory filePrefix
+            return ()
+        }

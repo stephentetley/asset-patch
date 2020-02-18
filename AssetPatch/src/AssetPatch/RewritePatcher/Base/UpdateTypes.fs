@@ -42,7 +42,7 @@ module UpdateTypes =
         
     
     type EquiChange = 
-        | UpdateProperties of equiId: string * changes: (EquiProperty * ValuaValue) list        
+        | UpdateProperties of equiId: string * superOrdinateId: string * changes: (EquiProperty * ValuaValue) list        
         | DeleteMultilingualText of equiId: string
         | UpdateMultilingualText of equiId: string * text: string
         | DeleteClass of equiId: string * className: string
@@ -82,8 +82,8 @@ module UpdateTypes =
             | [] -> cont [x]
             | c :: cs -> 
                 match (x,c) with
-                | EquiChange.UpdateProperties(f1, ps1), EquiChange.UpdateProperties(f2, ps2) when f1 = f2 -> 
-                    let x1 = EquiChange.UpdateProperties(f1, ps1 @ ps2)
+                | EquiChange.UpdateProperties(e1, sup1, ps1), EquiChange.UpdateProperties(e2, sup2, ps2) when e1 = e2 && sup1 = sup2 -> 
+                    let x1 = EquiChange.UpdateProperties(e1, sup1, ps1 @ ps2)
                     work x1 cs (fun vs -> cont vs)
                 | _, _ -> work c cs (fun vs -> cont (x::vs))
 

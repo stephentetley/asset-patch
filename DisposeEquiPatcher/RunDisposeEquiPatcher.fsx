@@ -51,7 +51,7 @@ open AssetPatch.DisposeEquiPatcher.UxlDisposeEquiPatcher
 let aiwRetireMm3x () = 
     let opts = 
         { UserName          = "TETLEYS"
-          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
+          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
           OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\"
         }
     runAiwDisposeEquiPatcher opts
@@ -60,7 +60,7 @@ let uxlRetireMm3x () =
     let opts = 
         { ProcessRequester  = "ASSET DATA"
           ChangeRequestDescription = sprintf "S3953 Retire MM3X %s" (DateTime.Now.ToShortDateString())
-          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist1.xlsx"
+          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
           OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"          
         }
     runUxlDisposeEquiPatcher opts

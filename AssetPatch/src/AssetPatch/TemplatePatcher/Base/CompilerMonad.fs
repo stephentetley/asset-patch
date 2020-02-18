@@ -31,9 +31,10 @@ module CompilerMonad =
           EquiVariant = None
           UserEnv = userEnv }
     
-    type State = int
+    type State = 
+        { NameIndex: int }
 
-    /// CompilerMonad is a Reader-Error monad.
+    /// CompilerMonad is a Reader-State-Error monad.
     type CompilerMonad<'a, 'uenv> = 
         private | CompilerMonad of (CompilerEnv<'uenv> -> State -> Result<'a * State, ErrMsg>)
 
@@ -82,7 +83,7 @@ module CompilerMonad =
                     (action : CompilerMonad<'a, 'uenv> ) : Result<'a, ErrMsg> =         
         let templateEnv  = { CurrentFloc = None
                              Properties = defaultEnvProperties () }
-        let stateZero = 0
+        let stateZero = { NameIndex = 0 }
         apply1 action (defaultCompilerEnv templateEnv userEnv) stateZero
             |> Result.map fst
 
@@ -252,7 +253,9 @@ module CompilerMonad =
     // Name supply
 
     let freshName (namer: int -> string): CompilerMonad<string, 'uenv>= 
-        CompilerMonad <| fun _ st -> Ok (namer st, st+1)
+        CompilerMonad <| fun _ st -> 
+            let ix = st.NameIndex 
+            Ok (namer ix, { st with NameIndex = ix+1 })
             
 
 
