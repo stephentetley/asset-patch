@@ -40,16 +40,33 @@ open System
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\UpdateTypes.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Rewrite.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\RewriteMonad.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Uxl.fs"
+#load "..\AssetPatch\src\AssetPatch\RewritePatcher\Catalogue\EquiRoot.fs"
 #load "src\AssetPatch\DisposeEqui\InputData.fs"
 #load "src\AssetPatch\DisposeEqui\AiwDisposeEquiPatcher.fs"
+#load "src\AssetPatch\DisposeEqui\UxlDisposeEquiRewriter.fs"
 open AssetPatch.DisposeEqui.AiwDisposeEquiPatcher
-
+open AssetPatch.DisposeEqui.UxlDisposeEquiRewriter
 
 let aiwRetireMm3x () = 
-    let opts = 
+    let opts : AiwOptions = 
         { UserName          = "TETLEYS"
           WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
           OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\"
         }
     runAiwDisposeEquiPatcher opts
 
+let uxlRetireMm3x () = 
+    let opts: UxlOptions = 
+        { ProcessRequester = "ASSET DATA"
+          ChangeRequestDescription = sprintf "S3953 MMIM Retires %s" (DateTime.Now.ToShortDateString())
+          FileNamePrefix = "outstation_rewrite"
+          WorkListPath = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
+          OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"
+        }
+    runUxlDisposeEquiPatcher opts
+
+    
