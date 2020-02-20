@@ -40,12 +40,9 @@ open System
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs"
-#load "src\AssetPatch\DisposeEquiPatcher\InputData.fs"
-#load "src\AssetPatch\DisposeEquiPatcher\AiwDisposeEquiPatcher.fs"
-#load "src\AssetPatch\DisposeEquiPatcher\UxlDisposeEquiPatcher.fs"
-open AssetPatch.DisposeEquiPatcher.AiwDisposeEquiPatcher
-open AssetPatch.DisposeEquiPatcher.UxlDisposeEquiPatcher
-
+#load "src\AssetPatch\DisposeEqui\InputData.fs"
+#load "src\AssetPatch\DisposeEqui\AiwDisposeEquiPatcher.fs"
+open AssetPatch.DisposeEqui.AiwDisposeEquiPatcher
 
 
 let aiwRetireMm3x () = 
@@ -55,14 +52,4 @@ let aiwRetireMm3x () =
           OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\"
         }
     runAiwDisposeEquiPatcher opts
-
-let uxlRetireMm3x () = 
-    let opts = 
-        { ProcessRequester  = "ASSET DATA"
-          ChangeRequestDescription = sprintf "S3953 Retire MM3X %s" (DateTime.Now.ToShortDateString())
-          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
-          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"          
-        }
-    runUxlDisposeEquiPatcher opts
-
 

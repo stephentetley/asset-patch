@@ -39,45 +39,18 @@ open System
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\RewriteMonad.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Uxl.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Catalogue\EquiRoot.fs"
-#load "src\AssetPatch\DisposeEquiPatcher\InputData.fs"
+#load "src\AssetPatch\DisposeEqui\InputData.fs"
+#load "src\AssetPatch\DisposeEqui\UxlDisposeEquiRewriter.fs"
 open AssetPatch.RewritePatcher.Base.Rewrite
 open AssetPatch.RewritePatcher.Base.RewriteMonad
 open AssetPatch.RewritePatcher.Base.Uxl
 open AssetPatch.RewritePatcher.Catalogue.EquiRoot
-open AssetPatch.DisposeEquiPatcher.InputData
+open AssetPatch.DisposeEqui.InputData
+open AssetPatch.DisposeEqui.UxlDisposeEquiRewriter
 
 
 
-/// To get an type that we are in control of (i.e. we can implement 
-/// the HasEquiId interface) we have to wrap the Row type provided by
-/// ExcelProvider
 
-[< Struct>]
-type WorkRow = 
-    | WorkRow of WorkListRow
-
-    member x.Row 
-        with get () : WorkListRow = 
-            match x with | WorkRow x1 -> x1
-    
-    interface HasEquiId with
-        member x.EquiId = 
-            match x with 
-            | WorkRow x1 -> x1.``S4 Equipment Id`` 
-
-        member x.SuperOrdinateId = 
-            match x with 
-            | WorkRow x1 -> 
-                let s1 = x1.``Superior Equipment``
-                if String.IsNullOrWhiteSpace s1 then "" else s1
-
-let equiDispose () : EquiRewrite<WorkRow> = 
-    rewrite { 
-        let! s1 = gets <| fun (x:WorkRow) -> x.Row.``Name ``
-        do! description (s1 + " (Del)")
-        do! statusOfAnObject "DISP"
-        return ()
-    }
 
     
 let outputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"
@@ -95,15 +68,3 @@ let test01 () =
                 return ()
             }
 
-
-//let temp01 () = 
-//    List.sort [1;2;4;3;5;6;7;5]
-
-//let temp02 () = 
-//    List.sortBy (fun x -> 0 - x) [1;2;4;3;5;6;7;5]
-
-//let temp03 () = 
-//    List.sortByDescending id [1;2;4;3;5;6;7;5]
-
-//let equiSortKey (equiId: string) (superId: string) = 
-//    superId.PadLeft(16, '0') + equiId.PadLeft(16, '0')

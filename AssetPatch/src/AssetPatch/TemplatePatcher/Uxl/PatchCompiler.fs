@@ -28,12 +28,7 @@ module PatchCompiler =
     // ************************************************************************
     // Write output
 
-    let private equipmentSortKey (equiId: string) (superId: string) = 
-        superId.PadLeft(16, '0') + equiId.PadLeft(16, '0')
-
-    let pairWithKey (equiData: EquimentData) : string * EquimentData = 
-        let key = equipmentSortKey equiData.EquipmentId equiData.SuperordEquip
-        (key, equiData)
+    
 
     let writeMmopCreateData (directory : string) 
                         (filePrefix : string) 
@@ -56,7 +51,7 @@ module PatchCompiler =
 
                 // Equipment
                 let! outPath05 = genFileName directory filePrefix "05_equipment_data_tab"
-                do! liftResult <| writeEquipmentData (List.map pairWithKey mmopData.NewEquipments) outPath05
+                do! liftResult <| writeEquipmentData mmopData.NewEquipments outPath05
                 let! outPath06 = genFileName directory filePrefix "06_eq_mulitlingual_text_tab"
                 do! liftResult <| writeEquiMultilingualText mmopData.NewEquiMultilingualTexts outPath06
                 let! outPath07 = genFileName directory filePrefix "07_eq_classification_tab"

@@ -2,7 +2,7 @@
 // License: BSD 3 Clause
 
 
-namespace AssetPatch.DisposeEquiPatcher
+namespace AssetPatch.DisposeEqui
 
 module InputData =
     

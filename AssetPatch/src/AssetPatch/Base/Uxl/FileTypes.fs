@@ -170,9 +170,13 @@ module FileTypes =
             ; ("Ch.Deletion Ind.",              optionalBool x.CharDeletionInd)
             ] |> AssocList.ofList
 
+    let equipmentSortKey (equiId: string) (superId: string) = 
+        superId.PadLeft(16, '0') + equiId.PadLeft(16, '0')
 
+    /// Note `_SortKey` is used internally.
     type EquimentData = 
-        { EquipmentId: EquipmentId
+        { _SortKey: string
+          EquipmentId: EquipmentId
           EquipCategory: string  
           DescriptionMedium: string 
           ObjectType: string
@@ -215,6 +219,7 @@ module FileTypes =
             ; ("Status of an object",           x.StatusOfAnObject)
             ; ("Status without stsno",          x.StatusWithoutStatusNum)
             ] |> AssocList.ofList
+
 
     type EquiMultilingualText = 
         { EquipmentId: string
@@ -353,17 +358,17 @@ module FileTypes =
     /// This doesn't sort - a client should have sorted approriatly first.
     let private makeEquipmentData (rows : EquimentData list) : Result<CsvFileWithHeaders, string> = 
         rows
+            |> List.sortByDescending (fun x -> x._SortKey)
             |> List.map (fun x -> x.ToAssocs())      
             |> makeCsvFile 
 
     /// Write data for the `Equipment Data` tab
-    let writeEquipmentData (source : (string * EquimentData) list)
+    let writeEquipmentData (source : EquimentData list)
                                 (outPath: string) : Result<unit, string> = 
         match source with
         | [] -> Ok ()
         | _ -> 
-            let source1 = List.sortByDescending fst source |> List.map snd
-            makeEquipmentData source1
+            makeEquipmentData source 
                 |> Result.map (fun v -> writeCsvFile csvDefaults v outPath)
 
 

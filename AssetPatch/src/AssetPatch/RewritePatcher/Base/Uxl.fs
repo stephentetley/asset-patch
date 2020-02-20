@@ -202,7 +202,7 @@ module Uxl =
     // Equipment
 
     type EquipmentChanges = 
-        { EquipmentDataChanges : (string * EquimentData) list
+        { EquipmentDataChanges : EquimentData list
           MultilingualTextChanges : EquiMultilingualText list
           ClassificationChanges : EquiClassification list
         }
@@ -222,8 +222,9 @@ module Uxl =
         List.fold appendEquipmentChanges zero changes
 
 
-    let private blankEquipmentData (equiId: string): EquimentData = 
-        { EquipmentId = equiId
+    let private blankEquipmentData (equiId: string) (sortKey: string) : EquimentData = 
+        { _SortKey = sortKey
+          EquipmentId = equiId
           EquipCategory = "" 
           DescriptionMedium = ""
           ObjectType = ""
@@ -287,10 +288,10 @@ module Uxl =
           CharDeleteInd = true
         }
 
-    let equiUpdateProperties (equiId: string) (superId: string) (changes: (EquiProperty * ValuaValue) list) : string * EquimentData = 
+    let equiUpdateProperties (equiId: string) (superId: string) (changes: (EquiProperty * ValuaValue) list) : EquimentData = 
         let sortKey = equipmentSortKey equiId superId
-        let equiData = blankEquipmentData equiId |> updateEquiProperties changes
-        (sortKey, equiData)
+        blankEquipmentData equiId sortKey |> updateEquiProperties changes
+        
 
     let equiUpdateChar (equiId: string) (className: string) 
                         (charName: string) (value: ValuaValue) : EquiClassification = 
@@ -364,7 +365,7 @@ module Uxl =
             |> concatEquipmentChanges
 
     let equipmentChangeIds (changes: EquipmentChanges): EquipmentId list = 
-        let xs = changes.EquipmentDataChanges |> List.map (fun (_,x) -> x.EquipmentId)
+        let xs = changes.EquipmentDataChanges |> List.map (fun x -> x.EquipmentId)
         let ys = changes.MultilingualTextChanges |> List.map (fun x -> x.EquipmentId)
         let zs = changes.ClassificationChanges |> List.map (fun x -> x.EquipmentId)
         xs @ ys @ zs 

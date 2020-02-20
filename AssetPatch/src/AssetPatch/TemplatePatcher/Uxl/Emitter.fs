@@ -142,8 +142,9 @@ module Emitter =
                                     (equiClass : S4Class) : EquiClassification list = 
         List.map (makeEquiClassification equiId equiClass.ClassName) equiClass.Characteristics
 
-    let private makeEquimentData1 (equiId: string) (equipment : S4Equipment) : EquimentData = 
-        { EquipmentId = equiId
+    let private makeEquipmentData1 (equiId: string) (equipment : S4Equipment) : EquimentData = 
+        { _SortKey = equipmentSortKey equiId ""
+          EquipmentId = equiId
           EquipCategory = equipment.Category
           DescriptionMedium = equipment.Description
           ObjectType = equipment.ObjectType
@@ -162,7 +163,7 @@ module Emitter =
         }
 
     let private makeEquiData (equiId: string) (source : S4Equipment) : EquiData = 
-        { Equipment = makeEquimentData1 equiId source 
+        { Equipment = makeEquipmentData1 equiId source 
           MultilingualText = makeEquiMultilingualText equiId "" source.MemoLine
           EquiClassifications = 
               List.map (makeEquiClassifications equiId) source.Classes |> List.concat
