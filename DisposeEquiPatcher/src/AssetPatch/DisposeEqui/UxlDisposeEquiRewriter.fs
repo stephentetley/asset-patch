@@ -8,18 +8,21 @@ module UxlDisposeEquiRewriter =
     open System
 
     open AssetPatch.RewritePatcher.Base.Rewrite
+    open AssetPatch.RewritePatcher.Base.RewriteMonad
+    open AssetPatch.RewritePatcher.Base.Uxl
     open AssetPatch.RewritePatcher.Catalogue.EquiRoot
     open AssetPatch.DisposeEqui.InputData
-    
 
+    
     type UxlOptions = 
         { ProcessRequester : string 
           ChangeRequestDescription: string
+          FileNamePrefix: string
           WorkListPath : string
           OutputDirectory : string
         }
 
-    type DisposeEqui = 
+    type internal DisposeEqui = 
         { ProcessRequester: string
           ChangeRequestDescription: string
           EquipmentId: string   
@@ -58,3 +61,16 @@ module UxlDisposeEquiRewriter =
             do! statusOfAnObject "DISP"
             return ()
         }
+
+
+    let runUxlDisposeEquiPatcher (opts: UxlOptions) = 
+        let worklist = 
+            readWorkList opts.WorkListPath
+                |> List.map WorkRow
+
+        runRewriter (defaultEnv opts.ChangeRequestDescription ())
+            <| rewriter { 
+                    let! changes = rewriteEquiAll (equiDispose ()) worklist
+                    do! writeChangeRequestAndEquipmentPatches changes opts.OutputDirectory opts.FileNamePrefix
+                    return ()
+                }

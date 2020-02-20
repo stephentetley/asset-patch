@@ -9,8 +9,7 @@
     <Compile Include="src\AssetPatch\DisposeEqui\InputData.fs" />
     <Compile Include="src\AssetPatch\DisposeEqui\AiwDisposeEquiPatcher.fs" />
     <Compile Include="src\AssetPatch\DisposeEqui\UxlDisposeEquiRewriter.fs" />
-    <None Include="RunDisposeEquiPatcher.fsx" />
-    <None Include="RunDisposeEquiRewriter.fsx" />
+    <None Include="RunDisposeEqui.fsx" />
   </ItemGroup>
 
   <ItemGroup>

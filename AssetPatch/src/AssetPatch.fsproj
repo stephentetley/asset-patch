@@ -27,6 +27,8 @@
     <Compile Include="AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\Template.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\CompilerMonad.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Base\AltHierarchy.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Base\AltTemplate.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchWriter.fs" />

@@ -56,9 +56,9 @@ module FuncLocPath =
             let xs = rootPath.Split [| '-' |] |> List.ofArray |> List.rev
             FuncLocPath(xs)
 
-    let extend (name : string) (path : FuncLocPath) : FuncLocPath = 
+    let extend (levelCode : string) (path : FuncLocPath) : FuncLocPath = 
         let (FuncLocPath xs)  = path
-        FuncLocPath (name :: xs)
+        FuncLocPath (levelCode :: xs)
 
     
     let parent (x : FuncLocPath) : FuncLocPath option = 
