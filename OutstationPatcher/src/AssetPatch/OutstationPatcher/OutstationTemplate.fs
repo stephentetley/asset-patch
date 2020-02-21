@@ -10,6 +10,7 @@ module OutstationTemplate =
 
     open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.TemplatePatcher.Catalogue
+    open AssetPatch.TemplatePatcher.Catalogue.Equi
     open AssetPatch.TemplatePatcher.Catalogue.AssetCondition
     open AssetPatch.TemplatePatcher.Catalogue.Ctos
     open AssetPatch.TemplatePatcher.Catalogue.Netw
@@ -62,22 +63,23 @@ module OutstationTemplate =
         modem parameters.``Modem Name`` 
               installDate
               parameters.``Modem Memo Line``
-            [ east_north_common parameters.NGR
-              aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
-              netwmo [
-                uniclass_code ()
-                uniclass_desc ()
-                memo_line "SEE LONG TEXT"
-                ]
-              asset_condition_common installDate.Year
-            ]
-            _no_subordinate_equipment_ 
             [ manufacturer parameters.``Modem Manufacturer``
               model parameters.``Modem Model``
               serial_number parameters.``Modem Serial Number``
               construction_year installDate.Year
               construction_month installDate.Month
             ]
+            [ Equi.east_north_common parameters.NGR
+              Equi.aib_reference_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
+              netwmo [
+                Equi.uniclass_code ()
+                Equi.uniclass_desc ()
+                Equi.memo_line "SEE LONG TEXT"
+                ]
+              asset_condition_common installDate.Year
+            ]
+            _no_subordinate_equipment_ 
+            
 
     let makeTelemetryOustation (parameters : WorkListRow) : Equipment = 
         let installDate = getUSDate parameters.``Outstation Install Date``
@@ -85,8 +87,15 @@ module OutstationTemplate =
             parameters.``Telemetry Outstation Name``
             installDate
             parameters.``Outstation Memo Line``
+            
+            [ manufacturer parameters.``Outstation Manufacturer``
+              model parameters.``Outstation Model``
+              serial_number parameters.``Outstation Serial Number``
+              construction_year installDate.Year
+              construction_month installDate.Month
+            ]
             [ east_north_common parameters.NGR
-              aib_reference_equipment_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
+              aib_reference_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
               netwtl [
                     uniclass_code ()
                     uniclass_desc ()
@@ -94,34 +103,29 @@ module OutstationTemplate =
                     ] 
               asset_condition_common installDate.Year
             ]
-            _no_subordinate_equipment_ 
-            [ manufacturer parameters.``Outstation Manufacturer``
-              model parameters.``Outstation Model``
-              serial_number parameters.``Outstation Serial Number``
-              construction_year installDate.Year
-              construction_month installDate.Month
-            ]
+            _no_subordinate_equipment_
 
     /// Level 5
     let makeSYS (parameters : WorkListRow) : System = 
-        locals [startupDateTrafo {| InstallDate = parameters.``Outstation Install Date`` |}]
-            <| telemetry_system parameters.``S4 System Code`` parameters.``S4 System Name``
-                [ east_north_common parameters.NGR
-                  aib_reference_floc_common (getL5Sainum parameters)
+        Floc.telemetry_system 
+                parameters.``S4 System Code`` 
+                parameters.``S4 System Name``
+                [ Floc.east_north_common parameters.NGR
+                  Floc.aib_reference_common (getL5Sainum parameters)
                   ctossy 
                     [ system_type "REMOTE TELEMETRY SYSTEM"
                     ]
                 ]
-                _no_assemblies_
+                Floc._no_assemblies_
                 [ makeTelemetryOustation parameters
                   // makeModem parameters
                 ]
     
     /// Level 4
     let makeTEL (parameters : WorkListRow) : Process = 
-        telemetry
-            [ east_north_common parameters.NGR
-              aib_reference_floc_common (getL4Sainum parameters)
+        Floc.telemetry
+            [ Floc.east_north_common parameters.NGR
+              Floc.aib_reference_common (getL4Sainum parameters)
             ]
             [   
                 makeSYS parameters
@@ -129,9 +133,9 @@ module OutstationTemplate =
 
     /// Level 3
     let makeNET (parameters : WorkListRow) : ProcessGroup = 
-        networks
-            [ east_north_common parameters.NGR
-              aib_reference_floc_common (getL3Sainum parameters)
+        Floc.networks
+            [ Floc.east_north_common parameters.NGR
+              Floc.aib_reference_common (getL3Sainum parameters)
             ]
             [ 
                 makeTEL parameters
@@ -139,9 +143,9 @@ module OutstationTemplate =
 
     /// Level 2
     let makeCAA (parameters : WorkListRow) : Function = 
-        control_and_automation 
-            [ east_north_common parameters.NGR
-              aib_reference_floc_common (getL2Sainum parameters)
+        Floc.control_and_automation 
+            [ Floc.east_north_common parameters.NGR
+              Floc.aib_reference_common (getL2Sainum parameters)
             ]
             [ 
                 makeNET parameters

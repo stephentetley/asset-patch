@@ -24,11 +24,8 @@
     <Compile Include="AssetPatch\Analysis\Utilities\CsvExport.fs" />
     <Compile Include="AssetPatch\Analysis\Utilities\ReadErrorLog.fs" />
     <Compile Include="AssetPatch\Analysis\PatchDiff.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Base\Hierarchy.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\Template.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Base\CompilerMonad.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Base\AltHierarchy.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Base\AltTemplate.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Base\GenerateMonad.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchTypes.fs" />
@@ -39,10 +36,9 @@
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Uxl\AltEmitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Generate.fs" />
-    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Root.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Floc.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Equi.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Smon.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Lstn.fs" />

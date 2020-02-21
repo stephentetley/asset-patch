@@ -11,8 +11,8 @@ module AssetCondition =
 
 
     /// ASSET_CONDITION
-    let asset_condition : Characteristic list -> Classification = 
-        _classification "ASSET_CONDITION"
+    let asset_condition : EquiCharacteristic list -> EquiClass = 
+        _equiClass "ASSET_CONDITION"
 
     // ASSET_CONDITION:ConditionGrade
     type ConditionGrade = 
@@ -45,13 +45,13 @@ module AssetCondition =
 
             
     /// ASSET_CONDITION:CONDITION_GRADE
-    let condition_grade (v : ConditionGrade) : Characteristic = 
-        _characteristic "CONDITION_GRADE" (textUpperCase <| v.ToString())
+    let condition_grade (v : ConditionGrade) : EquiCharacteristic = 
+        _equiCharacteristic "CONDITION_GRADE" (textUpperCase <| v.ToString())
 
 
     /// ASSET_CONDITION:CONDITION_GRADE_REASON
-    let condition_grade_reason (v : string) : Characteristic = 
-        _characteristic "CONDITION_GRADE_REASON" (textUpperCase <| v.ToString())
+    let condition_grade_reason (v : string) : EquiCharacteristic = 
+        _equiCharacteristic "CONDITION_GRADE_REASON" (textUpperCase <| v.ToString())
 
     /// ASSET_CONDITION:PerformanceGrade
     type PerformanceGrade = 
@@ -83,13 +83,13 @@ module AssetCondition =
 
 
     /// ASSET_CONDITION:PERFORMANCE_GRADE
-    let performance_grade (v : PerformanceGrade) : Characteristic = 
-        _characteristic "PERFORMANCE_GRADE" (TextValue <| v.ToString())
+    let performance_grade (v : PerformanceGrade) : EquiCharacteristic = 
+        _equiCharacteristic "PERFORMANCE_GRADE" (TextValue <| v.ToString())
 
 
     /// ASSET_CONDITION:PERFORMANCE_GRADE_REASON
-    let performance_grade_reason (v : string) : Characteristic = 
-        _characteristic "PERFORMANCE_GRADE_REASON" (TextValue <| v.ToUpper())
+    let performance_grade_reason (v : string) : EquiCharacteristic = 
+        _equiCharacteristic "PERFORMANCE_GRADE_REASON" (TextValue <| v.ToUpper())
 
 
     /// ASSET_CONDITION:LoadingFactor
@@ -121,21 +121,21 @@ module AssetCondition =
                 | _ -> None
 
     /// ASSET_CONDITION:LOADING_FACTOR
-    let loading_factor (v : LoadingFactor) : Characteristic = 
-        _characteristic "LOADING_FACTOR" (TextValue <| v.ToString())
+    let loading_factor (v : LoadingFactor) : EquiCharacteristic = 
+        _equiCharacteristic "LOADING_FACTOR" (TextValue <| v.ToString())
 
 
     /// ASSET_CONDITION:LOADING_FACTOR_REASON
-    let loading_factor_reason (v : string) : Characteristic = 
-         _characteristic "LOADING_FACTOR_REASON" (TextValue <| v.ToUpper())
+    let loading_factor_reason (v : string) : EquiCharacteristic = 
+         _equiCharacteristic "LOADING_FACTOR_REASON" (TextValue <| v.ToUpper())
 
 
     /// ASSET_CONDITION:SURVEY_DATE
-    let survey_date (year : int) : Characteristic =
-        _characteristic "SURVEY_DATE" (intValue <| year)
+    let survey_date (year : int) : EquiCharacteristic =
+        _equiCharacteristic "SURVEY_DATE" (intValue <| year)
 
     /// Emit ASSET_CONDITION with defaults for new
-    let asset_condition_common (year : int) : Classification = 
+    let asset_condition_common (year : int) : EquiClass = 
         asset_condition 
             [   condition_grade Good
                 condition_grade_reason "New"

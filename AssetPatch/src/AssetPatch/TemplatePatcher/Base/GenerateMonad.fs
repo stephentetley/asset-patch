@@ -11,13 +11,13 @@ module GenerateMonad =
 
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath    
-    open AssetPatch.TemplatePatcher.Base.AltHierarchy
-    open AssetPatch.TemplatePatcher.Base.AltTemplate
+    open AssetPatch.TemplatePatcher.Base.Hierarchy
+    open AssetPatch.TemplatePatcher.Base.Template
  
 
     // Custom data goes in UserEnv
     type GenerateEnv<'uenv> = 
-        { TemplateEnv : AltTemplate.TemplateEnv
+        { TemplateEnv : TemplateEnv
           UserEnv: 'uenv
         }
 
@@ -76,7 +76,7 @@ module GenerateMonad =
 
     let runGenerate (userEnv : 'uenv)
                     (action : GenerateMonad<'a, 'uenv> ) : Result<'a, ErrMsg> =         
-        let templateEnv  = AltTemplate.defaultEnv ()
+        let templateEnv  = defaultEnv ()
         let stateZero = { NameIndex = 2000 }
         apply1 action (defaultGenerateEnv templateEnv userEnv) stateZero 
             |> Result.map fst
@@ -475,8 +475,9 @@ module GenerateMonad =
 
     let evalTemplate (code : Template<'a>) : GenerateMonad<'a, 'uenv> = 
         GenerateMonad <| fun env st ->
-            let (a, ix1) = runTemplate code env.TemplateEnv st.NameIndex
-            Ok(a, { st with NameIndex = ix1 })
+            match runTemplate code env.TemplateEnv st.NameIndex with
+            | Error msg -> Error msg
+            | Ok (a, ix1) -> Ok(a, { st with NameIndex = ix1 })
 
 
     // ************************************************************************

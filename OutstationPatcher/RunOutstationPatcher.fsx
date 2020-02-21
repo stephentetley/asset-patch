@@ -35,49 +35,47 @@ open System
 #load "..\AssetPatch\src\AssetPatch\Base\Uxl\FileTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\OSGB36.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\Hierarchy.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\Template.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\CompilerMonad.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\AltHierarchy.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\AltTemplate.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\GenerateMonad.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Base.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchTypes.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchWriter.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase1.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Base.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchTypes.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchWriter.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase1.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"
+//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Root.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Generate.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Floc.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Equi.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Ctos.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Netw.fs"
 #load "src\AssetPatch\OutstationPatcher\InputData.fs"
 #load "src\AssetPatch\OutstationPatcher\OutstationTemplate.fs"
-#load "src\AssetPatch\OutstationPatcher\AiwPatcher.fs"
+// #load "src\AssetPatch\OutstationPatcher\AiwPatcher.fs"
 #load "src\AssetPatch\OutstationPatcher\UxlPatcher.fs"
-open AssetPatch.OutstationPatcher.AiwPatcher
+// open AssetPatch.OutstationPatcher.AiwPatcher
 open AssetPatch.OutstationPatcher.UxlPatcher
 
-let aiwOptions : AiwOptions = 
-    {   UserName = "TETLEYS"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
-        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"        
-    }
+//let aiwOptions : AiwOptions = 
+//    {   UserName = "TETLEYS"
+//        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
+//        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"        
+//    }
 
-let aiwOutstationUpgrades01 () = 
-    runAiwOutstationPatcherPhase1 aiwOptions 
+//let aiwOutstationUpgrades01 () = 
+//    runAiwOutstationPatcherPhase1 aiwOptions 
 
 
-// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
-// once it has been activated and downloaded...
-// Note - parsing the equi file is currently far from robust.
-let aiwOutstationUpgrades02 () = 
-    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
-    runAiwOutstationPatcherPhase2 aiwOptions equiFile  
+//// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
+//// once it has been activated and downloaded...
+//// Note - parsing the equi file is currently far from robust.
+//let aiwOutstationUpgrades02 () = 
+//    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
+//    runAiwOutstationPatcherPhase2 aiwOptions equiFile  
 
 
 

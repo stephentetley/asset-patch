@@ -12,10 +12,10 @@ module Smon =
 
 
     /// Class:SMONSY
-    let smonsy : Characteristic list -> Classification = 
-        _classification "SMONSY" 
+    let smonsy : FlocCharacteristic list -> FlocClass = 
+        _flocClass "SMONSY" 
     
 
     /// SYSTEM_TYPE
-    let system_type (v : string) : Characteristic = 
-        _characteristic "SYSTEM_TYPE" (TextValue v)
+    let system_type (v : string) : FlocCharacteristic = 
+        _flocCharacteristic "SYSTEM_TYPE" (TextValue v)

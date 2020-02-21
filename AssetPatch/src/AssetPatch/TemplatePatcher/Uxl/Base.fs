@@ -6,9 +6,8 @@ namespace AssetPatch.TemplatePatcher.Uxl
 
 module Base =
     
-    open AssetPatch.Base.Common
-    open AssetPatch.TemplatePatcher.Base
-    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
 
     type UxlEnv = 
         { ProcessRequester: string
@@ -21,22 +20,6 @@ module Base =
           ChangeRequestType = "AIWEAM0P" 
         }
 
-    type UxlCompilerMonad<'a> = CompilerMonad<'a, UxlEnv>
-
-    
-
-
-    let getProcessRequester () : UxlCompilerMonad<string> = 
-        asksUserEnv (fun env -> env.ProcessRequester)
-
-    let getChangeRequestDescription () : UxlCompilerMonad<string> = 
-        asksUserEnv (fun env -> env.ChangeRequestDescription)
-
-    let getChangeRequestType () : UxlCompilerMonad<string> = 
-        asksUserEnv (fun env -> env.ChangeRequestType)
-
-    let newEquimentId () : UxlCompilerMonad<string> = 
-        freshName <| fun i -> sprintf "$%i" (i + 2000)
 
 
     type ChangeRequestProperties = 
@@ -46,11 +29,11 @@ module Base =
         }
 
 
-    type UxlGenerate<'a> = GenerateMonad.GenerateMonad<'a, UxlEnv>
+    type UxlGenerate<'a> = GenerateMonad<'a, UxlEnv>
     
     
     let askChangeRequestProperties() : UxlGenerate<ChangeRequestProperties> = 
-        GenerateMonad.asksUserEnv <| fun env -> 
+        asksUserEnv <| fun env -> 
                         { Description = env.ChangeRequestDescription
                           ChangeType = env.ChangeRequestType
                           Requester = env.ProcessRequester

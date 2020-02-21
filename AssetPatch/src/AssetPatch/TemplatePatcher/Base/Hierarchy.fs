@@ -5,7 +5,7 @@ namespace AssetPatch.TemplatePatcher.Base
 
 
 
-module AltHierarchy =
+module Hierarchy =
     
     open System
 
@@ -48,7 +48,7 @@ module AltHierarchy =
           Description : string       
           Category : string
           ObjectType : string
-          ZZClass: string
+          Class: string
           StartupDate: DateTime
           Manufacturer : string option
           Model : string option

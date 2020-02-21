@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2019
+﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
 namespace AssetPatch.TemplatePatcher.Base
@@ -12,11 +12,12 @@ module Template =
     open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.Base.ValuaValue
-    open AssetPatch.TemplatePatcher.Base.TemplateHierarchy    
+    open AssetPatch.Base.ValuaValue 
+    open AssetPatch.TemplatePatcher.Base.Hierarchy   
 
+    type EquipmentId = string 
 
-    type EnvProperties = 
+    type TemplateEnv = 
         { StartupDate : DateTime
           ObjectStatus : string
           StructureIndicator : string
@@ -26,8 +27,7 @@ module Template =
           Currency : string
         }
 
-
-    let defaultEnvProperties () : EnvProperties = 
+    let defaultEnv () : TemplateEnv = 
         { StartupDate = DateTime.Now
           ObjectStatus = "UCON"
           StructureIndicator = "YW-GS"
@@ -37,31 +37,31 @@ module Template =
           Currency = "GBP"
         }
 
-    // FuncLocPath should not be directly visible to client code
+    type TemplateState = 
+        { NameIndex: int }
 
-    type TemplateEnv = 
-        { CurrentFloc : FuncLocPath option
-          Properties : EnvProperties
-        }
-
-    /// Reader + Error 
-    /// Error is essential for reconciling EQUI numbers
+    /// Template is Reader + State (fresh ids) + Error.
+    /// Error turns out to be useful.
+    /// 'env has common props "structure indicator" etc.
     type Template<'a> = 
-        | Template of (TemplateEnv -> Result<'a, ErrMsg>)
+        | Template of (TemplateEnv -> TemplateState -> Result<'a * TemplateState, ErrMsg>)
 
-    let inline private apply1 (ma : Template<'a>) (env : TemplateEnv) : Result<'a, ErrMsg> = 
-        let (Template fn) = ma in fn env
+
+    let inline private apply1 (ma : Template<'a>) 
+                                (env : TemplateEnv) 
+                                (st: TemplateState) : Result<'a * TemplateState, ErrMsg> = 
+        let (Template fn) = ma in fn env st
 
     let mreturn (x:'a) : Template<'a> = 
-        Template <| fun _ -> Ok x
+        Template <| fun _ st -> Ok (x, st)
 
 
     let inline private bindM (ma : Template<'a>) 
                              (fn : 'a -> Template<'b>) : Template<'b> =
-        Template <| fun env -> 
-            match apply1 ma env with
-            | Error msg -> Error msg 
-            | Ok a -> apply1 (fn a) env
+        Template <| fun env st -> 
+            match apply1 ma env st with
+            | Error msg -> Error msg
+            | Ok (a, s1) -> apply1 (fn a) env s1
          
     let inline private delayM (fn : unit -> Template<'a>) : Template<'a> = 
         bindM (mreturn ()) fn 
@@ -76,123 +76,268 @@ module Template =
     let (template : TemplateBuilder) = new TemplateBuilder()
 
 
-    let runTemplate (env : TemplateEnv) (code : Template<'a>) : Result<'a, ErrMsg> = 
-        apply1 code env
-    
-        
+    let runTemplate (ma : Template<'a>) 
+                    (env : TemplateEnv) 
+                    (nameStart: int) : Result<'a * int, ErrMsg> = 
+        let stateZero = { NameIndex = nameStart }
+        match apply1 ma env stateZero  with
+        | Error msg -> Error msg
+        | Ok (a, s1) -> Ok (a, s1.NameIndex)
+
     let private ( |>> ) (ma : Template<'a>) (fn : 'a -> 'b) : Template<'b> = 
-        Template <| fun env ->
-            match apply1 ma env with
-            | Ok a -> Ok (fn a)
+        Template <| fun env st ->
+            match apply1 ma env st with
             | Error msg -> Error msg
-    
-    let templateError (msg: string) : Template<'a> = 
-        Template <| fun _ -> Error msg
+            | Ok (a, s1) -> Ok (fn a, s1)
 
-    let private unlistM (source: Template<'x> list) : Template<'x list> = 
-        Template <| fun env -> 
-            let rec work xs fk sk = 
-                match xs with 
-                | [] -> sk []
-                | x :: rest -> 
-                    match apply1 x env with
-                    | Error msg -> fk msg
-                    | Ok a -> 
-                        work rest fk (fun vs -> sk (a :: vs))
-            work source (fun msg -> Error msg) (fun xs -> Ok xs)
+    let private apM (mf: Template<'a -> 'b>) (ma: Template<'a>) : Template<'b> = 
+        Template <| fun env st ->
+            match apply1 mf env st with
+            | Error msg -> Error msg
+            | Ok (f, s1) -> 
+                match apply1 ma env s1 with
+                | Error msg -> Error msg
+                | Ok (a, s2) -> Ok (f a, s2)
 
-
-    let rootFloc (floc : FuncLocPath) (ma : Template<'a>) : Template<'a> = 
-        Template <| fun env -> 
-            apply1 ma { env with CurrentFloc = Some floc } 
-
-    let private ask () : Template<TemplateEnv> = 
-        Template <| fun env -> Ok env
-        
-    let askFloc () : Template<FuncLocPath> = 
-        Template <| fun env -> 
-            match env.CurrentFloc with
-            | None -> Error "askFloc - no CurrentFloc "
-            | Some a -> Ok a
-
-    let askFuncLocProperties () : Template<FuncLocProperties> = 
-        Template <| fun env -> 
+    let getFlocProps() : Template<FuncLocProperties> = 
+        Template <| fun env st -> 
             let props : FuncLocProperties = 
-                { StartupDate = env.Properties.StartupDate
-                  StructureIndicator = env.Properties.StructureIndicator
-                  MaintenancePlant = env.Properties.MaintenancePlant
-                  ObjectStatus = env.Properties.ObjectStatus
-                  ControllingArea = env.Properties.ControllingArea
-                  CompanyCode = env.Properties.CompanyCode
-                  Currency = env.Properties.Currency
+                { StartupDate = env.StartupDate
+                  StructureIndicator = env.StructureIndicator
+                  MaintenancePlant = env.MaintenancePlant
+                  ObjectStatus = env.ObjectStatus
+                  ControllingArea = env.ControllingArea
+                  CompanyCode = env.CompanyCode
+                  Currency = env.Currency
                 }
-            Ok props
+            Ok (props, st)
 
-    type EnvTransformer = EnvProperties -> EnvProperties
+    let private unlistBy (fn: 'a -> Template<'b>) (source: 'a list) : Template<'b list> = 
+        Template <| fun env state -> 
+            let rec work xs st fk sk = 
+                match xs with 
+                | [] -> sk [] st
+                | x :: rest -> 
+                    match apply1 (fn x) env st with
+                    | Error msg -> fk msg
+                    | Ok (a, s1) -> 
+                        work rest s1 fk (fun vs s2 -> sk (a :: vs) s2)
+            work source state (fun msg -> Error msg) (fun xs st -> Ok (xs, st))
 
+
+    let freshEquiId() : Template<string> = 
+        Template <| fun env st -> 
+            let ix = st.NameIndex 
+            let name = sprintf "$%i" ix
+            Ok (name, { st with NameIndex = ix + 1 })
+
+    let templateError (msg: string) : Template<'a> = 
+        Template <| fun _ _ -> Error msg
+
+    type EnvTransformer = TemplateEnv -> TemplateEnv
+    
     let local (modify : EnvTransformer) (ma : Template<'a>) : Template<'a> = 
         Template <| fun env -> 
-            let props = env.Properties
-            apply1 ma { env with Properties = modify props }
-
+            apply1 ma (modify env)
+    
     let locals (modifications : EnvTransformer list) (ma : Template<'a>) : Template<'a> = 
         let trafo = List.foldBack (fun f acc -> acc >> f) modifications id
         Template <| fun env -> 
-            let props = env.Properties
-            apply1 ma { env with Properties = trafo props } 
-
-            
+            apply1 ma (trafo env) 
+    
+                
     let startupDate (date : DateTime) : EnvTransformer = 
         fun env -> { env with StartupDate = date }
 
 
-    let internal extendFloc (levelCode  : string) (ma : Template<'a>) : Template<'a> = 
-        let optExtend optFloc = Option.map (extend levelCode) optFloc        
-        Template <| fun env -> 
-            let floc = env.CurrentFloc
-            apply1 ma { env with CurrentFloc = optExtend floc } 
+
+
+   // *************************************************************************
+   // Template 'objects'
+
+    type SiteCode = string
     
-
-    type Characteristic = Template<S4Characteristic>
+    [<Struct>]
+    type Site = 
+        | Site of (SiteCode -> Template<S4FunctionalLocation>)
     
-    let _characteristic (name : string) (value : ValuaValue) : Characteristic = 
-        mreturn { 
-            Name = name
-            Value = value
-        }
+    let internal getSite (x: Site) : SiteCode -> Template<S4FunctionalLocation> = 
+        let (Site f) = x in f
 
+    let siteError (msg: string) : Site = 
+        Site <| fun _ -> templateError msg
 
-
-
-    type Classification = Template<S4Class>
-
-    let _classification (name : string) (values : Characteristic list) : Classification = 
-        template {
-            let! vs = unlistM values
-            return { 
-                ClassName = name
-                Characteristics = vs 
-            }
-        }
-        
-        
-
-    type Equipment = Template<S4Equipment>
+    [<Struct>]
+    type Function = 
+        | Function of (FuncLocPath -> Template<S4FunctionalLocation>)
     
+    let internal getFunction (x: Function) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (Function f) = x in f
+
+    let functionError (msg: string) : Function = 
+        Function <| fun _ -> templateError msg
+
+    [<Struct>]
+    type ProcessGroup = 
+        | ProcessGroup of (FuncLocPath -> Template<S4FunctionalLocation>)
+
+    let internal getProcessGroup (x: ProcessGroup) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (ProcessGroup f) = x in f
+       
+    let processGroupError (msg: string) : ProcessGroup = 
+        ProcessGroup <| fun _ -> templateError msg
+
+    [<Struct>]
+    type Process = 
+        | Process of (FuncLocPath -> Template<S4FunctionalLocation>)
+
+    let internal getProcess (x: Process) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (Process f) = x in f
+
+    let processError (msg: string) : Process = 
+        Process <| fun _ -> templateError msg
+
+    [<Struct>]
+    type System = 
+        | System of (FuncLocPath -> Template<S4FunctionalLocation>)
+
+    let internal getSystem (x: System) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (System f) = x in f
+
+    let systemError (msg: string) : System = 
+        System <| fun _ -> templateError msg
+
+    [<Struct>]
+    type Assembly = 
+        | Assembly of (FuncLocPath -> Template<S4FunctionalLocation>)
+
+    let internal getAssembly (x: Assembly) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (Assembly f) = x in f
+
+    let assemblyError (msg: string) : Assembly = 
+        Assembly <| fun _ -> templateError msg
+
+    [<Struct>]
+    type Item = 
+        | Item of (FuncLocPath -> Template<S4FunctionalLocation>)
+
+    let internal getItem (x: Item) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (Item f) = x in f
+
+    let itemError (msg: string) : Item = 
+        Item <| fun _ -> templateError msg
+
+    [<Struct>]
+    type Component = 
+        | Component of (FuncLocPath -> Template<S4FunctionalLocation>)
+    
+    let internal getComponent (x: Component) : FuncLocPath -> Template<S4FunctionalLocation> = 
+        let (Component f) = x in f
+
+    let componentError (msg: string) : Component = 
+        Component <| fun _ -> templateError msg
+
+    
+    type ClassName = string
+
+    [<Struct>]
+    type FlocClass = 
+        internal | FlocClass of (FuncLocPath -> Template<S4FlocClassification list>)
+
+    let internal getFlocClass (x: FlocClass) : FuncLocPath -> Template<S4FlocClassification list> = 
+        let (FlocClass f) = x in f
+
+    let flocClassError (msg: string) : FlocClass = 
+        FlocClass <| fun _ -> templateError msg
+
+
+    [<Struct>]
+    type FlocCharacteristic = 
+        | FlocCharacteristic of (FuncLocPath -> ClassName -> Template<S4FlocClassification>)
+    
+    let internal getFlocCharacteristic (x: FlocCharacteristic) : FuncLocPath -> ClassName -> Template<S4FlocClassification> = 
+        let (FlocCharacteristic f) = x in f
+
+    let flocCharacteristicError (msg: string) : FlocCharacteristic = 
+        FlocCharacteristic <| fun _ _ -> templateError msg
+
+    /// Note - EquiId is generated by the Template Monad
+    /// The supplied `EquipmentId option` is the superordinate equiment (if exists)
+    [<Struct>]
+    type Equipment = 
+        | Equipment of (EquipmentId option -> FuncLocPath -> Template<S4Equipment>)
+
+    let internal getEquipment (x: Equipment) : EquipmentId option -> FuncLocPath -> Template<S4Equipment> = 
+        let (Equipment f) = x in f
+
+    let equipmentError (msg: string) : Equipment = 
+        Equipment <| fun _ _ -> templateError msg
+
+
     type EquipmentAttribute = Template<S4Equipment -> S4Equipment>
 
-    let private setAttribute (e1 : Equipment) (attrib : EquipmentAttribute) : Equipment = 
-        Template <| fun env -> 
-            match apply1 e1 env with
-            | Ok a -> 
-                match apply1 attrib env with
-                | Ok f -> Ok (f a)
-                | Error msg -> Error msg
-            | Error msg -> Error msg
+    let private applyAttribute (e1 : Equipment) (attrib : EquipmentAttribute) : Equipment = 
+        Equipment <| fun parentId floc -> 
+            let template = getEquipment e1 parentId floc
+            apM attrib template
 
     let private setAttributes (e1 : Equipment) (attribs : EquipmentAttribute list) : Equipment = 
-        List.fold setAttribute e1 attribs
-    
+        List.fold applyAttribute e1 attribs
+
+    let internal equipmentAttribute (update : S4Equipment -> S4Equipment) : EquipmentAttribute =
+        Template <| fun _ st -> Ok (update, st)
+
+    [<Struct>]
+    type EquiClass = 
+        | EquiClass of (EquipmentId -> Template<S4EquiClassification list>)
+
+    let internal getEquiClass (x: EquiClass) : EquipmentId -> Template<S4EquiClassification list> = 
+        let (EquiClass f) = x in f
+
+    let equiClassError (msg: string) : EquiClass = 
+        EquiClass <| fun _ -> templateError msg
+
+    [<Struct>]
+    type EquiCharacteristic = 
+        | EquiCharacteristic of (EquipmentId -> ClassName -> Template<S4EquiClassification>)
+
+    let internal getEquiCharacteristic (x: EquiCharacteristic) : EquipmentId -> ClassName -> Template<S4EquiClassification> = 
+        let (EquiCharacteristic f) = x in f
+
+
+    let equiCharacteristicError (msg: string) : EquiCharacteristic = 
+        EquiCharacteristic <| fun _ _ -> templateError msg
+
+    // ************************************************************************
+    // Low level builder functions 
+
+    let _equiCharacteristic (name : string) (value : ValuaValue) : EquiCharacteristic = 
+        EquiCharacteristic <| fun equiId className -> 
+            mreturn { 
+                EquiId = equiId
+                ClassName = className
+                CharName = name
+                CharValue = value
+                }
+
+    let _flocCharacteristic (name : string) (value : ValuaValue) : FlocCharacteristic = 
+        FlocCharacteristic <| fun funcloc className -> 
+            mreturn { 
+                FuncLoc = funcloc
+                ClassName = className
+                CharName = name
+                CharValue = value
+                }
+
+    let _equiClass (name : string) (values : EquiCharacteristic list) : EquiClass = 
+        EquiClass <| fun equiId ->         
+            unlistBy (fun x -> getEquiCharacteristic x equiId name) values
+            
+
+    let _flocClass (name : string) (values : FlocCharacteristic list) : FlocClass = 
+        FlocClass <| fun funcloc ->         
+            unlistBy (fun x -> getFlocCharacteristic x funcloc name) values
+            
 
     let _equipment (description : string) 
                     (category : string) 
@@ -200,21 +345,23 @@ module Template =
                     (zzClass : string)
                     (startupDate: DateTime)
                     (memoLine : string)
-                    (classes : Classification list) 
-                    (subordinateEquipment : Equipment list) 
-                    (attributes : EquipmentAttribute list) : Equipment = 
-        let equip1 = 
+                    (attributes : EquipmentAttribute list)
+                    (classes : EquiClass list) 
+                    (subordinateEquipment : Equipment list)  : Equipment = 
+        (Equipment <| fun parentEqui parentFloc ->              
             template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! es = unlistM subordinateEquipment
+                let! equiId = freshEquiId ()
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getEquiClass x equiId) classes |>> List.concat
+                let! es = unlistBy (fun x -> getEquipment x (Some equiId) parentFloc) subordinateEquipment
                 return {
-                    FuncLoc = floc
+                    EquiId = equiId
+                    SuperEquiId = parentEqui
+                    FuncLoc = parentFloc
                     FlocProperties = props
                     Description = description
                     Category = category
-                    ZZClass = zzClass
+                    Class = zzClass
                     ObjectType = objectType
                     StartupDate = startupDate
                     Manufacturer = None
@@ -222,189 +369,176 @@ module Template =
                     SerialNumber = None
                     ConstructionYear = None
                     ConstructionMonth = None
-                    Classes = cs 
-                    SuboridnateEquipment = es 
+                    Classifications = cs 
+                    SuboridinateEquipment = es 
                     MemoLine = memoLine
                 }
-            } 
-        setAttributes equip1 attributes
-
-
-    let internal equipmentAttribute (update : S4Equipment -> S4Equipment) : EquipmentAttribute =
-        Template <| fun _ -> Ok update
+            }) |>  fun e1 -> setAttributes e1 attributes
+        
             
-    
 
-    type Component = Template<S4Component>
-
-
-    let _component (flocToken : string) (description : string) (objectType : string)
-                   (classes : Classification list) (equipment : Equipment list) : Component = 
-        extendFloc flocToken
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! es = unlistM equipment
-                return { 
+    let _component (levelCode: string) (description : string) (objectType : string)   
+                    (classes : FlocClass list)  
+                    (equipment : Equipment list) : Component = 
+        Component <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! es = unlistBy (fun x -> getEquipment x None floc) equipment
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs 
-                    Equipment = es 
+                    Classifications = cs
+                    SubFlocs = []
+                    Equipment = es
                 }
             }
 
-    type Item = Template<S4Item>
-    
-    let _item (flocToken : string) (description : string) (objectType : string)
-                (classes : Classification list) 
-                (components : Component list) (equipment : Equipment list) : Item = 
-        extendFloc flocToken
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! xs = unlistM components
-                let! es = unlistM equipment
-                return { 
+    let _item (levelCode: string) (description : string) (objectType : string)
+                    (classes : FlocClass list) 
+                    (components : Component list) 
+                    (equipment : Equipment list) : Item = 
+        Item <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getComponent x floc) components
+                let! es = unlistBy (fun x -> getEquipment x None floc) equipment
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs 
-                    Components = xs
-                    Equipment = es 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = es
                 }
             }
 
-    type Assembly = Template<S4Assembly>
-    
-    let _assembly (flocToken : string) (description : string) (objectType : string)
-                    (classes : Classification list) 
-                    (items : Item list) (equipment : Equipment list) : Assembly = 
-        extendFloc flocToken
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! xs = unlistM items
-                let! es = unlistM equipment
-                return { 
+    let _assembly (levelCode: string) (description : string) (objectType : string)
+                    (classes : FlocClass list) 
+                    (items : Item list) 
+                    (equipment : Equipment list) : Assembly = 
+        Assembly <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getItem x floc) items
+                let! es = unlistBy (fun x -> getEquipment x None floc) equipment
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs
-                    Items = xs
-                    Equipment = es 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = es
                 }
             }
 
-    type System = Template<S4System>
-    
-    let _system (flocToken : string) (description : string) (objectType : string)
-                (classes : Classification list) 
-                (assemblies : Assembly list) (equipment : Equipment list) : System = 
-        extendFloc flocToken
-            <| template {
-                let! floc =  askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! xs = unlistM assemblies
-                let! es = unlistM equipment
-                return { 
+    let _system (levelCode: string) (description : string) (objectType : string)
+                    (classes : FlocClass list) 
+                    (assemblies : Assembly list) 
+                    (equipment : Equipment list) : System = 
+        System <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getAssembly x floc) assemblies
+                let! es = unlistBy (fun x -> getEquipment x None floc) equipment
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs
-                    Assemblies = xs
-                    Equipment = es 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = es
                 }
             }
 
-    type Process = Template<S4Process>
-    
-    let _process (flocToken : string) (description : string) (objectType : string)
-                    (classes : Classification list) 
-                    (systems : System list) : Process = 
-        extendFloc flocToken
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! xs = unlistM systems
-                return { 
+    let _process (levelCode: string) (description : string) (objectType : string)
+                        (classes : FlocClass list) 
+                        (systems : System list) : Process = 
+        Process <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getSystem x floc) systems
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs 
-                    Systems = xs 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = []
                 }
             }
 
-    type ProcessGroup = Template<S4ProcessGroup>
-    
-    let _processGroup (flocToken : string) (description : string) (objectType : string)    
-                        (classes : Classification list) 
-                        (processes : Process list) : ProcessGroup = 
-        extendFloc flocToken
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()               
-                let! cs = unlistM classes
-                let! xs = unlistM processes
-                return { 
+    let _processGroup (levelCode: string) (description : string) (objectType : string)
+                    (classes : FlocClass list) 
+                    (processes : Process list) : ProcessGroup = 
+        ProcessGroup <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getProcess x floc) processes
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs 
-                    Processes = xs 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = []
                 }
             }
 
-    type Function = Template<S4Function>
-    
-    let _function (flocToken : string) (description : string) (objectType : string)
-                  (classes : Classification list) 
-                  (processGroups : ProcessGroup list) : Function = 
-        extendFloc flocToken
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! xs = unlistM processGroups
-                return { 
+    let _function (levelCode: string) (description : string) (objectType : string)
+                        (classes : FlocClass list) 
+                        (processGroups : ProcessGroup list) : Function = 
+        Function <| fun parentCode -> 
+            template { 
+                let floc = parentCode |> extend levelCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getProcessGroup x floc) processGroups
+                return {
                     FuncLoc = floc
                     FlocProperties = props
                     Description = description
                     ObjectType = objectType
-                    Classes = cs 
-                    ProcessGroups = xs 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = []
                 }
             }
-
-    type Site = Template<S4Site>
-    
-    let _site (siteCode : string) (description : string) 
-                (classes : Classification list) 
+            
+    let _site (description : string) 
+                (classes : FlocClass list) 
                 (functions : Function list) : Site = 
-        rootFloc (FuncLocPath.Create siteCode)
-            <| template {
-                let! floc = askFloc ()
-                let! props = askFuncLocProperties ()
-                let! cs = unlistM classes
-                let! xs = unlistM functions
+        Site <| fun siteCode -> 
+            template {
+                let floc = FuncLocPath.Create siteCode
+                let! props = getFlocProps ()
+                let! cs = unlistBy (fun x -> getFlocClass x floc) classes |>> List.concat
+                let! xs = unlistBy (fun x -> getFunction x floc) functions
                 return { 
                     FuncLoc = floc
                     FlocProperties = props
-                    Description = description 
+                    Description = description
                     ObjectType = "SITE"
-                    Classes = cs 
-                    Functions = xs 
+                    Classifications = cs
+                    SubFlocs = xs
+                    Equipment = []
                 }
             }

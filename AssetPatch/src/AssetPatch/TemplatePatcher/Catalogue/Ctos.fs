@@ -12,13 +12,13 @@ module Ctos =
 
 
     /// Class:CTOSSY
-    let ctossy : Characteristic list -> Classification = 
-        _classification "CTOSSY" 
+    let ctossy : FlocCharacteristic list -> FlocClass = 
+        _flocClass "CTOSSY" 
     
 
     /// SYSTEM_TYPE
     /// Often "REMOTE TELEMETRY OUTSTATION"...
-    let system_type (v : string) : Characteristic = 
-        _characteristic "SYSTEM_TYPE" (TextValue v)
+    let system_type (v : string) : FlocCharacteristic = 
+        _flocCharacteristic "SYSTEM_TYPE" (TextValue v)
 
         

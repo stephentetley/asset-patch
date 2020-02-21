@@ -12,7 +12,7 @@ module Generate =
     open AssetPatch.Base.Uxl.FileTypes
     open AssetPatch.TemplatePatcher.Base.GenerateMonad
     open AssetPatch.TemplatePatcher.Uxl.Base
-    open AssetPatch.TemplatePatcher.Uxl.AltEmitter
+    open AssetPatch.TemplatePatcher.Uxl.Emitter
 
 
 

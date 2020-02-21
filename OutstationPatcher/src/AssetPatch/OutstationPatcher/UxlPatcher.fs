@@ -8,10 +8,10 @@ module UxlPatcher =
 
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
     open AssetPatch.TemplatePatcher.Uxl.Base
     open AssetPatch.TemplatePatcher.Uxl.Emitter
-    open AssetPatch.TemplatePatcher.Uxl.PatchCompiler
+    open AssetPatch.TemplatePatcher.Uxl.Generate
     open AssetPatch.OutstationPatcher.InputData
     open AssetPatch.OutstationPatcher.OutstationTemplate
 
@@ -25,13 +25,13 @@ module UxlPatcher =
 
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private processRow (path : FuncLocPath, row : WorkListRow) : UxlCompilerMonad<MmopCreateData> = 
+    let private processRow (path : FuncLocPath, row : WorkListRow) : UxlGenerate<MmopCreateData> = 
         match path.Level with
-        | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitMmopCreate
-        | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitMmopCreate
-        | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitMmopCreate
-        | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitMmopCreate
-        | 5 -> applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
+        | 1 -> applyFunction        (makeCAA row) path >>= functionalLocationEmitMmopCreate
+        | 2 -> applyProcessGroup    (makeNET row) path >>= functionalLocationEmitMmopCreate
+        | 3 -> applyProcess         (makeTEL row) path >>= functionalLocationEmitMmopCreate
+        | 4 -> applySystem          (makeSYS row) path >>= functionalLocationEmitMmopCreate
+        | 5 -> applyEquipment (makeTelemetryOustation row)  None path >>= fun eq1 -> 
                // applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
                equipmentEmitMmopCreate eq1 >>= fun equiPatches1 -> 
                // equipmentEmitMmopCreate eq2 >>= fun equiPatches2 -> 
@@ -43,8 +43,8 @@ module UxlPatcher =
     let runUxlOutstationPatcher (opts : UxlOptions) : Result<unit, string> = 
         let userEnv = 
             { defaultUxlEnv opts.ChangeRequestDescription with ProcessRequester = opts.ProcessRequester }
-        runCompiler userEnv
-            <| compile { 
+        runGenerate userEnv
+            <| generate { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 
