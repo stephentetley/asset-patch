@@ -4,23 +4,25 @@
 namespace AssetPatch.TemplatePatcher.Uxl
 
 
-module PatchCompiler =
+module Generate =
     
     open System.IO
 
     open AssetPatch.Base.Common
     open AssetPatch.Base.Uxl.FileTypes
-    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
     open AssetPatch.TemplatePatcher.Uxl.Base
-    open AssetPatch.TemplatePatcher.Uxl.Emitter
+    open AssetPatch.TemplatePatcher.Uxl.AltEmitter
+
+
 
     // ************************************************************************/
     // Gen file name
 
     let private genFileName (directory : string)
                             (filePrefix : string) 
-                            (namePart : string): UxlCompilerMonad<string> = 
-        compile {
+                            (namePart : string): UxlGenerate<string> = 
+        generate {
             let name1 = sprintf "%s_%s.csv" (safeName filePrefix) (safeName namePart)
             return Path.Combine(directory, name1)
         }    
@@ -32,12 +34,12 @@ module PatchCompiler =
 
     let writeMmopCreateData (directory : string) 
                             (filePrefix : string) 
-                            (source : MmopCreateData) : UxlCompilerMonad<unit> =         
+                            (source : MmopCreateData) : UxlGenerate<unit> =         
         if source.IsEmpty then
             mreturn ()
         else            
             let mmopData = source.RemoveDups()
-            compile {
+            generate {
                 let! outPath01 = genFileName directory filePrefix "01_change_request_details_tab"
                 do! liftResult <| writeChangeRequestDetails mmopData.ChangeRequests outPath01
                 

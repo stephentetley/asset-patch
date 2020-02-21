@@ -37,24 +37,28 @@ module AltTemplate =
           Currency = "GBP"
         }
 
+    type TemplateState = 
+        { NameIndex: int }
+
+
     /// 'env has common props "structure indicator" etc.
     type Template<'a> = 
-        | Template of (TemplateEnv -> Result<'a, ErrMsg>)
+        | Template of (TemplateEnv -> TemplateState -> 'a * TemplateState)
 
 
-    let inline private apply1 (ma : Template<'a>) (env : TemplateEnv) : Result<'a, ErrMsg> = 
-        let (Template fn) = ma in fn env
+    let inline private apply1 (ma : Template<'a>) 
+                                (env : TemplateEnv) 
+                                (st: TemplateState) : 'a * TemplateState = 
+        let (Template fn) = ma in fn env st
 
     let mreturn (x:'a) : Template<'a> = 
-        Template <| fun _ -> Ok x
+        Template <| fun _ st -> (x, st)
 
 
     let inline private bindM (ma : Template<'a>) 
                              (fn : 'a -> Template<'b>) : Template<'b> =
-        Template <| fun env -> 
-            match apply1 ma env with
-            | Error msg -> Error msg 
-            | Ok a -> apply1 (fn a) env
+        Template <| fun env st -> 
+            let (a, s1) = apply1 ma env st in apply1 (fn a) env s1
          
     let inline private delayM (fn : unit -> Template<'a>) : Template<'a> = 
         bindM (mreturn ()) fn 
@@ -68,14 +72,20 @@ module AltTemplate =
 
     let (template : TemplateBuilder) = new TemplateBuilder()
 
+
+    let runTemplate (ma : Template<'a>) 
+                    (env : TemplateEnv) 
+                    (nameStart: int) : 'a * int = 
+        let stateZero = { NameIndex = nameStart }
+        let (a, s1) = apply1 ma env stateZero 
+        (a, s1.NameIndex)
+
     let private ( |>> ) (ma : Template<'a>) (fn : 'a -> 'b) : Template<'b> = 
-        Template <| fun env ->
-            match apply1 ma env with
-            | Ok a -> Ok (fn a)
-            | Error msg -> Error msg
+        Template <| fun env st ->
+            let (a, s1) =  apply1 ma env st in (fn a, s1)
 
     let getFlocProps() : Template<FuncLocProperties> = 
-        Template <| fun env -> 
+        Template <| fun env st -> 
             let props : FuncLocProperties = 
                 { StartupDate = env.StartupDate
                   StructureIndicator = env.StructureIndicator
@@ -85,75 +95,82 @@ module AltTemplate =
                   CompanyCode = env.CompanyCode
                   Currency = env.Currency
                 }
-            Ok props
+            (props, st)
 
     let private unlistBy (fn: 'a -> Template<'b>) (source: 'a list) : Template<'b list> = 
-        Template <| fun env -> 
-            let rec work xs fk sk = 
+        Template <| fun env state -> 
+            let rec work xs st cont = 
                 match xs with 
-                | [] -> sk []
+                | [] -> cont [] st
                 | x :: rest -> 
-                    match apply1 (fn x) env with
-                    | Error msg -> fk msg
-                    | Ok a -> 
-                        work rest fk (fun vs -> sk (a :: vs))
-            work source (fun msg -> Error msg) (fun xs -> Ok xs)
+                    let (a,s1) = apply1 (fn x) env st
+                    work rest s1 (fun vs s2 -> cont (a :: vs) s2)
+            work source state (fun xs st -> (xs, st))
 
-    type SiteCode = string                
+
+    let freshEquiId() : Template<string> = 
+        Template <| fun env st -> 
+            let ix = st.NameIndex 
+            let name = sprintf "$%i" ix
+            (name, { st with NameIndex = ix + 1 })
+
+
+    type SiteCode = string
+    
     [<Struct>]
     type Site = 
         | Site of (SiteCode -> Template<S4FunctionalLocation>)
     
-    let private getSite (x: Site) : SiteCode -> Template<S4FunctionalLocation> = 
+    let internal getSite (x: Site) : SiteCode -> Template<S4FunctionalLocation> = 
         let (Site f) = x in f
 
     [<Struct>]
     type Function = 
         | Function of (FuncLocPath -> Template<S4FunctionalLocation>)
     
-    let private getFunction (x: Function) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getFunction (x: Function) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (Function f) = x in f
 
     [<Struct>]
     type ProcessGroup = 
         | ProcessGroup of (FuncLocPath -> Template<S4FunctionalLocation>)
 
-    let private getProcessGroup (x: ProcessGroup) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getProcessGroup (x: ProcessGroup) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (ProcessGroup f) = x in f
         
     [<Struct>]
     type Process = 
         | Process of (FuncLocPath -> Template<S4FunctionalLocation>)
 
-    let private getProcess (x: Process) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getProcess (x: Process) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (Process f) = x in f
 
     [<Struct>]
     type System = 
         | System of (FuncLocPath -> Template<S4FunctionalLocation>)
 
-    let private getSystem (x: System) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getSystem (x: System) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (System f) = x in f
 
     [<Struct>]
     type Assembly = 
         | Assembly of (FuncLocPath -> Template<S4FunctionalLocation>)
 
-    let private getAssembly (x: Assembly) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getAssembly (x: Assembly) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (Assembly f) = x in f
 
     [<Struct>]
     type Item = 
         | Item of (FuncLocPath -> Template<S4FunctionalLocation>)
 
-    let private getItem (x: Item) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getItem (x: Item) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (Item f) = x in f
 
     [<Struct>]
     type Component = 
         | Component of (FuncLocPath -> Template<S4FunctionalLocation>)
     
-    let private getComponent (x: Component) : FuncLocPath -> Template<S4FunctionalLocation> = 
+    let internal getComponent (x: Component) : FuncLocPath -> Template<S4FunctionalLocation> = 
         let (Component f) = x in f
 
 
@@ -164,7 +181,7 @@ module AltTemplate =
     type FlocClass = 
         | FlocClass of (FuncLocPath -> Template<S4FlocClassification list>)
 
-    let private getFlocClass (x: FlocClass) : FuncLocPath -> Template<S4FlocClassification list> = 
+    let internal getFlocClass (x: FlocClass) : FuncLocPath -> Template<S4FlocClassification list> = 
         let (FlocClass f) = x in f
 
 
@@ -172,7 +189,7 @@ module AltTemplate =
     type FlocCharacteristic = 
         | FlocCharacteristic of (FuncLocPath -> ClassName -> Template<S4FlocClassification>)
     
-    let private getFlocCharacteristic (x: FlocCharacteristic) : FuncLocPath -> ClassName -> Template<S4FlocClassification> = 
+    let internal getFlocCharacteristic (x: FlocCharacteristic) : FuncLocPath -> ClassName -> Template<S4FlocClassification> = 
         let (FlocCharacteristic f) = x in f
 
 
@@ -182,7 +199,7 @@ module AltTemplate =
     type Equipment = 
         | Equipment of (EquipmentId option -> FuncLocPath -> Template<S4Equipment>)
 
-    let private getEquipment (x: Equipment) : EquipmentId option -> FuncLocPath -> Template<S4Equipment> = 
+    let internal getEquipment (x: Equipment) : EquipmentId option -> FuncLocPath -> Template<S4Equipment> = 
         let (Equipment f) = x in f
 
 
@@ -190,7 +207,7 @@ module AltTemplate =
     type EquiClass = 
         | EquiClass of (EquipmentId -> Template<S4EquiClassification list>)
 
-    let private getEquiClass (x: EquiClass) : EquipmentId -> Template<S4EquiClassification list> = 
+    let internal getEquiClass (x: EquiClass) : EquipmentId -> Template<S4EquiClassification list> = 
         let (EquiClass f) = x in f
 
 
@@ -198,8 +215,11 @@ module AltTemplate =
     type EquiCharacteristic = 
         | EquiCharacteristic of (EquipmentId -> ClassName -> Template<S4EquiClassification>)
 
-    let private getEquiCharacteristic (x: EquiCharacteristic) : EquipmentId -> ClassName -> Template<S4EquiClassification> = 
+    let internal getEquiCharacteristic (x: EquiCharacteristic) : EquipmentId -> ClassName -> Template<S4EquiClassification> = 
         let (EquiCharacteristic f) = x in f
+
+    // ************************************************************************
+    // Low level builder functions 
 
     let _equiCharacteristic (name : string) (value : ValuaValue) : EquiCharacteristic = 
         EquiCharacteristic <| fun equiId className -> 
@@ -238,7 +258,7 @@ module AltTemplate =
                     (subordinateEquipment : Equipment list)  : Equipment = 
         Equipment <| fun parentEqui parentFloc -> 
             template {
-                let! equiId = mreturn "TEMP01"
+                let! equiId = freshEquiId ()
                 let! props = getFlocProps ()
                 let! cs = unlistBy (fun x -> getEquiClass x equiId) classes |>> List.concat
                 let! es = unlistBy (fun x -> getEquipment x (Some equiId) parentFloc) subordinateEquipment
@@ -286,8 +306,8 @@ module AltTemplate =
     let _item (levelCode: string) (description : string) (objectType : string)
                     (classes : FlocClass list) 
                     (components : Component list) 
-                    (equipment : Equipment list) : Assembly = 
-        Assembly <| fun parentCode -> 
+                    (equipment : Equipment list) : Item = 
+        Item <| fun parentCode -> 
             template { 
                 let floc = parentCode |> extend levelCode
                 let! props = getFlocProps ()
