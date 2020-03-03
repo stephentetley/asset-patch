@@ -78,5 +78,6 @@ module Generate =
             let mmopData = source.RemoveDups()
             generate {
                 let! directory1 = createSubfolder directory "01_create_flocs"
+                do! forMz [1..8] (fun i -> writeFlocCreateData1 directory1 filePrefix i source) 
                 return ()
             }
