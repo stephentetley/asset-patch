@@ -3,9 +3,10 @@
 
 namespace AssetPatch.TemplatePatcher.Aiw
 
+/// File Types specfically pertain to `create` patches
+/// So this is not in the `AssetPatch.Base.Aiw` namespace
 
-
-module PatchTypes =
+module FileTypes =
     
     open System
 
@@ -102,6 +103,8 @@ module PatchTypes =
     // ************************************************************************
     // Link FuncLoc
 
+
+    // Note / TODO - this is really a rewrite
     type LinkFuncLoc = 
         { FunctionLocation : FuncLocPath
           Description : string
@@ -188,7 +191,6 @@ module PatchTypes =
 
     // ************************************************************************
     // Equi
-
 
     type NewEqui = 
         { Description : string

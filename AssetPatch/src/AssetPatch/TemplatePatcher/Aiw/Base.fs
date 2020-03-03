@@ -14,7 +14,7 @@ module Base =
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.Base.Aiw.ChangeFileParser
-    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
 
 
 
@@ -69,12 +69,12 @@ module Base =
         { UserName: string 
           EquiIndices: EquiMap option }
 
-    type AiwCompilerMonad<'a> = CompilerMonad<'a, AiwEnv>
+    type AiwGenerate<'a> = GenerateMonad<'a, AiwEnv>
 
 
     
-    let getEquiNumber (description: string) (funcLoc: FuncLocPath) : AiwCompilerMonad<string> = 
-        compile {
+    let getEquiNumber (description: string) (funcLoc: FuncLocPath) : AiwGenerate<string> = 
+        generate {
             let! uenv = asksUserEnv (fun env -> env.EquiIndices)
             match uenv with
             | None -> return! throwError "No EquiMap set up. This is required for equipment."

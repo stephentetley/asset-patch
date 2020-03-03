@@ -16,7 +16,7 @@ module ValuaValue =
         | TextValue of string
         | DateValue of DateTime
         
-
+        /// This prints a value for all cases
         member x.DescriptionValue 
             with get(): string = 
                 match x with
