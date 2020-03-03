@@ -31,13 +31,7 @@ module UxlPatcher =
         | 2 -> applyProcessGroup    (makeNET row) path >>= functionalLocationEmitMmopCreate
         | 3 -> applyProcess         (makeTEL row) path >>= functionalLocationEmitMmopCreate
         | 4 -> applySystem          (makeSYS row) path >>= functionalLocationEmitMmopCreate
-        | 5 -> applyEquipment (makeTelemetryOustation row)  None path >>= fun eq1 -> 
-               // applyFlocTemplate1 (path, row) makeModem >>= fun eq2 -> 
-               equipmentEmitMmopCreate eq1 >>= fun equiPatches1 -> 
-               // equipmentEmitMmopCreate eq2 >>= fun equiPatches2 -> 
-               // mreturn (MmopCreateData.Concat [equiPatches1; equiPatches2])
-               mreturn equiPatches1
-
+        | 5 -> applyEquipment       (makeTelemetryOustation row) None path >>= equipmentEmitMmopCreate
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
     let runUxlOutstationPatcher (opts : UxlOptions) : Result<unit, string> = 

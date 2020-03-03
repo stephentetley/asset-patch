@@ -11,10 +11,10 @@ module UxlPatcher =
 
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
-    open AssetPatch.TemplatePatcher.Base.CompilerMonad
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
     open AssetPatch.TemplatePatcher.Uxl.Base
     open AssetPatch.TemplatePatcher.Uxl.Emitter
-    open AssetPatch.TemplatePatcher.Uxl.PatchCompiler
+    open AssetPatch.TemplatePatcher.Uxl.Generate
 
     open AssetPatch.EdcPatcher.InputData
     open AssetPatch.EdcPatcher.EdcTemplate
@@ -30,17 +30,15 @@ module UxlPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private processRow (row : WorkListRow) : UxlCompilerMonad<MmopCreateData> = 
+    let private processRow (row : WorkListRow) : UxlGenerate<MmopCreateData> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= functionEmitMmopCreate
-        | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroupEmitMmopCreate
-        | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= processEmitMmopCreate
-        | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= systemEmitMmopCreate
+        | 1 -> applyFunction        (makeEDC row) rootPath  >>= functionalLocationEmitMmopCreate
+        | 2 -> applyProcessGroup    (makeLQD row) rootPath  >>= functionalLocationEmitMmopCreate
+        | 3 -> applyProcess         (makeRGM row) rootPath  >>= functionalLocationEmitMmopCreate
+        | 4 -> applySystem          (makeSYS row) rootPath  >>= functionalLocationEmitMmopCreate
         | x when x > 4 && x < 8 -> 
-            applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= fun eq1 -> 
-            equipmentEmitMmopCreate eq1 >>= fun equiPatches ->
-            mreturn equiPatches
+            applyEquipment (makeLevelTransmitter row) None rootPath >>= equipmentEmitMmopCreate
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
@@ -48,8 +46,8 @@ module UxlPatcher =
     let runUxlEdcPatcher (opts : UxlOptions) : Result<unit, string> = 
         let userEnv = 
             { defaultUxlEnv opts.ChangeRequestDescription with ProcessRequester = opts.ProcessRequester }
-        runCompiler userEnv
-            <| compile { 
+        runGenerate userEnv
+            <| generate { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
                 let! worklist = 
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 

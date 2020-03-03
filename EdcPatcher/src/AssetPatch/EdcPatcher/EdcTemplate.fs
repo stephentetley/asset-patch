@@ -11,6 +11,7 @@ module EdcTemplate =
     open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.Lib.Common
     open AssetPatch.TemplatePatcher.Catalogue
+    open AssetPatch.TemplatePatcher.Catalogue.Equi
     open AssetPatch.TemplatePatcher.Catalogue.AssetCondition
     open AssetPatch.TemplatePatcher.Catalogue.Lstn
     open AssetPatch.TemplatePatcher.Catalogue.Smon
@@ -34,19 +35,19 @@ module EdcTemplate =
             | None -> new DateTime(year=1970, month=1, day=1)
 
 
-    let private whenNotBlank (fn : string -> Characteristic) (str: string) : Characteristic option = 
+    let private whenNotBlank (fn : string -> EquiCharacteristic) (str: string) : EquiCharacteristic option = 
         if String.IsNullOrWhiteSpace str then None else Some (str.Trim() |> fn)
         
-    let private whenDecimal (fn : decimal -> Characteristic) (str: string) : Characteristic option = 
+    let private whenDecimal (fn : decimal -> EquiCharacteristic) (str: string) : EquiCharacteristic option = 
         try 
             if String.IsNullOrWhiteSpace str then None else Some (str |> decimal |> fn)
         with
         | _ -> None
 
-    let private lstnut_leaf_instance (parameters : WorkListRow) : Classification = 
+    let private lstnut_leaf_instance (parameters : WorkListRow) : EquiClass = 
         lstnut
-            [ uniclass_code ()
-              uniclass_desc ()
+            [ Equi.uniclass_code ()
+              Equi.uniclass_desc ()
               yield!
                 (List.choose id
                     [ whenNotBlank lstn_transducer_model        parameters.``Transducer Model``
@@ -118,41 +119,39 @@ module EdcTemplate =
         lstn_level_transmitter parameters.``Level Controller Name``
                 installDate    
                 parameters.``Memo Line``
-                [ east_north_common parameters.NGR
-                  aib_reference_equipment_common parameters.``AI2 Equipment Sainum`` parameters.``AI2 Equipment PLI Code``
-                  lstnut_leaf_instance parameters
-                  asset_condition_common installDate.Year
-                ]
-                _no_subordinate_equipment_
                 [ manufacturer parameters.``Controller Manufacturer``
                   model parameters.``Controller Model``
                   serial_number parameters.``Controller Serial Number``
                   construction_year installDate.Year
                   construction_month installDate.Month
                 ]
+                [ east_north_common parameters.NGR
+                  aib_reference_common parameters.``AI2 Equipment Sainum`` parameters.``AI2 Equipment PLI Code``
+                  lstnut_leaf_instance parameters
+                  asset_condition_common installDate.Year
+                ]
+                _no_subordinate_equipment_
 
 
     let makeSYS (parameters : WorkListRow) : System =  
         let sysCode = parameters.``S4 System Code``
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| montoring_system sysCode "EA Event Duration Monitoring"
-                    [ east_north_common parameters.NGR
-                      aib_reference_floc_common (getL5Sainum parameters)
+        Floc.montoring_system sysCode "EA Event Duration Monitoring"
+                    [ Floc.east_north_common parameters.NGR
+                      Floc.aib_reference_common (getL5Sainum parameters)
                       smonsy 
                           [ system_type "EA Overflow Monitoring" 
                           ]
                     ]
-                    _no_assemblies_
+                    Floc._no_assemblies_
                     [ 
                         makeLevelTransmitter parameters
                     ]
                 
     /// Level 4
     let makeRGM (parameters : WorkListRow) : Process = 
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| regulatory_monitoring
-                [ east_north_common parameters.NGR
-                  aib_reference_floc_common (getL4Sainum parameters)
+        Floc.regulatory_monitoring
+                [ Floc.east_north_common parameters.NGR
+                  Floc.aib_reference_common (getL4Sainum parameters)
                 ]
                 [   
                   makeSYS parameters
@@ -160,10 +159,9 @@ module EdcTemplate =
 
     /// Level 3
     let makeLQD (parameters : WorkListRow) : ProcessGroup = 
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| liquid_discharge
-                [ east_north_common parameters.NGR
-                  aib_reference_floc_common (getL3Sainum parameters)
+        Floc.liquid_discharge
+                [ Floc.east_north_common parameters.NGR
+                  Floc.aib_reference_common (getL3Sainum parameters)
                 ]
                 [   
                   makeRGM parameters
@@ -171,10 +169,9 @@ module EdcTemplate =
 
     /// Level 2
     let makeEDC (parameters : WorkListRow) : Function =        
-        locals [startupDateTrafo {| InstallDate = parameters.``Install Date`` |}]
-            <| environmental_discharge 
-                [ east_north_common parameters.NGR
-                  aib_reference_floc_common (getL2Sainum parameters)
+        Floc.environmental_discharge 
+                [ Floc.east_north_common parameters.NGR
+                  Floc.aib_reference_common (getL2Sainum parameters)
                 ]
                 [ 
                     makeLQD parameters

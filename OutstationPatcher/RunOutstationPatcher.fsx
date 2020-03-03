@@ -42,10 +42,6 @@ open System
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\FileTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Emitter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Generate.fs"
-//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase1.fs"
-//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
-//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"
-//#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\PatchCompiler.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Generate.fs"
@@ -64,7 +60,7 @@ open AssetPatch.OutstationPatcher.UxlPatcher
 let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
         WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
-        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"        
+        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"
     }
 
 let aiwOutstationUpgrades01 () = 

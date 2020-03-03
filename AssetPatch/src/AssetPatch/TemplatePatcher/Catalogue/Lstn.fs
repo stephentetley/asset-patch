@@ -12,9 +12,9 @@ module Lstn =
     open AssetPatch.Base.ValuaValue
     open AssetPatch.TemplatePatcher.Base.Template
 
-    //let lstn_level_transmitter (name : string) (installDate: DateTime) (memoLine : string)
-    //            : Classification list -> Equipment list -> EquipmentAttribute list -> Equipment = 
-    //    _equipment name "I" "LSTN" "LSTNUT" installDate memoLine
+    let lstn_level_transmitter (name : string) (startupDate: DateTime) (memoLine : string)
+                : EquipmentAttribute list -> EquiClass list -> Equipment list -> Equipment =
+        _equipment name "I" "LSTN" "LSTNUT" startupDate memoLine
 
 
     /// Class:LSTNUT
