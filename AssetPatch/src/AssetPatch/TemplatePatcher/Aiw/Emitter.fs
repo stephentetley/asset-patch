@@ -27,6 +27,12 @@ module Emitter =
           NewFlocCharacteristics: NewValuaFloc list
         }
 
+        static member Empty () : FlocCreateData = 
+            { NewFuncLocs = []
+              NewFlocClasses = []
+              NewFlocCharacteristics = []
+            }
+
         member x.IsEmpty
             with get () : bool = 
                 x.NewFuncLocs.IsEmpty 

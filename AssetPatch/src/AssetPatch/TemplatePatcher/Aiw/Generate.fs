@@ -43,10 +43,10 @@ module Generate =
     // ************************************************************************
     // Write output
 
-    let writeFlocCreateData1 (directory : string) 
-                                (filePrefix : string) 
-                                (level: int) 
-                                (source : FlocCreateData) : AiwGenerate<unit> =  
+    let private writeFlocCreateData1 (directory : string) 
+                                    (filePrefix : string) 
+                                    (level: int) 
+                                    (source : FlocCreateData) : AiwGenerate<unit> =  
         generate {
             let src = source.GetLevel level
 
