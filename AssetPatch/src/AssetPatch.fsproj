@@ -30,6 +30,7 @@
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\FileTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\Emitter.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Aiw\Generate.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\PatchWriter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\EmitPhase1.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs" />

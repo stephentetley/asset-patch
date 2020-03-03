@@ -15,6 +15,9 @@ module FileTypes =
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.Base.ValuaValue
     open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.ChangeFilePrinter
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
    
     
 
@@ -54,7 +57,8 @@ module FileTypes =
     // Create FuncLoc
 
     type NewFuncLoc = 
-      { FunctionLocation : FuncLocPath
+      { _Level: int
+        FunctionLocation : FuncLocPath
         Description : string
         ObjectType : string
         Category : uint32
@@ -99,12 +103,28 @@ module FileTypes =
                 ; ("PROI_FLOC",     "WBS Element",                      "")
                 ; ("ARBPLFLOC",     "Work center",                      "DEFAULT")
                 ]
-            
+
+
+    let writeNewFuncLocs (source : NewFuncLoc list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.FunctionLocation.ToString()) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = makeChangeFile EntityType.FuncLoc "Asset Patch Create FuncLocs"                                             rows
+                do! liftAction <| fun () -> writeAiwPatchAndVariantHeaders changes outpath
+                return ()
+            }
+
     // ************************************************************************
     // Link FuncLoc
 
 
-    // Note / TODO - this is really a rewrite
+    // Note - obsolete
     type LinkFuncLoc = 
         { FunctionLocation : FuncLocPath
           Description : string
@@ -142,7 +162,8 @@ module FileTypes =
 
 
     type NewClassFloc = 
-        { FuncLoc : FuncLocPath
+        { _Level: int
+          FuncLoc : FuncLocPath
           Class : string
           Status : int
         }
@@ -155,12 +176,13 @@ module FileTypes =
                 ; ("CLSTATUS1",     "Status",                   x.Status.ToString())
                 ]
 
-
+    
     // ************************************************************************
     // ValuaFloc
 
     type NewValuaFloc = 
-        { FuncLoc : FuncLocPath
+        { _Level: int
+          FuncLoc : FuncLocPath
           ClassType : IntegerString
           CharacteristicID : string        
           ValueCount : int

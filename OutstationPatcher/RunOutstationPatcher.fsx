@@ -41,6 +41,7 @@ open System
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Base.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\FileTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Emitter.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Generate.fs"
 //#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase1.fs"
 //#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitPhase2.fs"
 //#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\EmitNewAttributes.fs"

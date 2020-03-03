@@ -1,4 +1,4 @@
-﻿// Copyright (c) Stephen Tetley 2019
+﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
 namespace AssetPatch.TemplatePatcher.Aiw
@@ -9,9 +9,12 @@ namespace AssetPatch.TemplatePatcher.Aiw
 module Emitter =
     
     open System.IO
-    
+        
+    open AssetPatch.Base.FuncLocPath
     open AssetPatch.Base.Aiw.ChangeFile
     open AssetPatch.TemplatePatcher.Base.Hierarchy
+    open AssetPatch.TemplatePatcher.Base.GenerateMonad
+    open AssetPatch.TemplatePatcher.Aiw.Base
     open AssetPatch.TemplatePatcher.Aiw.FileTypes
 
 
@@ -50,6 +53,12 @@ module Emitter =
             { NewFuncLocs               = source |> List.map (fun x -> x.NewFuncLocs) |> List.concat
               NewFlocClasses            = source |> List.map (fun x -> x.NewFlocClasses) |> List.concat
               NewFlocCharacteristics    = source |> List.map (fun x -> x.NewFlocCharacteristics) |> List.concat
+            }
+
+        member x.GetLevel (level: int): FlocCreateData = 
+            { NewFuncLocs               = x.NewFuncLocs |> List.filter (fun x -> x._Level = level)
+              NewFlocClasses            = x.NewFlocClasses |> List.filter (fun x -> x._Level = level) 
+              NewFlocCharacteristics    = x.NewFlocCharacteristics |> List.filter (fun x -> x._Level = level) 
             }
 
     // Note cannot have two equipments with the same name at the same floc
@@ -98,7 +107,7 @@ module Emitter =
     
     
     /// Count is deduced by caller
-    let newValuaEqui (count: int) (source: S4EquiClassification) : NewValuaEqui = 
+    let private makeNewValuaEqui (count: int) (source: S4EquiClassification) : NewValuaEqui = 
         { EquipmentId = source.EquiId
           ClassType = IntegerString.OfString "002"
           CharacteristicID = source.CharName
@@ -106,9 +115,180 @@ module Emitter =
           Value = source.CharValue
         }
 
-    let newClassEqui (source : S4EquiClassification) : NewClassEqui = 
+    let private makeNewClassEqui (source : S4EquiClassification) : NewClassEqui = 
         { EquipmentId = source.EquiId
           Class = source.ClassName
           Status = 1
         }
 
+    let makeEquiMultilingualText (equiId: string)
+                                (description: string)
+                                (longText : string) : NewEqmltxt = 
+        { EquipmentId = equiId
+          Description = description
+          LongText = longText
+          MoreTextExists = false
+        }
+
+    // Not recursive - source might have subordinate equipment
+    let private makeNewEqui (source : S4Equipment) : NewEqui = 
+        let commonProps : CommonProperties = 
+            { CompanyCode = source.FlocProperties.CompanyCode 
+              ControllingArea = source.FlocProperties.ControllingArea 
+              PlantCode = source.FlocProperties.MaintenancePlant
+              UserStatus = source.FlocProperties.ObjectStatus
+            }
+        let startupDate = source.FlocProperties.StartupDate
+        { Description = source.Description
+          FuncLoc = source.FuncLoc
+          Category = source.Category
+          ObjectType = source.ObjectType
+          Manufacturer = 
+                Option.defaultValue "TO BE DETERMINED" source.Manufacturer
+          Model = Option.defaultValue "TO BE DETERMINED" source.Model
+          SerialNumber = Option.defaultValue "" source.SerialNumber
+          StartupDate = source.FlocProperties.StartupDate
+          ConstructionYear = 
+                    Option.defaultValue (uint16 startupDate.Year) source.ConstructionYear
+          ConstructionMonth = 
+                Option.defaultValue (uint8 startupDate.Month) source.ConstructionMonth
+          MaintenancePlant = source.FlocProperties.MaintenancePlant
+          Currency = source.FlocProperties.Currency
+          CommonProps = commonProps
+        }
+
+    /// Recursive version
+    /// TODO - This is not adequate, we will have to stratify subequipment instead
+    let makeEquiDataWithKidsPhase1 (source : S4Equipment) : NewEqui list = 
+        let rec work kids cont = 
+            match kids with
+            | [] -> cont []
+            | (x :: xs) -> 
+                let v1 = makeNewEqui x 
+                work kids (fun vs -> cont (v1 :: vs))
+        let equi = makeNewEqui source             
+        work source.SuboridinateEquipment (fun xs -> (equi :: xs))
+
+
+    let private equipmentToEquiCreateData (source : S4Equipment) : EquiCreateData = 
+        { NewEquipment = makeEquiDataWithKidsPhase1 source
+        }
+
+
+    let private groupForEquiCharacteristics (classifications : S4EquiClassification list) : (S4EquiClassification list) list = 
+        classifications
+            |> List.groupBy (fun x -> x.EquiId + "!!" + x.ClassName + "!!" + x.CharName)
+            |> List.map snd
+
+    let private equipmentToEquiCreateClassifactions (source : S4Equipment) : EquiCreateClassifactions =         
+        let makeGrouped (xs : S4EquiClassification list) : NewValuaEqui list = 
+            xs |> List.mapi (fun i x -> makeNewValuaEqui (i+1) x)
+
+        let classes : NewClassEqui list = List.map makeNewClassEqui source.Classifications
+        let characteristics : NewValuaEqui list = 
+            source.Classifications 
+                |> groupForEquiCharacteristics 
+                |> List.map makeGrouped 
+                |> List.concat
+
+        { NewEquiClasses = classes
+          NewEquiCharacteristics = characteristics
+        }
+
+    // ************************************************************************
+    // Translation - functional location
+
+    /// Count is deduced by caller
+    let private makeNewValuaFloc(count: int) (source: S4FlocClassification) : NewValuaFloc = 
+        { _Level = source.FuncLoc.Level
+          FuncLoc = source.FuncLoc
+          ClassType = IntegerString.OfString "002"
+          CharacteristicID = source.CharName
+          ValueCount = count
+          Value = source.CharValue
+        }
+
+    let private makeNewClassFloc (source : S4FlocClassification) : NewClassFloc = 
+        { _Level = source.FuncLoc.Level
+          FuncLoc = source.FuncLoc
+          Class = source.ClassName
+          Status = 1
+        }
+
+
+
+    let makeNewFuncLoc (path : FuncLocPath) 
+                        (props : FuncLocProperties)
+                        (description : string) 
+                        (objectType : string) : NewFuncLoc = 
+        let commonProps : CommonProperties = 
+            { ControllingArea = props.ControllingArea
+              CompanyCode = props.CompanyCode
+              PlantCode = props.MaintenancePlant
+              UserStatus = props.ObjectStatus }
+
+        { _Level = path.Level
+          FunctionLocation = path
+          Description = description
+          ObjectType = objectType
+          Category = uint32 path.Level
+          ObjectStatus = props.ObjectStatus
+          StartupDate = props.StartupDate
+          StructureIndicator = props.StructureIndicator
+          CommonProps = commonProps
+        }
+
+    let private groupForFlocCharacteristics (classifications : S4FlocClassification list) : (S4FlocClassification list) list = 
+        classifications
+            |> List.groupBy (fun x -> x.FuncLoc.ToString() + "!!" + x.ClassName + "!!" + x.CharName)
+            |> List.map snd
+
+    let private funclocToFlocCreateData (path : FuncLocPath) 
+                                        (flocProps : FuncLocProperties)
+                                        (description : string) 
+                                        (objectType : string)
+                                        (classifications : S4FlocClassification list) : FlocCreateData = 
+        
+        let makeGrouped (xs : S4FlocClassification list) : NewValuaFloc list = 
+            xs |> List.mapi (fun i x -> makeNewValuaFloc (i+1) x)
+
+        let floc = makeNewFuncLoc path flocProps description objectType
+        let classes : NewClassFloc list = List.map makeNewClassFloc classifications 
+        let characteristics : NewValuaFloc list = 
+            classifications 
+                |> groupForFlocCharacteristics 
+                |> List.map makeGrouped 
+                |> List.concat
+        { NewFuncLocs = [floc]
+          NewFlocClasses = classes
+          NewFlocCharacteristics = characteristics
+        }
+
+    // ************************************************************************
+    // User API
+
+    let equipmentEmitEquiCreateData (source : S4Equipment) : AiwGenerate<EquiCreateData> = 
+        generate { 
+            return equipmentToEquiCreateData source
+        }
+
+    let equipmentListEmitEquiCreateData (source : S4Equipment list) : AiwGenerate<EquiCreateData> = 
+        mapM equipmentEmitEquiCreateData source |>> EquiCreateData.Concat
+
+    /// This creates all levels...
+    let functionalLocationEmitMmopCreate (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
+        let create1 (src : S4FunctionalLocation) = 
+            funclocToFlocCreateData src.FuncLoc src.FlocProperties 
+                                    src.Description src.ObjectType src.Classifications
+             
+        let rec work xs cont = 
+            match xs with 
+            | [] -> cont []
+            | x :: rs -> 
+                let v1 = create1 x 
+                work rs (fun vs -> cont (v1 :: vs))
+                
+        let d1 = create1 source
+        let ds = work source.SubFlocs (fun xs -> xs)
+        FlocCreateData.Concat (d1 :: ds) |> mreturn
+        

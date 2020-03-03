@@ -8,11 +8,14 @@ namespace AssetPatch.TemplatePatcher.Aiw
 
 module Base =
     
+    open System
     open System.IO
     
     open AssetPatch.Base
     open AssetPatch.Base.Common
     open AssetPatch.Base.FuncLocPath
+    open AssetPatch.Base.Aiw.ChangeFile
+    open AssetPatch.Base.Aiw.Acronyms
     open AssetPatch.Base.Aiw.ChangeFileParser
     open AssetPatch.TemplatePatcher.Base.GenerateMonad
 
@@ -69,9 +72,14 @@ module Base =
         { UserName: string 
           EquiIndices: EquiMap option }
 
+    type ChangeRequestProperties = 
+        { Requester: string
+        }
+
     type AiwGenerate<'a> = GenerateMonad<'a, AiwEnv>
 
-
+    let askChangeRequestProperties() : AiwGenerate<ChangeRequestProperties> = 
+        asksUserEnv <| fun env -> { Requester = env.UserName }
     
     let getEquiNumber (description: string) (funcLoc: FuncLocPath) : AiwGenerate<string> = 
         generate {
@@ -82,4 +90,44 @@ module Base =
                 match tryFindEquiNum description funcLoc equiMap with
                  | None -> return! throwError (sprintf "Missing equipment - %s '%s'" (funcLoc.ToString()) description)
                  | Some a -> return a
+        }
+
+
+    let private makeHeader (entityType : EntityType) 
+                            (user : string) 
+                            (variantName : string)
+                            (timestamp : DateTime) : AiwGenerate<FileHeader> = 
+        generate {
+            return { 
+                FileType = Upload 
+                DataModel = U1
+                EntityType = entityType
+                Variant = variantName
+                User = user
+                DateTime = timestamp 
+            }
+        }
+
+    /// At least one row exists 
+    let private getHeaderRow (rows : AssocList<string, string> list) : AiwGenerate<HeaderRow> = 
+        match rows with
+        | [] -> throwError "getHeaderRow - empty list"
+        | row1 :: _ -> row1 |> AssocList.keys |> HeaderRow |> mreturn
+
+
+    let makeChangeFile (entityType : EntityType) 
+                        (variantName : string)
+                        (rows : AssocList<string, string> list) : AiwGenerate<AiwChangeFile> = 
+        generate {
+            let! user = asksUserEnv (fun x -> x.UserName)
+            let timestamp = DateTime.Now
+            let! headerRow = getHeaderRow rows
+            let! header = makeHeader entityType user variantName timestamp 
+            return { 
+                Header = header
+                Selection = None
+                HeaderDescriptions = getHeaderDescriptions entityType headerRow |> Some
+                HeaderRow = headerRow
+                DataRows = List.map DataRow.FromAssocList rows 
+            }          
         }
