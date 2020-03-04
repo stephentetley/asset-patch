@@ -299,13 +299,13 @@ module Emitter =
         mapM equiEmitEquiCreateData source |>> EquiCreateData.Concat
 
 
-    let equiEmitEquiCreateClassifaction (source : S4Equipment) : AiwGenerate<EquiCreateClassifactions> = 
+    let equiEmitEquiCreateClassifactions (source : S4Equipment) : AiwGenerate<EquiCreateClassifactions> = 
         generate { 
             return equipmentToEquiCreateClassifactions source
         }
 
     let equiListEquiCreateClassifactions (source : S4Equipment list) : AiwGenerate<EquiCreateClassifactions> = 
-        mapM equiEmitEquiCreateClassifaction source |>> EquiCreateClassifactions.Concat
+        mapM equiEmitEquiCreateClassifactions source |>> EquiCreateClassifactions.Concat
 
     /// This creates all levels...
     let flocEmitFlocCreateData (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 

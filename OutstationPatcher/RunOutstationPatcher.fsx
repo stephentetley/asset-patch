@@ -64,16 +64,22 @@ let aiwOptions : AiwOptions =
     }
 
 let aiwOutstationUpgrades01 () = 
-    runAiwOutstationPatcherPhase1 aiwOptions 
+    runAiwOutstationPatcherCreateFlocPhase aiwOptions 
+
+    
+let aiwOutstationFlocPatches01 () = 
+    runAiwOutstationPatcherCreateFlocPhase aiwOptions 
+    
+let aiwOutstationEquiPatchesPhase01 () = 
+    runAiwOutstationPatcherCreateEquiPhase aiwOptions
 
 
-//// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
-//// once it has been activated and downloaded...
-//// Note - parsing the equi file is currently far from robust.
-//let aiwOutstationUpgrades02 () = 
-//    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
-//    runAiwOutstationPatcherPhase2 aiwOptions equiFile  
-
+// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
+// once it has been activated and downloaded...
+// Note - parsing the equi file is currently far from robust.
+let aiwOutstationEquiPatchesPhase02 () = 
+    let equiFile = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\workings\equi_file_download_FOR_INDEXING_jan30_the_rest.txt"
+    runAiwOutstationPatcherAnnotateEquiPhase aiwOptions equiFile
 
 
 let uxlOptions : UxlOptions = 

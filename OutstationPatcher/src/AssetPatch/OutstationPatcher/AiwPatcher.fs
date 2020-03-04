@@ -29,17 +29,17 @@ module AiwPatcher =
     
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private phase1ProcessRow (path : FuncLocPath, row : WorkListRow) : AiwGenerate<FlocCreateData> = 
+    let private flocCreateProcessRow (path : FuncLocPath, row : WorkListRow) : AiwGenerate<FlocCreateData> = 
         match path.Level with
-        | 1 -> applyFunction (makeCAA row) path     >>= functionalLocationEmitMmopCreate
-        | 2 -> applyProcessGroup (makeNET row) path >>= functionalLocationEmitMmopCreate
-        | 3 -> applyProcess (makeTEL row) path      >>= functionalLocationEmitMmopCreate
-        | 4 -> applySystem (makeSYS row) path       >>= functionalLocationEmitMmopCreate
+        | 1 -> applyFunction        (makeCAA row) path >>= flocEmitFlocCreateData
+        | 2 -> applyProcessGroup    (makeNET row) path >>= flocEmitFlocCreateData
+        | 3 -> applyProcess         (makeTEL row) path >>= flocEmitFlocCreateData
+        | 4 -> applySystem          (makeSYS row) path >>= flocEmitFlocCreateData
         | 5 -> mreturn (FlocCreateData.Empty ())
 
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
-    let runAiwOutstationPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
+    let runAiwOutstationPatcherCreateFlocPhase (opts : AiwOptions) : Result<unit, string> = 
         let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
         runGenerate userEnv
             <| generate { 
@@ -48,44 +48,79 @@ module AiwPatcher =
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 
                         |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
                 
-                let! flocCreateData = mapM phase1ProcessRow worklist |>> FlocCreateData.Concat               
+                let! flocCreateData = mapM flocCreateProcessRow worklist |>> FlocCreateData.Concat               
                 do! writeFlocCreateData opts.OutputDirectory "outstation_patch" flocCreateData
                 return ()
             }
 
-    //let private phase2ProcessRow (path : FuncLocPath, row : WorkListRow) : AiwCompilerMonad<Phase2Data> = 
-    //    match path.Level with
-    //    | 1 -> applyFlocTemplate1 (path, row) makeCAA >>= functionEmitPhase2
-    //    | 2 -> applyFlocTemplate1 (path, row) makeNET >>= processGroupEmitPhase2
-    //    | 3 -> applyFlocTemplate1 (path, row) makeTEL >>= processEmitPhase2
-    //    | 4 -> applyFlocTemplate1 (path, row) makeSYS >>= systemEmitPhase2
-    //    | 5 -> 
-    //        applyFlocTemplate1 (path, row) makeTelemetryOustation >>= fun eq1 -> 
-    //        applyFlocTemplate1 (path, row) makeModem >>= fun eq2 ->     
-    //        equipmentEmitPhase2 eq1 >>= fun d1 -> 
-    //        equipmentEmitPhase2 eq2 >>= fun d2 -> 
-    //        mreturn (Phase2Data.Concat [d1; d2])
+    // ************************************************************************
+    // Equi Create
 
-    //    | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
+    let private equiCreateProcessRow (path : FuncLocPath, row : WorkListRow) : AiwGenerate<EquiCreateData> = 
+        match path.Level with
+        | 1 -> applyFunction        (makeCAA row) path >>= flocEmitEquiCreateData
+        | 2 -> applyProcessGroup    (makeNET row) path >>= flocEmitEquiCreateData
+        | 3 -> applyProcess         (makeTEL row) path >>= flocEmitEquiCreateData
+        | 4 -> applySystem          (makeSYS row) path >>= flocEmitEquiCreateData
+        | 5 -> 
+            applyEquipment (makeTelemetryOustation row) None path >>= fun eq1 -> 
+            applyEquipment (makeModem row)              None path >>= fun eq2 ->     
+            equiEmitEquiCreateData eq1 >>= fun d1 -> 
+            equiEmitEquiCreateData eq2 >>= fun d2 -> 
+            mreturn (EquiCreateData.Concat [d1; d2])
+
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
+
+    let runAiwOutstationPatcherCreateEquiPhase (opts : AiwOptions) : Result<unit, string> = 
+        let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
+        runGenerate userEnv
+            <| generate { 
+                do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
+                let! worklist = 
+                    liftAction (fun _ -> readWorkList opts.WorkListPath) 
+                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
+                
+                let! equiCreateData = mapM equiCreateProcessRow worklist |>> EquiCreateData.Concat               
+                do! writeEquiCreateData opts.OutputDirectory "outstation_patch" equiCreateData
+                return ()
+            }
+
+    // ************************************************************************
+    // Equi Classifications
 
 
-    ///// Phase 2 materializes ClassEqui and ValuaEqui patches
-    ///// Equipment download must have *EQUI, TXTMI & TPLN_EILO
-    //let runAiwOutstationPatcherPhase2 (opts : AiwOptions) 
-    //                                    (equipmentDownloadPath : string)  : Result<unit, string> = 
-    //    match readEquiDownload equipmentDownloadPath with
-    //    | Error msg -> Error msg
-    //    | Ok equiMap -> 
-    //        let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = Some equiMap }
-    //        runCompiler userEnv 
-    //            <| compile { 
-    //                do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
-    //                let! worklist = 
-    //                    liftAction (fun _ -> readWorkList opts.WorkListPath)
-    //                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
-    //                let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
-    //                do! writePhase2Data opts.OutputDirectory "outstation_patch" phase2Data
-    //                return ()
-    //            }
+    let private equiCreateClassifactionsProcessRow (row : WorkListRow) : AiwGenerate<EquiCreateClassifactions> = 
+        let path = FuncLocPath.Create row.``S4 Root FuncLoc``
+        match path.Level with
+        | 1 -> applyFunction        (makeCAA row) path >>= flocEmitEquiCreateClassifactions
+        | 2 -> applyProcessGroup    (makeNET row) path >>= flocEmitEquiCreateClassifactions
+        | 3 -> applyProcess         (makeTEL row) path >>= flocEmitEquiCreateClassifactions
+        | 4 -> applySystem          (makeSYS row) path >>= flocEmitEquiCreateClassifactions
+        | x when x > 4 && x < 8 -> 
+            applyEquipment (makeTelemetryOustation row) None path >>= fun eq1 -> 
+            applyEquipment (makeModem row)              None path >>= fun eq2 ->     
+            equiEmitEquiCreateClassifactions eq1 >>= fun d1 -> 
+            equiEmitEquiCreateClassifactions eq2 >>= fun d2 -> 
+            mreturn (EquiCreateClassifactions.Concat [d1; d2])
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
+
+
+    /// Phase 2 generates ClassEqui and ValuaEqui patches 
+    /// with materialized Equipment numbers
+    let runAiwOutstationPatcherAnnotateEquiPhase (opts : AiwOptions) 
+                                                (equipmentDownloadPath : string) : Result<unit, string> = 
+        match readEquiDownload equipmentDownloadPath with
+        | Error msg -> Error msg
+        | Ok equiMap -> 
+            let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = Some equiMap }
+            runGenerate userEnv 
+                <| generate {
+                    do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
+                    let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
+                    let! classData = mapM equiCreateClassifactionsProcessRow worklist |>> EquiCreateClassifactions.Concat
+                    do! writeEquiCreateClassifactions opts.OutputDirectory "edc_patch" classData
+                    return ()
+                }
+
 
     

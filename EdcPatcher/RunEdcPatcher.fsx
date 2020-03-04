@@ -72,11 +72,11 @@ let aiwEdcEquiPatchesPhase01 () =
     runAiwEdcPatcherCreateEquiPhase aiwOptions
 
 
-//// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
-//// once it has been activated and downloaded...
-//let aiwEdcPatches02 () = 
-//    let equiFile = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\env_discharge_worklist1_mocked_download.txt"
-//    runAiwEdcPatcherPhase2 aiwOptions equiFile
+// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 
+// once it has been activated and downloaded...
+let aiwEdcEquiPatchesPhase02 () = 
+    let equiFile = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\env_discharge_worklist1_mocked_download.txt"
+    runAiwEdcPatcherAnnotateEquiPhase aiwOptions equiFile
 
 
 let uxlOptions : UxlOptions = 
