@@ -65,8 +65,11 @@ let aiwOptions : AiwOptions =
       OutputDirectory   = @"G:\work\Projects\assets\asset_patch\env_discharge_2019\qa\patch_output"
     }
 
-let aiwEdcPatches01 () = 
-    runAiwEdcPatcherPhase1 aiwOptions 
+let aiwEdcFlocPatches01 () = 
+    runAiwEdcPatcherCreateFlocPhase aiwOptions 
+
+let aiwEdcEquiPatchesPhase01 () = 
+    runAiwEdcPatcherCreateEquiPhase aiwOptions
 
 
 //// Generate ClassEqui, ValuaEqui and Eqmltxt files for Equipment 

@@ -27,32 +27,62 @@ module AiwPatcher =
           WorkListPath : string
           }
 
-    
+    // ************************************************************************
+    // Floc Create
+
     /// Note - we need to be able to create floc patches at different
     /// levels in the tree (according to what already exists).
-    let private phase1ProcessRow (row : WorkListRow) : AiwGenerate<FlocCreateData> = 
+    let private flocCreateProcessRow (row : WorkListRow) : AiwGenerate<FlocCreateData> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFunction        (makeEDC row) rootPath >>= functionalLocationEmitMmopCreate
-        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= functionalLocationEmitMmopCreate
-        | 3 -> applyProcess         (makeRGM row) rootPath >>= functionalLocationEmitMmopCreate
-        | 4 -> applySystem          (makeSYS row) rootPath >>= functionalLocationEmitMmopCreate
+        | 1 -> applyFunction        (makeEDC row) rootPath >>= functionalLocationEmitFlocCreateData
+        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= functionalLocationEmitFlocCreateData
+        | 3 -> applyProcess         (makeRGM row) rootPath >>= functionalLocationEmitFlocCreateData
+        | 4 -> applySystem          (makeSYS row) rootPath >>= functionalLocationEmitFlocCreateData
         | x when x > 4 && x < 8 -> mreturn (FlocCreateData.Empty ())
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
 
-    let runAiwEdcPatcherPhase1 (opts : AiwOptions) : Result<unit, string> = 
+    let runAiwEdcPatcherCreateFlocPhase (opts : AiwOptions) : Result<unit, string> = 
         let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
         runGenerate userEnv
             <| generate { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
                 let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath                
-                let! flocCreateData = mapM phase1ProcessRow worklist |>> FlocCreateData.Concat               
+                let! flocCreateData = mapM flocCreateProcessRow worklist |>> FlocCreateData.Concat               
                 do! writeFlocCreateData opts.OutputDirectory "edc_patch" flocCreateData                
                 return ()
             }
 
+    // ************************************************************************
+    // Equi Create
+
+    /// Note - we need to be able to create floc patches at different
+    /// levels in the tree (according to what already exists).
+    let private equiCreateProcessRow (row : WorkListRow) : AiwGenerate<EquiCreateData> = 
+        let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
+        match rootPath.Level with
+        | 1 -> applyFunction        (makeEDC row) rootPath >>= functionalLocationEmitEquiCreateData
+        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= functionalLocationEmitEquiCreateData
+        | 3 -> applyProcess         (makeRGM row) rootPath >>= functionalLocationEmitEquiCreateData
+        | 4 -> applySystem          (makeSYS row) rootPath >>= functionalLocationEmitEquiCreateData
+        | x when x > 4 && x < 8 -> 
+            applyEquipment (makeLevelTransmitter row) None rootPath >>= equipmentEmitEquiCreateData
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
+
+
+
+    let runAiwEdcPatcherCreateEquiPhase (opts : AiwOptions) : Result<unit, string> = 
+        let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = None }
+        runGenerate userEnv
+            <| generate { 
+                do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
+                let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath                
+                let! equiCreateData = mapM equiCreateProcessRow worklist |>> EquiCreateData.Concat               
+                do! writeEquiCreateData opts.OutputDirectory "edc_patch" equiCreateData                
+                return ()
+            }
 
     //let private phase2ProcessRow (row : WorkListRow) : AiwCompilerMonad<Phase2Data> = 
     //    let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``

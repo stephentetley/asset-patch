@@ -69,7 +69,12 @@ module FileTypes =
       }
         member x.Level with get () : int = x.FunctionLocation.Level
 
-        member x.ToAssocs() : AssocList<string, string> =              
+        member x.ToAssocs() : AssocList<string, string> =   
+            let parentFloc = 
+                match parent x.FunctionLocation with
+                | None -> ""
+                | Some f0 -> f0.ToString()
+
             makeAssocs
                 [ ("ABCKZFLOC",     "ABC Indicator",                    "")
                 ; ("GSBE_FLOC",     "Business Area",                    "")
@@ -99,7 +104,7 @@ module FileTypes =
                 ; ("USWO_FLOC",     "Status without status number",     "")
                 ; ("TPLKZ_FLC",     "Structure indicator",              x.StructureIndicator)
                 ; ("TPLMA1",        "Superior FL for CR Processing",    "")
-                ; ("TPLMA",         "Superior FunctLoc",                "")
+                ; ("TPLMA",         "Superior FunctLoc",                parentFloc)
                 ; ("PROI_FLOC",     "WBS Element",                      "")
                 ; ("ARBPLFLOC",     "Work center",                      "DEFAULT")
                 ]
@@ -115,46 +120,12 @@ module FileTypes =
                     source
                         |> List.sortBy (fun row -> row.FunctionLocation.ToString()) 
                         |> List.map (fun x -> x.ToAssocs())  
-                let! changes = makeChangeFile EntityType.FuncLoc "Asset Patch Create FuncLocs"                                             rows
-                do! liftAction <| fun () -> writeAiwPatchAndVariantHeaders changes outpath
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create FuncLocs" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
                 return ()
             }
 
-    // ************************************************************************
-    // Link FuncLoc
-
-
-    // Note - obsolete
-    type LinkFuncLoc = 
-        { FunctionLocation : FuncLocPath
-          Description : string
-          ObjectType : string
-          Category : uint32
-          ObjectStatus : string
-          StartupDate : DateTime
-          StructureIndicator : string
-          InstallationAllowed : bool
-        }
-
-        member x.ToAssocs() : AssocList<string, string> = 
-            let boolValue bool = if bool then "X" else ""
-            let parent1 = 
-                match x.FunctionLocation |> parent with
-                | None -> ""
-                | Some path -> path.ToString()
-            makeAssocs
-                [ ("FUNCLOC",       "Function Location",                x.FunctionLocation.ToString())
-                ; ("TXTMI",         "Description (medium text)",        x.Description)
-                ; ("FLTYP",         "FuncLocCategory",                  x.Category.ToString())
-                ; ("IEQUI",         "Installation allowed",             boolValue x.InstallationAllowed)
-                ; ("OBJTYFLOC",     "Object Type",                      "")
-                ; ("EQART",         "Object Type",                      x.ObjectType)
-                ; ("INBDT",         "Start-up date",                    x.StartupDate |> showS4Date)
-                ; ("USTW_FLOC",     "Status of an object",              x.ObjectStatus)
-                ; ("TPLKZ_FLC",     "Structure indicator",              x.StructureIndicator)
-                ; ("TPLMA1",        "Superior FL for CR Processing",    parent1)
-                ; ("TPLMA",         "Superior FunctLoc",                parent1)
-                ]
     
 
     // ************************************************************************
@@ -176,7 +147,23 @@ module FileTypes =
                 ; ("CLSTATUS1",     "Status",                   x.Status.ToString())
                 ]
 
-    
+    let writeNewClassFlocs (source : NewClassFloc list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.FuncLoc.ToString()) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create ClassFlocs" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
+                return ()
+            }
+
+
     // ************************************************************************
     // ValuaFloc
 
@@ -209,7 +196,21 @@ module FileTypes =
                 ; ("ATFLB",         "Value to",                         atflb)
                 ]
 
-
+    let writeNewValuaFlocs (source : NewValuaFloc list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.FuncLoc.ToString()) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create ValuaFlocs" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
+                return ()
+            }
 
     // ************************************************************************
     // Equi
@@ -249,6 +250,22 @@ module FileTypes =
                 ; ("INBDT",         "Start-up date",                    x.StartupDate |> showS4Date)
                 ; ("USTW_EQUI",     "Status of an object",              "UCON")
                 ]
+
+    let writeNewEquis (source : NewEqui list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.FuncLoc.ToString()) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create Equis" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
+                return ()
+            }
 
     // ************************************************************************
     // ClassEqui

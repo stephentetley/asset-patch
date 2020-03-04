@@ -43,6 +43,9 @@ module Generate =
     // ************************************************************************
     // Write output
 
+
+    // FlocCreateData
+
     let private writeFlocCreateData1 (directory : string) 
                                     (filePrefix : string) 
                                     (level: int) 
@@ -51,20 +54,16 @@ module Generate =
             let src = source.GetLevel level
 
             // FuncLocs
-            let! outpath01 = genFileName directory filePrefix (sprintf "level_%i_create_flocs" level)
+            let! outpath01 = genFileName directory filePrefix (sprintf "level%i_step1_create_flocs" level)
             do! writeNewFuncLocs src.NewFuncLocs outpath01
-
-            // Multilingual text
-            //let! outpath02 = genFileName directory filePrefix (sprintf "level_%i_multilingual_text" level)
-            //do!liftResult <|  writeFlocMultilingualText mmopData.NewFlocMultilingualTexts outPath03
-
+           
             // Classes
-            //let! outpath03 = genFileName directory filePrefix (sprintf "level_%i_classes" level)
-            //do! liftResult <| writeFlocClassification mmopData.NewFlocClassifications outPath04
+            let! outpath02 = genFileName directory filePrefix (sprintf "level%i_step2_classes" level)
+            do! writeNewClassFlocs src.NewFlocClasses outpath02
         
             // Characteristics
-            //let! outpath04 = genFileName directory filePrefix (sprintf "level_%i_characteristics" level)
-
+            let! outpath03 = genFileName directory filePrefix (sprintf "level%i_step3_characteristics" level)
+            do! writeNewValuaFlocs src.NewFlocCharacteristics outpath03
             return ()
         }
 
@@ -75,9 +74,37 @@ module Generate =
         if source.IsEmpty then
             mreturn ()
         else            
-            let mmopData = source.RemoveDups()
             generate {
+                let source1 = source.RemoveDups()
                 let! directory1 = createSubfolder directory "01_create_flocs"
-                do! forMz [1..8] (fun i -> writeFlocCreateData1 directory1 filePrefix i source) 
+                do! forMz [1..8] (fun i -> writeFlocCreateData1 directory1 filePrefix i source1) 
+                return ()
+            }
+
+    // EquiCreateData
+
+    let private writeEquiCreateData1 (directory : string) 
+                                        (filePrefix : string) 
+                                        (source : EquiCreateData) : AiwGenerate<unit> =  
+        generate {
+                
+        
+            // Equi
+            let! outpath01 = genFileName directory filePrefix "create_equi"
+            do! writeNewEquis source.NewEquipment outpath01
+
+            return()
+        }
+
+    let writeEquiCreateData (directory : string) 
+                            (filePrefix : string) 
+                            (source : EquiCreateData) : AiwGenerate<unit> =         
+        if source.IsEmpty then
+            mreturn ()
+        else            
+            let source1 = source.RemoveDups()
+            generate {
+                let! directory1 = createSubfolder directory "02_create_equi"
+                do! writeEquiCreateData1 directory1 filePrefix source1
                 return ()
             }

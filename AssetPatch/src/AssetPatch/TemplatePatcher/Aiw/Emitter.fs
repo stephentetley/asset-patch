@@ -71,6 +71,10 @@ module Emitter =
     type EquiCreateData =
         { NewEquipment: NewEqui list }
         
+        static member Empty () : EquiCreateData = 
+            { NewEquipment = []
+            }
+
         member x.IsEmpty
             with get () : bool = x.NewEquipment.IsEmpty 
 
@@ -85,6 +89,11 @@ module Emitter =
         { NewEquiClasses: NewClassEqui list
           NewEquiCharacteristics: NewValuaEqui list
         }
+
+        static member Empty () : EquiCreateClassifactions = 
+            { NewEquiClasses = []
+              NewEquiCharacteristics = []
+            }
 
         member x.IsEmpty
             with get () : bool = 
@@ -166,12 +175,13 @@ module Emitter =
     /// Recursive version
     /// TODO - This is not adequate, we will have to stratify subequipment instead
     let makeEquiDataWithKidsPhase1 (source : S4Equipment) : NewEqui list = 
-        let rec work kids cont = 
-            match kids with
+        let rec work xs cont = 
+            match xs with
             | [] -> cont []
-            | (x :: xs) -> 
+            | (x :: rs) -> 
                 let v1 = makeNewEqui x 
-                work kids (fun vs -> cont (v1 :: vs))
+                let kids = x.SuboridinateEquipment
+                work (rs @ kids) (fun vs -> cont (v1 :: vs))
         let equi = makeNewEqui source             
         work source.SuboridinateEquipment (fun xs -> (equi :: xs))
 
@@ -282,7 +292,7 @@ module Emitter =
         mapM equipmentEmitEquiCreateData source |>> EquiCreateData.Concat
 
     /// This creates all levels...
-    let functionalLocationEmitMmopCreate (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
+    let functionalLocationEmitFlocCreateData (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
         let create1 (src : S4FunctionalLocation) = 
             funclocToFlocCreateData src.FuncLoc src.FlocProperties 
                                     src.Description src.ObjectType src.Classifications
@@ -292,9 +302,28 @@ module Emitter =
             | [] -> cont []
             | x :: rs -> 
                 let v1 = create1 x 
-                work rs (fun vs -> cont (v1 :: vs))
+                let kids = x.SubFlocs
+                work (kids @ rs) (fun vs -> cont (v1 :: vs))
                 
         let d1 = create1 source
         let ds = work source.SubFlocs (fun xs -> xs)
         FlocCreateData.Concat (d1 :: ds) |> mreturn
+        
+
+    /// This creates all levels...
+    let functionalLocationEmitEquiCreateData (source : S4FunctionalLocation) : AiwGenerate<EquiCreateData> = 
+        let create1 (src : S4FunctionalLocation) : EquiCreateData list = 
+            List.map equipmentToEquiCreateData src.Equipment
+             
+        let rec work xs cont = 
+            match xs with 
+            | [] -> cont []
+            | x :: rs -> 
+                let equis1 = create1 x 
+                let kids = x.SubFlocs
+                work (kids @ rs) (fun vs -> cont (equis1 @ vs))
+                
+        let ds1 = create1 source
+        let ds = work source.SubFlocs (fun xs -> xs)
+        EquiCreateData.Concat (ds1 @ ds) |> mreturn
         
