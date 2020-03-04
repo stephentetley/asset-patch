@@ -1,6 +1,7 @@
 ﻿#r "netstandard"
 #r "System.Xml.Linq"
 #r "System.Text.Encoding.dll"
+open System
 
 #I @"C:\Users\stephen\.nuget\packages\FParsec\1.0.4-rc3\lib\netstandard1.6"
 #r "FParsec"
@@ -33,21 +34,23 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\FileTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Emitter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\Generate.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Aiw\GenerateAttributes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Generate.fs"
+#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\GenerateAttributes.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Equi.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Lstn.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Smon.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Netw.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Pode.fs"
-#load "src\AssetPatch\AddAttributesPatcher\AiwAddAttributesPatcher.fs"
 open AssetPatch.TemplatePatcher.Base.Template
 open AssetPatch.TemplatePatcher.Catalogue.Equi
 open AssetPatch.TemplatePatcher.Catalogue.Netw
 open AssetPatch.TemplatePatcher.Catalogue.Pode
-open AssetPatch.AddAttributesPatcher.AiwAddAttributesPatcher
+open AssetPatch.TemplatePatcher.Aiw.GenerateAttributes
+open AssetPatch.TemplatePatcher.Uxl.GenerateAttributes
 
 // This patcher is a bit more general than the other ones
     
@@ -74,7 +77,7 @@ type InputRow = InputTable.Row
 let inputRows () : InputRow list  = (new InputTable()).Rows |> Seq.toList
 
 
-let demo01() = 
+let aiwAttrs01() = 
     let opts : AiwOptions = 
         { UserName = "TETLEYS"
           FilePrefix = "preprod_add_PODE_attributes"
@@ -86,7 +89,7 @@ let demo01() =
             |> List.map (fun row -> row.EquiId.ToString() )
     
     // TODO - add a strategy that allow podes and netws in same iteration
-    generateEquipmentAttibutes opts podes [addPODEUP] |> ignore
+    genAiwEquiAttibutes opts podes [addPODEUP] |> ignore
 
     let netws = 
         inputRows () 
@@ -94,4 +97,28 @@ let demo01() =
             |> List.map (fun row -> row.EquiId.ToString() )
 
     let optsNETW = { opts with FilePrefix = "preprod_add_NETW_attributes" }
-    generateEquipmentAttibutes optsNETW netws [addNETWTL]
+    genAiwEquiAttibutes optsNETW netws [addNETWTL]
+
+let uxlAttrs01() = 
+    let opts : UxlOptions = 
+        { ProcessRequester = "ASSET DATA"
+          ChangeRequestDescription = sprintf "S3953 MMIM Retires %s" (DateTime.Now.ToShortDateString())
+          
+          FilePrefix = "preprod_add_PODE_attributes"
+          OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\preprod\patch_output\csv"
+        }
+    let podes = 
+        inputRows () 
+            |> List.filter (fun (row: InputRow) -> row.ClassType = "PODE")
+            |> List.map (fun row -> row.EquiId.ToString() )
+    
+    // TODO - add a strategy that allow podes and netws in same iteration
+    genUxlEquiAttibutes opts podes [addPODEUP] |> ignore
+
+    let netws = 
+        inputRows () 
+            |> List.filter (fun (row: InputRow) -> row.ClassType = "NETW")
+            |> List.map (fun row -> row.EquiId.ToString() )
+
+    let optsNETW = { opts with FilePrefix = "preprod_add_NETW_attributes" }
+    genUxlEquiAttibutes optsNETW netws [addNETWTL]

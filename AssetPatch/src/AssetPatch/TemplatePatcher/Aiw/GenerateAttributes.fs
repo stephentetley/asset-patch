@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Stephen Tetley 2020
 // License: BSD 3 Clause
 
-namespace AssetPatch.AddAttributesPatcher
+namespace AssetPatch.TemplatePatcher.Aiw
 
 
-module AiwAddAttributesPatcher =
+module GenerateAttributes =
 
     open AssetPatch.Base.FuncLocPath
     open AssetPatch.TemplatePatcher.Base.Template
@@ -37,7 +37,7 @@ module AiwAddAttributesPatcher =
             return FlocAttributes.Concat attrs
         }
 
-    let generateFuncLocAttibutes (opts: AiwOptions) 
+    let genAiwFlocAttibutes (opts: AiwOptions) 
                                     (inputList: FuncLocPath list)
                                     (classTemplates: FlocClass list) : Result<unit, string> = 
         let aiwEnv : AiwEnv = 
@@ -70,7 +70,7 @@ module AiwAddAttributesPatcher =
             return EquiAttributes.Concat attrs
         }
 
-    let generateEquipmentAttibutes (opts: AiwOptions) 
+    let genAiwEquiAttibutes (opts: AiwOptions) 
                                     (inputList: EquipmentId list)
                                     (classTemplates: EquiClass list) : Result<unit, string> = 
         let aiwEnv : AiwEnv = 

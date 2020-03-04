@@ -31,9 +31,11 @@
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\FileTypes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Aiw\Generate.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Aiw\GenerateAttributes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Base.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Emitter.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Uxl\Generate.fs" />
+    <Compile Include="AssetPatch\TemplatePatcher\Uxl\GenerateAttributes.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Floc.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\Equi.fs" />
     <Compile Include="AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs" />

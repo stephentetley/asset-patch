@@ -88,7 +88,7 @@ module Emitter =
     // ************************************************************************
     // Translation - equipment
 
-    let equiClassifcation (source: S4EquiClassification) : EquiClassification = 
+    let equiClassification (source: S4EquiClassification) : EquiClassification = 
         { EquipmentId = source.EquiId
           ClassDeleteInd = false
           Class = source.ClassName
@@ -134,7 +134,7 @@ module Emitter =
         { Equipment = makeEquipmentData1 source 
           MultilingualText = makeEquiMultilingualText source.EquiId "" source.MemoLine
           EquiClassifications = 
-              List.map equiClassifcation source.Classifications 
+              List.map equiClassification source.Classifications 
         }
 
     /// Recursive version of makeMmopNewEqui1
@@ -225,8 +225,49 @@ module Emitter =
           NewEquiClassifications = []   
         }
 
+    let private flocClassesToMmopCreateData (props: ChangeRequestProperties) 
+                                            (classes : S4FlocClassification list) : MmopCreateData = 
+        let classChars : FlocClassification list = List.map flocClassification classes 
+        let changeRequests = 
+            classes |> List.map (fun (x: S4FlocClassification) -> makeChangeRequestDetails props (Choice1Of2 x.FuncLoc))
+        { ChangeRequests = changeRequests
+          NewFuncLocs = []
+          NewFlocMultilingualTexts = []
+          NewFlocClassifications = classChars
+          NewEquipments = []
+          NewEquiMultilingualTexts = []
+          NewEquiClassifications = []   
+        }
+
+    let private equiClassesToMmopCreateData (props: ChangeRequestProperties) 
+                                            (classes : S4EquiClassification list) : MmopCreateData = 
+        let classChars : EquiClassification list = List.map equiClassification classes 
+        let changeRequests = 
+            classes |> List.map (fun (x: S4EquiClassification) -> makeChangeRequestDetails props (Choice2Of2 x.EquiId))
+        { ChangeRequests = changeRequests
+          NewFuncLocs = []
+          NewFlocMultilingualTexts = []
+          NewFlocClassifications = []
+          NewEquipments = []
+          NewEquiMultilingualTexts = []
+          NewEquiClassifications = classChars   
+        }
+
+
     // ************************************************************************
     // User API
+
+    let flocClassificationsEmitMmopCreate (source : S4FlocClassification list) : UxlGenerate<MmopCreateData> = 
+        generate { 
+            let! props = askChangeRequestProperties()
+            return flocClassesToMmopCreateData props source 
+        }
+
+    let equiClassificationsEmitMmopCreate (source : S4EquiClassification list) : UxlGenerate<MmopCreateData> = 
+        generate { 
+            let! props = askChangeRequestProperties()
+            return equiClassesToMmopCreateData props source 
+        }
 
     let equipmentEmitMmopCreate (source : S4Equipment) : UxlGenerate<MmopCreateData> = 
         generate { 
