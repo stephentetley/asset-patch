@@ -44,20 +44,20 @@ open FSharp.Data
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Pode.fs"
 #load "src\AssetPatch\AddAttributesPatcher\AiwAddAttributesPatcher.fs"
 open AssetPatch.TemplatePatcher.Base.Template
-open AssetPatch.TemplatePatcher.Catalogue.Root
+open AssetPatch.TemplatePatcher.Catalogue.Equi
 open AssetPatch.TemplatePatcher.Catalogue.Netw
 open AssetPatch.TemplatePatcher.Catalogue.Pode
 open AssetPatch.AddAttributesPatcher.AiwAddAttributesPatcher
 
 // This patcher is a bit more general than the other ones
     
-let addNETWTL : Classification = 
+let addNETWTL : EquiClass = 
     netwtl [ 
         uniclass_code ()
         uniclass_desc ()
     ]
 
-let addPODEUP : Classification = 
+let addPODEUP : EquiClass = 
     podeup [ 
         uniclass_code ()
         uniclass_desc ()

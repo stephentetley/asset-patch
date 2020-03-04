@@ -10,6 +10,8 @@ module AiwAddAttributesPatcher =
     open AssetPatch.TemplatePatcher.Base.Template
     open AssetPatch.TemplatePatcher.Base.GenerateMonad
     open AssetPatch.TemplatePatcher.Aiw.Base
+    open AssetPatch.TemplatePatcher.Aiw.Emitter
+    open AssetPatch.TemplatePatcher.Aiw.Generate
 
     type AiwOptions = 
         { UserName : string 
@@ -23,8 +25,8 @@ module AiwAddAttributesPatcher =
     let private genFuncLocAttributes1 (funcLoc: FuncLocPath) 
                                         (classes: FlocClass list): AiwGenerate<FlocAttributes> = 
         generate {
-            let! s4classes = mapM (evalTemplate funcLoc) classes
-            let! attrs = generateFlocAttributes funcLoc s4classes
+            let! s4classes = mapM (fun x -> applyFlocClass x funcLoc) classes |>> List.concat
+            let! attrs = flocClassEmitFlocAttributes s4classes
             return attrs
         }
 
@@ -55,14 +57,11 @@ module AiwAddAttributesPatcher =
     let private genEquipmentAttributes1 (equiId: string) 
                                         (classes: EquiClass list): AiwGenerate<EquiAttributes> = 
         generate {
-            let! s4classes = mapM evalTemplateNoFloc classes
-            let! attrs = generateEquiAttributes equiId s4classes
+            let! s4classes = mapM (fun x -> applyEquiClass x equiId) classes |>> List.concat
+            let! attrs = equiClassEmitEquiAttributes s4classes
             return attrs
         }
 
-
-    type EquipmentId = string
-      
     
     let private genEquipmentAttributes (items: EquipmentId list) 
                                         (classes: EquiClass list): AiwGenerate<EquiAttributes> = 

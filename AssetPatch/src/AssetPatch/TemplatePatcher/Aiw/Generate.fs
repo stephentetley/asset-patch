@@ -40,10 +40,9 @@ module Generate =
             liftAction <| createFolder
         
         
+    
+
     // ************************************************************************
-    // Write output
-
-
     // FlocCreateData
 
     let private writeFlocCreateData1 (directory : string) 
@@ -81,6 +80,7 @@ module Generate =
                 return ()
             }
 
+    // ************************************************************************
     // EquiCreateData
 
     let private writeEquiCreateData1 (directory : string) 
@@ -109,14 +109,46 @@ module Generate =
                 return ()
             }
 
-    // EquiCreateClassifactions
+    // ************************************************************************
+    // FlocAttributes
+    
+    let private writeFlocAttributes1 (directory : string) 
+                                        (filePrefix : string) 
+                                        (source : FlocAttributes) : AiwGenerate<unit> =  
+        generate {
+                    
+            // Classes
+            let! outpath01 = genFileName directory filePrefix "step1_classes"
+            do! writeNewClassFlocs source.NewFlocClasses outpath01
+    
+            // characteristics
+            let! outpath02 = genFileName directory filePrefix "step2_characteristics"
+            do! writeNewValuaFlocs source.NewFlocCharacteristics outpath02
+            
+            return()
+        }
+    
+    let writeFlocAttributes (directory : string) 
+                            (filePrefix : string) 
+                            (source : FlocAttributes) : AiwGenerate<unit> =         
+        if source.IsEmpty then
+            mreturn ()
+        else            
+            let source1 = source.RemoveDups()
+            generate {
+                let! directory1 = createSubfolder directory "03_equi_classifications"
+                do! writeFlocAttributes1 directory1 filePrefix source1
+                return ()
+            }
 
-    let private writeEquiCreateClassifactions1 (directory : string) 
-                                                (filePrefix : string) 
-                                                (source : EquiCreateClassifications) : AiwGenerate<unit> =  
+    // ************************************************************************
+    // EquiAttributes
+
+    let private writeEquiAttributes1 (directory : string) 
+                                        (filePrefix : string) 
+                                        (source : EquiAttributes) : AiwGenerate<unit> =  
         generate {
                 
-        
             // Classes
             let! outpath01 = genFileName directory filePrefix "step1_classes"
             do! writeNewClassEquis source.NewEquiClasses outpath01
@@ -132,15 +164,15 @@ module Generate =
             return()
         }
 
-    let writeEquiCreateClassifactions (directory : string) 
-                                        (filePrefix : string) 
-                                        (source : EquiCreateClassifications) : AiwGenerate<unit> =         
+    let writeEquiAttributes (directory : string) 
+                            (filePrefix : string) 
+                            (source : EquiAttributes) : AiwGenerate<unit> =         
         if source.IsEmpty then
             mreturn ()
         else            
             let source1 = source.RemoveDups()
             generate {
                 let! directory1 = createSubfolder directory "03_equi_classifications"
-                do! writeEquiCreateClassifactions1 directory1 filePrefix source1
+                do! writeEquiAttributes1 directory1 filePrefix source1
                 return ()
             }

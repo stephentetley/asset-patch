@@ -85,13 +85,13 @@ module Emitter =
         static member Concat (source : EquiCreateData list) : EquiCreateData = 
             { NewEquipment = source |> List.map (fun x -> x.NewEquipment) |> List.concat }
 
-    type EquiCreateClassifications = 
+    type EquiAttributes = 
         { NewEquiClasses: NewClassEqui list
           NewEquiCharacteristics: NewValuaEqui list
           NewEquiMultilingualTexts: NewEqmltxt list
         }
 
-        static member Empty () : EquiCreateClassifications = 
+        static member Empty () : EquiAttributes = 
             { NewEquiClasses = []
               NewEquiCharacteristics = []
               NewEquiMultilingualTexts = []
@@ -101,8 +101,9 @@ module Emitter =
             with get () : bool = 
                 x.NewEquiClasses.IsEmpty
                     && x.NewEquiCharacteristics.IsEmpty
+                    && x.NewEquiMultilingualTexts.IsEmpty
 
-        member x.RemoveDups(): EquiCreateClassifications = 
+        member x.RemoveDups(): EquiAttributes = 
             let equiClassDistinctKey (v: NewClassEqui) : string =
                 v.EquipmentId + "!!" + v.Class
 
@@ -117,10 +118,43 @@ module Emitter =
               NewEquiMultilingualTexts = x.NewEquiMultilingualTexts |> List.distinctBy equiMltxtDistinctKey
             }
 
-        static member Concat (source : EquiCreateClassifications list) : EquiCreateClassifications = 
+        static member Concat (source : EquiAttributes list) : EquiAttributes = 
             { NewEquiClasses            = source |> List.map (fun x -> x.NewEquiClasses) |> List.concat
               NewEquiCharacteristics    = source |> List.map (fun x -> x.NewEquiCharacteristics) |> List.concat
               NewEquiMultilingualTexts  = source |> List.map (fun x -> x.NewEquiMultilingualTexts) |> List.concat
+            }
+
+
+    type FlocAttributes = 
+        { NewFlocClasses: NewClassFloc list
+          NewFlocCharacteristics: NewValuaFloc list
+        }
+
+        static member Empty () : FlocAttributes = 
+            { NewFlocClasses = []
+              NewFlocCharacteristics = []
+            }
+
+        member x.IsEmpty
+            with get () : bool = 
+                x.NewFlocClasses.IsEmpty
+                    && x.NewFlocCharacteristics.IsEmpty
+
+        member x.RemoveDups(): FlocAttributes = 
+            let flocClassDistinctKey (v: NewClassFloc) : string =
+                v.FuncLoc.ToString() + "!!" + v.Class
+
+            /// Allowed different instances of same field (e.g. AIB_AI2_REFERENCE), but not same instances of same field
+            let flocCharDistinctKey (v: NewValuaFloc) : string = 
+                v.FuncLoc.ToString() + "!!" + v.CharacteristicID + "!!" + v.Value.DescriptionValue
+
+            { NewFlocClasses = x.NewFlocClasses |> List.distinctBy flocClassDistinctKey
+              NewFlocCharacteristics = x.NewFlocCharacteristics |> List.distinctBy flocCharDistinctKey
+            }
+
+        static member Concat (source : FlocAttributes list) : FlocAttributes = 
+            { NewFlocClasses            = source |> List.map (fun x -> x.NewFlocClasses) |> List.concat
+              NewFlocCharacteristics    = source |> List.map (fun x -> x.NewFlocCharacteristics) |> List.concat
             }
 
     // ************************************************************************
@@ -202,21 +236,29 @@ module Emitter =
             |> List.groupBy (fun x -> x.EquiId + "!!" + x.ClassName + "!!" + x.CharName)
             |> List.map snd
 
-    let private equipmentToEquiCreateClassifications (source : S4Equipment) : EquiCreateClassifications =         
+    let private equiClassificationsToEquiAttributes (source : S4EquiClassification list) : EquiAttributes =  
         let makeGrouped (xs : S4EquiClassification list) : NewValuaEqui list = 
             xs |> List.mapi (fun i x -> makeNewValuaEqui (i+1) x)
 
-        let classes : NewClassEqui list = List.map makeNewClassEqui source.Classifications
+        let classes : NewClassEqui list = List.map makeNewClassEqui source
         let characteristics : NewValuaEqui list = 
-            source.Classifications 
+            source
                 |> groupForEquiCharacteristics 
                 |> List.map makeGrouped 
                 |> List.concat
-        let mltxt = makeEquiMultilingualText source.EquiId "" source.MultilingualText
+
         { NewEquiClasses = classes
           NewEquiCharacteristics = characteristics
-          NewEquiMultilingualTexts = [mltxt]
+          NewEquiMultilingualTexts = []
         }
+
+
+    let private equipmentToEquiAttributes (source : S4Equipment) : EquiAttributes =         
+        let attrs = equiClassificationsToEquiAttributes source.Classifications
+        let mltxt = makeEquiMultilingualText source.EquiId "" source.MultilingualText
+        { attrs with NewEquiMultilingualTexts = [mltxt] }
+        
+ 
 
     // ************************************************************************
     // Translation - functional location
@@ -266,29 +308,51 @@ module Emitter =
             |> List.groupBy (fun x -> x.FuncLoc.ToString() + "!!" + x.ClassName + "!!" + x.CharName)
             |> List.map snd
 
-    let private funclocToFlocCreateData (path : FuncLocPath) 
-                                        (flocProps : FuncLocProperties)
-                                        (description : string) 
-                                        (objectType : string)
-                                        (classifications : S4FlocClassification list) : FlocCreateData = 
-        
+
+    let private flocClassificationsToFlocAttributes  (classifications : S4FlocClassification list) : FlocAttributes =    
         let makeGrouped (xs : S4FlocClassification list) : NewValuaFloc list = 
             xs |> List.mapi (fun i x -> makeNewValuaFloc (i+1) x)
 
-        let floc = makeNewFuncLoc path flocProps description objectType
         let classes : NewClassFloc list = List.map makeNewClassFloc classifications 
         let characteristics : NewValuaFloc list = 
             classifications 
                 |> groupForFlocCharacteristics 
                 |> List.map makeGrouped 
                 |> List.concat
-        { NewFuncLocs = [floc]
-          NewFlocClasses = classes
+        { NewFlocClasses = classes
           NewFlocCharacteristics = characteristics
         }
 
+    let private funclocToFlocCreateData (path : FuncLocPath) 
+                                        (flocProps : FuncLocProperties)
+                                        (description : string) 
+                                        (objectType : string)
+                                        (classifications : S4FlocClassification list) : FlocCreateData = 
+        
+        let flocAttrs = flocClassificationsToFlocAttributes classifications
+
+        let floc = makeNewFuncLoc path flocProps description objectType
+        
+        { NewFuncLocs = [floc]
+          NewFlocClasses = flocAttrs.NewFlocClasses
+          NewFlocCharacteristics = flocAttrs.NewFlocCharacteristics
+        }
+
+
+
     // ************************************************************************
     // User API
+
+    let equiClassEmitEquiAttributes (source : S4EquiClassification list) : AiwGenerate<EquiAttributes> = 
+        generate { 
+            return equiClassificationsToEquiAttributes source
+        }
+
+
+    let flocClassEmitFlocAttributes (source : S4FlocClassification list) : AiwGenerate<FlocAttributes> = 
+        generate { 
+            return flocClassificationsToFlocAttributes source
+        }
 
     let equiEmitEquiCreateData (source : S4Equipment) : AiwGenerate<EquiCreateData> = 
         generate { 
@@ -299,13 +363,13 @@ module Emitter =
         mapM equiEmitEquiCreateData source |>> EquiCreateData.Concat
 
 
-    let equiEmitEquiCreateClassifications (source : S4Equipment) : AiwGenerate<EquiCreateClassifications> = 
+    let equiEmitEquiAttributes (source : S4Equipment) : AiwGenerate<EquiAttributes> = 
         generate { 
-            return equipmentToEquiCreateClassifications source
+            return equipmentToEquiAttributes source
         }
 
-    let equiListEquiCreateClassifications (source : S4Equipment list) : AiwGenerate<EquiCreateClassifications> = 
-        mapM equiEmitEquiCreateClassifications source |>> EquiCreateClassifications.Concat
+    let equiListEquiEquiAttributes (source : S4Equipment list) : AiwGenerate<EquiAttributes> = 
+        mapM equiEmitEquiAttributes source |>> EquiAttributes.Concat
 
     /// This creates all levels...
     let flocEmitFlocCreateData (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
@@ -344,9 +408,9 @@ module Emitter =
         EquiCreateData.Concat (ds1 @ ds) |> mreturn
         
     /// This creates all levels...
-    let flocEmitEquiCreateClassifications (source : S4FunctionalLocation) : AiwGenerate<EquiCreateClassifications> =                     
-        let create1 (src : S4FunctionalLocation) : EquiCreateClassifications list = 
-            List.map equipmentToEquiCreateClassifications src.Equipment
+    let flocEmitEquiAttributes (source : S4FunctionalLocation) : AiwGenerate<EquiAttributes> =                     
+        let create1 (src : S4FunctionalLocation) : EquiAttributes list = 
+            List.map equipmentToEquiAttributes src.Equipment
              
         let rec work xs cont = 
             match xs with 
@@ -358,4 +422,4 @@ module Emitter =
                 
         let ds1 = create1 source
         let ds = work source.SubFlocs (fun xs -> xs)
-        EquiCreateClassifications.Concat (ds1 @ ds) |> mreturn
+        EquiAttributes.Concat (ds1 @ ds) |> mreturn
