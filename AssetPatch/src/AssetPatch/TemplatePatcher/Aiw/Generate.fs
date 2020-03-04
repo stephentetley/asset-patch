@@ -113,7 +113,7 @@ module Generate =
 
     let private writeEquiCreateClassifactions1 (directory : string) 
                                                 (filePrefix : string) 
-                                                (source : EquiCreateClassifactions) : AiwGenerate<unit> =  
+                                                (source : EquiCreateClassifications) : AiwGenerate<unit> =  
         generate {
                 
         
@@ -134,7 +134,7 @@ module Generate =
 
     let writeEquiCreateClassifactions (directory : string) 
                                         (filePrefix : string) 
-                                        (source : EquiCreateClassifactions) : AiwGenerate<unit> =         
+                                        (source : EquiCreateClassifications) : AiwGenerate<unit> =         
         if source.IsEmpty then
             mreturn ()
         else            

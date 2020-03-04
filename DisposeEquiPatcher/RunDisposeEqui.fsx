@@ -34,12 +34,6 @@ open System
 #load "..\AssetPatch\src\AssetPatch\Base\Aiw\ChangeFilePrinter.fs"
 #load "..\AssetPatch\src\AssetPatch\Base\Uxl\FileTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\Lib\Common.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\TemplateHierarchy.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\Template.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Base\CompilerMonad.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Base.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\Emitter.fs"
-#load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Uxl\PatchCompiler.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\UpdateTypes.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\Rewrite.fs"
 #load "..\AssetPatch\src\AssetPatch\RewritePatcher\Base\RewriteMonad.fs"
@@ -61,11 +55,11 @@ let aiwRetireMm3x () =
 
 let uxlRetireMm3x () = 
     let opts: UxlOptions = 
-        { ProcessRequester = "ASSET DATA"
+        { ProcessRequester  = "ASSET DATA"
           ChangeRequestDescription = sprintf "S3953 MMIM Retires %s" (DateTime.Now.ToShortDateString())
-          FileNamePrefix = "outstation_rewrite"
-          WorkListPath = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
-          OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"
+          FileNamePrefix    = "outstation_rewrite"
+          WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MM3X_retire_2019_worklist2.xlsx"
+          OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv"
         }
     runUxlDisposeEquiPatcher opts
 

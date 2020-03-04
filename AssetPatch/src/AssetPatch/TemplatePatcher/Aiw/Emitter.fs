@@ -85,13 +85,13 @@ module Emitter =
         static member Concat (source : EquiCreateData list) : EquiCreateData = 
             { NewEquipment = source |> List.map (fun x -> x.NewEquipment) |> List.concat }
 
-    type EquiCreateClassifactions = 
+    type EquiCreateClassifications = 
         { NewEquiClasses: NewClassEqui list
           NewEquiCharacteristics: NewValuaEqui list
           NewEquiMultilingualTexts: NewEqmltxt list
         }
 
-        static member Empty () : EquiCreateClassifactions = 
+        static member Empty () : EquiCreateClassifications = 
             { NewEquiClasses = []
               NewEquiCharacteristics = []
               NewEquiMultilingualTexts = []
@@ -102,7 +102,7 @@ module Emitter =
                 x.NewEquiClasses.IsEmpty
                     && x.NewEquiCharacteristics.IsEmpty
 
-        member x.RemoveDups(): EquiCreateClassifactions = 
+        member x.RemoveDups(): EquiCreateClassifications = 
             let equiClassDistinctKey (v: NewClassEqui) : string =
                 v.EquipmentId + "!!" + v.Class
 
@@ -117,7 +117,7 @@ module Emitter =
               NewEquiMultilingualTexts = x.NewEquiMultilingualTexts |> List.distinctBy equiMltxtDistinctKey
             }
 
-        static member Concat (source : EquiCreateClassifactions list) : EquiCreateClassifactions = 
+        static member Concat (source : EquiCreateClassifications list) : EquiCreateClassifications = 
             { NewEquiClasses            = source |> List.map (fun x -> x.NewEquiClasses) |> List.concat
               NewEquiCharacteristics    = source |> List.map (fun x -> x.NewEquiCharacteristics) |> List.concat
               NewEquiMultilingualTexts  = source |> List.map (fun x -> x.NewEquiMultilingualTexts) |> List.concat
@@ -202,7 +202,7 @@ module Emitter =
             |> List.groupBy (fun x -> x.EquiId + "!!" + x.ClassName + "!!" + x.CharName)
             |> List.map snd
 
-    let private equipmentToEquiCreateClassifactions (source : S4Equipment) : EquiCreateClassifactions =         
+    let private equipmentToEquiCreateClassifications (source : S4Equipment) : EquiCreateClassifications =         
         let makeGrouped (xs : S4EquiClassification list) : NewValuaEqui list = 
             xs |> List.mapi (fun i x -> makeNewValuaEqui (i+1) x)
 
@@ -299,13 +299,13 @@ module Emitter =
         mapM equiEmitEquiCreateData source |>> EquiCreateData.Concat
 
 
-    let equiEmitEquiCreateClassifactions (source : S4Equipment) : AiwGenerate<EquiCreateClassifactions> = 
+    let equiEmitEquiCreateClassifications (source : S4Equipment) : AiwGenerate<EquiCreateClassifications> = 
         generate { 
-            return equipmentToEquiCreateClassifactions source
+            return equipmentToEquiCreateClassifications source
         }
 
-    let equiListEquiCreateClassifactions (source : S4Equipment list) : AiwGenerate<EquiCreateClassifactions> = 
-        mapM equiEmitEquiCreateClassifactions source |>> EquiCreateClassifactions.Concat
+    let equiListEquiCreateClassifications (source : S4Equipment list) : AiwGenerate<EquiCreateClassifications> = 
+        mapM equiEmitEquiCreateClassifications source |>> EquiCreateClassifications.Concat
 
     /// This creates all levels...
     let flocEmitFlocCreateData (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
@@ -344,9 +344,9 @@ module Emitter =
         EquiCreateData.Concat (ds1 @ ds) |> mreturn
         
     /// This creates all levels...
-    let flocEmitEquiCreateClassifactions (source : S4FunctionalLocation) : AiwGenerate<EquiCreateClassifactions> =                     
-        let create1 (src : S4FunctionalLocation) : EquiCreateClassifactions list = 
-            List.map equipmentToEquiCreateClassifactions src.Equipment
+    let flocEmitEquiCreateClassifications (source : S4FunctionalLocation) : AiwGenerate<EquiCreateClassifications> =                     
+        let create1 (src : S4FunctionalLocation) : EquiCreateClassifications list = 
+            List.map equipmentToEquiCreateClassifications src.Equipment
              
         let rec work xs cont = 
             match xs with 
@@ -358,4 +358,4 @@ module Emitter =
                 
         let ds1 = create1 source
         let ds = work source.SubFlocs (fun xs -> xs)
-        EquiCreateClassifactions.Concat (ds1 @ ds) |> mreturn
+        EquiCreateClassifications.Concat (ds1 @ ds) |> mreturn

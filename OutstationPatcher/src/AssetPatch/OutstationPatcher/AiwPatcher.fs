@@ -89,19 +89,19 @@ module AiwPatcher =
     // Equi Classifications
 
 
-    let private equiCreateClassifactionsProcessRow (row : WorkListRow) : AiwGenerate<EquiCreateClassifactions> = 
+    let private equiCreateClassificationsProcessRow (row : WorkListRow) : AiwGenerate<EquiCreateClassifications> = 
         let path = FuncLocPath.Create row.``S4 Root FuncLoc``
         match path.Level with
-        | 1 -> applyFunction        (makeCAA row) path >>= flocEmitEquiCreateClassifactions
-        | 2 -> applyProcessGroup    (makeNET row) path >>= flocEmitEquiCreateClassifactions
-        | 3 -> applyProcess         (makeTEL row) path >>= flocEmitEquiCreateClassifactions
-        | 4 -> applySystem          (makeSYS row) path >>= flocEmitEquiCreateClassifactions
+        | 1 -> applyFunction        (makeCAA row) path >>= flocEmitEquiCreateClassifications
+        | 2 -> applyProcessGroup    (makeNET row) path >>= flocEmitEquiCreateClassifications
+        | 3 -> applyProcess         (makeTEL row) path >>= flocEmitEquiCreateClassifications
+        | 4 -> applySystem          (makeSYS row) path >>= flocEmitEquiCreateClassifications
         | x when x > 4 && x < 8 -> 
             applyEquipment (makeTelemetryOustation row) None path >>= fun eq1 -> 
             applyEquipment (makeModem row)              None path >>= fun eq2 ->     
-            equiEmitEquiCreateClassifactions eq1 >>= fun d1 -> 
-            equiEmitEquiCreateClassifactions eq2 >>= fun d2 -> 
-            mreturn (EquiCreateClassifactions.Concat [d1; d2])
+            equiEmitEquiCreateClassifications eq1 >>= fun d1 -> 
+            equiEmitEquiCreateClassifications eq2 >>= fun d2 -> 
+            mreturn (EquiCreateClassifications.Concat [d1; d2])
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (path.ToString()) x)
 
 
@@ -117,7 +117,7 @@ module AiwPatcher =
                 <| generate {
                     do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
                     let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
-                    let! classData = mapM equiCreateClassifactionsProcessRow worklist |>> EquiCreateClassifactions.Concat
+                    let! classData = mapM equiCreateClassificationsProcessRow worklist |>> EquiCreateClassifications.Concat
                     do! writeEquiCreateClassifactions opts.OutputDirectory "edc_patch" classData
                     return ()
                 }
