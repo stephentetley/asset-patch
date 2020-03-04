@@ -35,10 +35,10 @@ module AiwPatcher =
     let private flocCreateProcessRow (row : WorkListRow) : AiwGenerate<FlocCreateData> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFunction        (makeEDC row) rootPath >>= functionalLocationEmitFlocCreateData
-        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= functionalLocationEmitFlocCreateData
-        | 3 -> applyProcess         (makeRGM row) rootPath >>= functionalLocationEmitFlocCreateData
-        | 4 -> applySystem          (makeSYS row) rootPath >>= functionalLocationEmitFlocCreateData
+        | 1 -> applyFunction        (makeEDC row) rootPath >>= flocEmitFlocCreateData
+        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= flocEmitFlocCreateData
+        | 3 -> applyProcess         (makeRGM row) rootPath >>= flocEmitFlocCreateData
+        | 4 -> applySystem          (makeSYS row) rootPath >>= flocEmitFlocCreateData
         | x when x > 4 && x < 8 -> mreturn (FlocCreateData.Empty ())
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
@@ -63,12 +63,12 @@ module AiwPatcher =
     let private equiCreateProcessRow (row : WorkListRow) : AiwGenerate<EquiCreateData> = 
         let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
         match rootPath.Level with
-        | 1 -> applyFunction        (makeEDC row) rootPath >>= functionalLocationEmitEquiCreateData
-        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= functionalLocationEmitEquiCreateData
-        | 3 -> applyProcess         (makeRGM row) rootPath >>= functionalLocationEmitEquiCreateData
-        | 4 -> applySystem          (makeSYS row) rootPath >>= functionalLocationEmitEquiCreateData
+        | 1 -> applyFunction        (makeEDC row) rootPath >>= flocEmitEquiCreateData
+        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= flocEmitEquiCreateData
+        | 3 -> applyProcess         (makeRGM row) rootPath >>= flocEmitEquiCreateData
+        | 4 -> applySystem          (makeSYS row) rootPath >>= flocEmitEquiCreateData
         | x when x > 4 && x < 8 -> 
-            applyEquipment (makeLevelTransmitter row) None rootPath >>= equipmentEmitEquiCreateData
+            applyEquipment (makeLevelTransmitter row) None rootPath >>= equiEmitEquiCreateData
         | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
@@ -84,32 +84,33 @@ module AiwPatcher =
                 return ()
             }
 
-    //let private phase2ProcessRow (row : WorkListRow) : AiwCompilerMonad<Phase2Data> = 
-    //    let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
-    //    match rootPath.Level with
-    //    | 1 -> applyFlocTemplate1 (rootPath, row) makeEDC >>= functionEmitPhase2
-    //    | 2 -> applyFlocTemplate1 (rootPath, row) makeLQD >>= processGroupEmitPhase2
-    //    | 3 -> applyFlocTemplate1 (rootPath, row) makeRGM >>= processEmitPhase2
-    //    | 4 -> applyFlocTemplate1 (rootPath, row) makeSYS >>= systemEmitPhase2
-    //    | x when x > 4 && x < 8 -> applyFlocTemplate1 (rootPath, row) makeLevelTransmitter >>= equipmentEmitPhase2
-    //    | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
+    let private equiCreateClassifactionsProcessRow (row : WorkListRow) : AiwGenerate<EquiCreateClassifactions> = 
+        let rootPath = FuncLocPath.Create row.``S4 Root FuncLoc``
+        match rootPath.Level with
+        | 1 -> applyFunction        (makeEDC row) rootPath >>= flocEmitEquiCreateClassifactions
+        | 2 -> applyProcessGroup    (makeLQD row) rootPath >>= flocEmitEquiCreateClassifactions
+        | 3 -> applyProcess         (makeRGM row) rootPath >>= flocEmitEquiCreateClassifactions
+        | 4 -> applySystem          (makeSYS row) rootPath >>= flocEmitEquiCreateClassifactions
+        | x when x > 4 && x < 8 -> 
+            applyEquipment (makeLevelTransmitter row) None rootPath >>= equiEmitEquiCreateClassifaction
+        | x -> throwError (sprintf "Cannot process floc %s, level %i not valid" (rootPath.ToString()) x)
 
 
-    ///// Phase 2 generates ClassEqui and ValuaEqui patches 
-    ///// with materialized Equipment numbers
-    //let runAiwEdcPatcherPhase2 (opts : AiwOptions) 
-    //                        (equipmentDownloadPath : string) : Result<unit, string> = 
-    //    match readEquiDownload equipmentDownloadPath with
-    //    | Error msg -> Error msg
-    //    | Ok equiMap -> 
-    //        let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = Some equiMap }
-    //        runCompiler userEnv 
-    //            <| compile {
-    //                do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
-    //                let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
-    //                let! phase2Data = mapM phase2ProcessRow worklist |>> Phase2Data.Concat
-    //                do! writePhase2Data opts.OutputDirectory "edc_patch" phase2Data
-    //                return ()
-    //            }
+    /// Phase 2 generates ClassEqui and ValuaEqui patches 
+    /// with materialized Equipment numbers
+    let runAiwEdcPatcherPhase2 (opts : AiwOptions) 
+                                (equipmentDownloadPath : string) : Result<unit, string> = 
+        match readEquiDownload equipmentDownloadPath with
+        | Error msg -> Error msg
+        | Ok equiMap -> 
+            let userEnv : AiwEnv = { UserName = opts.UserName; EquiIndices = Some equiMap }
+            runGenerate userEnv 
+                <| generate {
+                    do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)             
+                    let! worklist = liftAction <| fun _ -> readWorkList opts.WorkListPath
+                    let! classData = mapM equiCreateClassifactionsProcessRow worklist |>> EquiCreateClassifactions.Concat
+                    do! writeEquiCreateClassifactions opts.OutputDirectory "edc_patch" classData
+                    return ()
+                }
 
     

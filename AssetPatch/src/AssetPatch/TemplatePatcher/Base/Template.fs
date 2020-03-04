@@ -8,6 +8,7 @@ namespace AssetPatch.TemplatePatcher.Base
 module Template =
     
     open System
+    open FSharp.Core
 
     open AssetPatch.Base
     open AssetPatch.Base.Common
@@ -344,7 +345,7 @@ module Template =
                     (objectType : string)
                     (zzClass : string)
                     (startupDate: DateTime)
-                    (memoLine : string)
+                    (multilingualText : string)
                     (attributes : EquipmentAttribute list)
                     (classes : EquiClass list) 
                     (subordinateEquipment : Equipment list)  : Equipment = 
@@ -359,6 +360,8 @@ module Template =
                     SuperEquiId = parentEqui
                     FuncLoc = parentFloc
                     FlocProperties = props
+                    
+                    MultilingualText = multilingualText
                     Description = description
                     Category = category
                     Class = zzClass
@@ -371,7 +374,7 @@ module Template =
                     ConstructionMonth = None
                     Classifications = cs 
                     SuboridinateEquipment = es 
-                    MemoLine = memoLine
+                    MemoLine = if String.IsNullOrWhiteSpace multilingualText then "" else "SEE LONG TEXT"
                 }
             }) |>  fun e1 -> setAttributes e1 attributes
         

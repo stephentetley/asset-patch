@@ -88,11 +88,13 @@ module Emitter =
     type EquiCreateClassifactions = 
         { NewEquiClasses: NewClassEqui list
           NewEquiCharacteristics: NewValuaEqui list
+          NewEquiMultilingualTexts: NewEqmltxt list
         }
 
         static member Empty () : EquiCreateClassifactions = 
             { NewEquiClasses = []
               NewEquiCharacteristics = []
+              NewEquiMultilingualTexts = []
             }
 
         member x.IsEmpty
@@ -108,13 +110,17 @@ module Emitter =
             let equiCharDistinctKey (v: NewValuaEqui) : string = 
                 v.EquipmentId + "!!" + v.CharacteristicID + "!!" + v.Value.DescriptionValue
 
+            let equiMltxtDistinctKey (v: NewEqmltxt) : string = v.EquipmentId
+
             { NewEquiClasses = x.NewEquiClasses |> List.distinctBy equiClassDistinctKey
               NewEquiCharacteristics = x.NewEquiCharacteristics |> List.distinctBy equiCharDistinctKey
+              NewEquiMultilingualTexts = x.NewEquiMultilingualTexts |> List.distinctBy equiMltxtDistinctKey
             }
 
         static member Concat (source : EquiCreateClassifactions list) : EquiCreateClassifactions = 
             { NewEquiClasses            = source |> List.map (fun x -> x.NewEquiClasses) |> List.concat
               NewEquiCharacteristics    = source |> List.map (fun x -> x.NewEquiCharacteristics) |> List.concat
+              NewEquiMultilingualTexts  = source |> List.map (fun x -> x.NewEquiMultilingualTexts) |> List.concat
             }
 
     // ************************************************************************
@@ -206,9 +212,10 @@ module Emitter =
                 |> groupForEquiCharacteristics 
                 |> List.map makeGrouped 
                 |> List.concat
-
+        let mltxt = makeEquiMultilingualText source.EquiId "" source.MultilingualText
         { NewEquiClasses = classes
           NewEquiCharacteristics = characteristics
+          NewEquiMultilingualTexts = [mltxt]
         }
 
     // ************************************************************************
@@ -283,16 +290,25 @@ module Emitter =
     // ************************************************************************
     // User API
 
-    let equipmentEmitEquiCreateData (source : S4Equipment) : AiwGenerate<EquiCreateData> = 
+    let equiEmitEquiCreateData (source : S4Equipment) : AiwGenerate<EquiCreateData> = 
         generate { 
             return equipmentToEquiCreateData source
         }
 
-    let equipmentListEmitEquiCreateData (source : S4Equipment list) : AiwGenerate<EquiCreateData> = 
-        mapM equipmentEmitEquiCreateData source |>> EquiCreateData.Concat
+    let equiListEmitEquiCreateData (source : S4Equipment list) : AiwGenerate<EquiCreateData> = 
+        mapM equiEmitEquiCreateData source |>> EquiCreateData.Concat
+
+
+    let equiEmitEquiCreateClassifaction (source : S4Equipment) : AiwGenerate<EquiCreateClassifactions> = 
+        generate { 
+            return equipmentToEquiCreateClassifactions source
+        }
+
+    let equiListEquiCreateClassifactions (source : S4Equipment list) : AiwGenerate<EquiCreateClassifactions> = 
+        mapM equiEmitEquiCreateClassifaction source |>> EquiCreateClassifactions.Concat
 
     /// This creates all levels...
-    let functionalLocationEmitFlocCreateData (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
+    let flocEmitFlocCreateData (source : S4FunctionalLocation) : AiwGenerate<FlocCreateData> = 
         let create1 (src : S4FunctionalLocation) = 
             funclocToFlocCreateData src.FuncLoc src.FlocProperties 
                                     src.Description src.ObjectType src.Classifications
@@ -311,7 +327,7 @@ module Emitter =
         
 
     /// This creates all levels...
-    let functionalLocationEmitEquiCreateData (source : S4FunctionalLocation) : AiwGenerate<EquiCreateData> = 
+    let flocEmitEquiCreateData (source : S4FunctionalLocation) : AiwGenerate<EquiCreateData> = 
         let create1 (src : S4FunctionalLocation) : EquiCreateData list = 
             List.map equipmentToEquiCreateData src.Equipment
              
@@ -327,3 +343,19 @@ module Emitter =
         let ds = work source.SubFlocs (fun xs -> xs)
         EquiCreateData.Concat (ds1 @ ds) |> mreturn
         
+    /// This creates all levels...
+    let flocEmitEquiCreateClassifactions (source : S4FunctionalLocation) : AiwGenerate<EquiCreateClassifactions> =                     
+        let create1 (src : S4FunctionalLocation) : EquiCreateClassifactions list = 
+            List.map equipmentToEquiCreateClassifactions src.Equipment
+             
+        let rec work xs cont = 
+            match xs with 
+            | [] -> cont []
+            | x :: rs -> 
+                let equis1 = create1 x 
+                let kids = x.SubFlocs
+                work (kids @ rs) (fun vs -> cont (equis1 @ vs))
+                
+        let ds1 = create1 source
+        let ds = work source.SubFlocs (fun xs -> xs)
+        EquiCreateClassifactions.Concat (ds1 @ ds) |> mreturn

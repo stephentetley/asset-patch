@@ -108,3 +108,39 @@ module Generate =
                 do! writeEquiCreateData1 directory1 filePrefix source1
                 return ()
             }
+
+    // EquiCreateClassifactions
+
+    let private writeEquiCreateClassifactions1 (directory : string) 
+                                                (filePrefix : string) 
+                                                (source : EquiCreateClassifactions) : AiwGenerate<unit> =  
+        generate {
+                
+        
+            // Classes
+            let! outpath01 = genFileName directory filePrefix "step1_classes"
+            do! writeNewClassEquis source.NewEquiClasses outpath01
+
+            // characteristics
+            let! outpath02 = genFileName directory filePrefix "step2_characteristics"
+            do! writeNewValuaEquis source.NewEquiCharacteristics outpath02
+
+            // Multilingual texts
+            let! outpath03 = genFileName directory filePrefix "step3_multilingual_texts"
+            do! writeNewEqmltxts source.NewEquiMultilingualTexts outpath03
+
+            return()
+        }
+
+    let writeEquiCreateClassifactions (directory : string) 
+                                        (filePrefix : string) 
+                                        (source : EquiCreateClassifactions) : AiwGenerate<unit> =         
+        if source.IsEmpty then
+            mreturn ()
+        else            
+            let source1 = source.RemoveDups()
+            generate {
+                let! directory1 = createSubfolder directory "03_equi_classifications"
+                do! writeEquiCreateClassifactions1 directory1 filePrefix source1
+                return ()
+            }

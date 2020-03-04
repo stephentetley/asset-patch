@@ -286,6 +286,21 @@ module FileTypes =
                 ; ("CLSTATUS1",     "Status",                   x.Status.ToString())
                 ]
 
+    let writeNewClassEquis (source : NewClassEqui list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.EquipmentId) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create ClassEquis" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
+                return ()
+            }
 
     // ************************************************************************
     // ValuaEqui
@@ -321,6 +336,21 @@ module FileTypes =
                 ; ("ATFLB",         "Value to",                 atflb)
                 ]
             
+    let writeNewValuaEquis (source : NewValuaEqui list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.EquipmentId) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create ValuaEquis" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
+                return ()
+            }
 
     // ************************************************************************
     // Eqmltxt
@@ -345,3 +375,18 @@ module FileTypes =
                 ; ("LTXTIND",       "More Text Exists",             (if x.MoreTextExists then "X" else ""))        // Always 1 "EQ"
                 ]
             
+    let writeNewEqmltxts (source : NewEqmltxt list)
+                            (outpath: string) : AiwGenerate<unit> = 
+        match source with
+        | [] -> mreturn ()
+        | _ -> 
+            generate {
+                let rows = 
+                    source
+                        |> List.sortBy (fun row -> row.EquipmentId) 
+                        |> List.map (fun x -> x.ToAssocs())  
+                let! changes = 
+                    makeChangeFile EntityType.FuncLoc "Asset Patch Create Eqmltxt" rows
+                do! liftAction <| fun () -> writeAiwChangeFile changes outpath
+                return ()
+            }

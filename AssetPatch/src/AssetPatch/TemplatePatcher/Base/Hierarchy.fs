@@ -45,7 +45,8 @@ module Hierarchy =
           SuperEquiId: string option
           FuncLoc : FuncLocPath
           FlocProperties : FuncLocProperties
-          Description : string       
+          Description : string          
+          MultilingualText : string
           Category : string
           ObjectType : string
           Class: string
