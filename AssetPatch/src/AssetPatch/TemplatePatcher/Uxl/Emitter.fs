@@ -281,8 +281,7 @@ module Emitter =
     let functionalLocationEmitMmopCreate (source : S4FunctionalLocation) : UxlGenerate<MmopCreateData> = 
         let create1 (src : S4FunctionalLocation) = 
             generate {
-                let! d1 = equipmentListEmitMmopCreate source.Equipment
-                do! liftAction (fun () -> printfn "source.Equipment.Length %i" source.Equipment.Length)
+                let! d1 = equipmentListEmitMmopCreate src.Equipment
                 let! props = askChangeRequestProperties ()
                 let d2 = funclocToMmopCreateData props src.FuncLoc src.FlocProperties 
                                     src.Description src.ObjectType src.Classifications
