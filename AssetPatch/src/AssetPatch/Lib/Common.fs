@@ -7,6 +7,7 @@ namespace AssetPatch.Lib
 module Common = 
 
     open System
+    open System.Text.RegularExpressions
 
     // ************************************************************************
     // Read cell functions
@@ -61,3 +62,33 @@ module Common =
                                     , style = Globalization.DateTimeStyles.None) with
         | true, date -> date
         | false, _ -> failwith "getUSDate"
+
+    let getAIMonth(src: string): int = 
+        match src.Trim().ToUpper() with
+        | "JAN" -> 1
+        | "FEB" -> 2
+        | "MAR" -> 3
+        | "APR" -> 4
+        | "MAY" -> 5
+        | "JUN" -> 6
+        | "JUL" -> 7
+        | "AUG" -> 8
+        | "SEP" -> 9
+        | "OCT" -> 10
+        | "NOV" -> 11
+        | "DEC" -> 12
+        | _ -> 0
+
+
+    /// Of form "Oct 02 2019" i.e Three letter month, two digit day, four digit year  
+    let getAiDate(s: string): DateTime option = 
+        let patt = "^(?<mon>[A-Z][a-z]{2}) (?<day>[0-9]{2}) (?<year>[0-9]{4})"
+        let m = Regex.Match(input = s, pattern = patt)
+        if m.Success then
+            let day = m.Groups.["day"].Value |> int
+            let mon = m.Groups.["mon"].Value
+            let year = m.Groups.["year"].Value |> int
+            DateTime(year = year, month = 1, day = day) |> Some
+        else 
+            None
+        

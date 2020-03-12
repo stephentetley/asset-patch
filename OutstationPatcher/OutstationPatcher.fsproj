@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="excel-sample\OS_Worklist_Sample.xlsx" />
-    <Compile Include="src\AssetPatch\OutstationPatcher\InputData.fs" />
+    <Compile Include="src\AssetPatch\OutstationPatcher\OutstationWorkList.fs" />
     <Compile Include="src\AssetPatch\OutstationPatcher\OutstationTemplate.fs" />
     <Compile Include="src\AssetPatch\OutstationPatcher\AiwPatcher.fs" />
     <Compile Include="src\AssetPatch\OutstationPatcher\UxlPatcher.fs" />

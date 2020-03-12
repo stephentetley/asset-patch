@@ -50,7 +50,7 @@ open System
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\AssetCondition.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Ctos.fs"
 #load "..\AssetPatch\src\AssetPatch\TemplatePatcher\Catalogue\Netw.fs"
-#load "src\AssetPatch\OutstationPatcher\InputData.fs"
+#load "src\AssetPatch\OutstationPatcher\OutstationWorkList.fs"
 #load "src\AssetPatch\OutstationPatcher\OutstationTemplate.fs"
 #load "src\AssetPatch\OutstationPatcher\AiwPatcher.fs"
 #load "src\AssetPatch\OutstationPatcher\UxlPatcher.fs"
@@ -59,8 +59,8 @@ open AssetPatch.OutstationPatcher.UxlPatcher
 
 let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
-        OutputDirectory = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output"
+        WorkListPath =    @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\production-no-caa-worklist.csv" 
+        OutputDirectory = @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\patch_output"
     }
 
 let aiwOutstationUpgrades01 () = 

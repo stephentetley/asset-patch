@@ -12,7 +12,7 @@ module UxlPatcher =
     open AssetPatch.TemplatePatcher.Uxl.Base
     open AssetPatch.TemplatePatcher.Uxl.Emitter
     open AssetPatch.TemplatePatcher.Uxl.Generate
-    open AssetPatch.OutstationPatcher.InputData
+    open AssetPatch.OutstationPatcher.OutstationWorkList
     open AssetPatch.OutstationPatcher.OutstationTemplate
 
     type UxlOptions = 
@@ -40,10 +40,9 @@ module UxlPatcher =
         runGenerate userEnv
             <| generate { 
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
-                let! worklist = 
-                    liftAction (fun _ -> readWorkList opts.WorkListPath) 
-                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
-                let! mmopCreateData = mapM processRow worklist |>> MmopCreateData.Concat
+                let! worklist = liftAction (fun _ -> readWorkList opts.WorkListPath) 
+                let  worklist2 = worklist |> List.map (fun row -> (FuncLocPath.Create row.``S4 Root Funcloc``, row))
+                let! mmopCreateData = mapM processRow worklist2 |>> MmopCreateData.Concat
                 do! writeMmopCreateData opts.OutputDirectory "outstation_patch" mmopCreateData
                 return ()
             }

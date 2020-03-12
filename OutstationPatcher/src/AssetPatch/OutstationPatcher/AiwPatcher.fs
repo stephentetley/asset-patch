@@ -16,7 +16,7 @@ module AiwPatcher =
     open AssetPatch.TemplatePatcher.Aiw.Emitter
     open AssetPatch.TemplatePatcher.Aiw.Generate
 
-    open AssetPatch.OutstationPatcher.InputData
+    open AssetPatch.OutstationPatcher.OutstationWorkList
     open AssetPatch.OutstationPatcher.OutstationTemplate
 
 
@@ -46,7 +46,7 @@ module AiwPatcher =
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 
-                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
+                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root Funcloc``, row))
                 
                 let! flocCreateData = mapM flocCreateProcessRow worklist |>> FlocCreateData.Concat               
                 do! writeFlocCreateData opts.OutputDirectory "outstation_patch" flocCreateData
@@ -78,7 +78,7 @@ module AiwPatcher =
                 do! liftAction (fun () -> makeOutputDirectory opts.OutputDirectory)
                 let! worklist = 
                     liftAction (fun _ -> readWorkList opts.WorkListPath) 
-                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root FuncLoc``, row))
+                        |>> List.map (fun row -> (FuncLocPath.Create row.``S4 Root Funcloc``, row))
                 
                 let! equiCreateData = mapM equiCreateProcessRow worklist |>> EquiCreateData.Concat               
                 do! writeEquiCreateData opts.OutputDirectory "outstation_patch" equiCreateData
@@ -90,7 +90,7 @@ module AiwPatcher =
 
 
     let private equiEquiAttributesProcessRow (row : WorkListRow) : AiwGenerate<EquiAttributes> = 
-        let path = FuncLocPath.Create row.``S4 Root FuncLoc``
+        let path = FuncLocPath.Create row.``S4 Root Funcloc``
         match path.Level with
         | 1 -> applyFunction        (makeCAA row) path >>= flocEmitEquiAttributes
         | 2 -> applyProcessGroup    (makeNET row) path >>= flocEmitEquiAttributes

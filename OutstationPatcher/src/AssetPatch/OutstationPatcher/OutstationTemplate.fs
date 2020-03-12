@@ -16,7 +16,7 @@ module OutstationTemplate =
     open AssetPatch.TemplatePatcher.Catalogue.Netw
     open AssetPatch.Lib.Common
 
-    open AssetPatch.OutstationPatcher.InputData
+    open AssetPatch.OutstationPatcher.OutstationWorkList
 
 
     ///// Note - this is very flaky as ExcelProvider seems to have difficulty 
@@ -34,35 +34,26 @@ module OutstationTemplate =
         | Some date -> startupDate date
 
     let private getL2Sainum (parameters: WorkListRow): string = 
-        parameters.``AI2 CAA Sainum``
+        parameters.``CAA SAI Reference [Control Services]``
 
     let private getL3Sainum (parameters: WorkListRow): string = 
-        let level3 = parameters.``AI2 NET Sainum``
-        match level3.ToUpper() with
-        | "DITTO" -> getL2Sainum parameters
-        | _ -> level3
-
+        parameters.``NET AIB Reference [usually Control Services]``
+        
     let private getL4Sainum (parameters: WorkListRow): string = 
-        let level4 = parameters.``AI2 TEL Sainum``
-        match level4.ToUpper() with
-        | "DITTO" -> getL3Sainum parameters
-        | _ -> level4
-
+        parameters.``TEL AIB Reference [RTS Monitoring]``
+        
     let private getL5Sainum (parameters: WorkListRow): string = 
-        let level5 = parameters.``AI2 SYS Sainum``
-        match level5.ToUpper() with
-        | "DITTO" -> getL4Sainum parameters
-        | _ -> level5
-
+        parameters.``SYS AIB Reference [usually RTS Monitoring]``
+        
 
     // ************************************************************************
     // Hierarchy templates
 
     let makeModem (parameters : WorkListRow) : Equipment = 
-        let installDate = getUSDate parameters.``Outstation Install Date``
+        let installDate = getUSDate parameters.``Modem Install From Date``
         modem parameters.``Modem Name`` 
               installDate
-              parameters.``Modem Memo Line``
+              parameters.``Memo Line``
             [ manufacturer parameters.``Modem Manufacturer``
               model parameters.``Modem Model``
               serial_number parameters.``Modem Serial Number``
@@ -70,7 +61,7 @@ module OutstationTemplate =
               construction_month installDate.Month
             ]
             [ Equi.east_north_common parameters.NGR
-              Equi.aib_reference_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
+              Equi.aib_reference_common parameters.``Equi SAI Number`` parameters.``Equi PLI Number``
               netwmo [
                 Equi.uniclass_code ()
                 Equi.uniclass_desc ()
@@ -82,20 +73,20 @@ module OutstationTemplate =
             
 
     let makeTelemetryOustation (parameters : WorkListRow) : Equipment = 
-        let installDate = getUSDate parameters.``Outstation Install Date``
+        let installDate = getAiDate parameters.``Installed From Date`` |> Option.defaultValue DateTime.Now
         telemetry_outstation 
-            parameters.``Telemetry Outstation Name``
+            parameters.``Description [S4 display name]``
             installDate
-            parameters.``Outstation Memo Line``
+            parameters.``Memo Line``
             
-            [ manufacturer parameters.``Outstation Manufacturer``
-              model parameters.``Outstation Model``
-              serial_number parameters.``Outstation Serial Number``
+            [ manufacturer parameters.Manufacturer
+              model parameters.Model
+              serial_number parameters.``Serial Number``
               construction_year installDate.Year
               construction_month installDate.Month
             ]
             [ east_north_common parameters.NGR
-              aib_reference_common parameters.``AI2 Equipment SAI Number`` parameters.``AI2 Equipment PLI Code``
+              aib_reference_common parameters.``Equi SAI Number`` parameters.``Equi PLI Number``
               netwtl [
                     uniclass_code ()
                     uniclass_desc ()
@@ -108,8 +99,8 @@ module OutstationTemplate =
     /// Level 5
     let makeSYS (parameters : WorkListRow) : System = 
         Floc.telemetry_system 
-                parameters.``S4 System Code`` 
-                parameters.``S4 System Name``
+                parameters.``System Code``
+                parameters.``System Name``
                 [ Floc.east_north_common parameters.NGR
                   Floc.aib_reference_common (getL5Sainum parameters)
                   ctossy 
