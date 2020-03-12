@@ -282,6 +282,7 @@ module Emitter =
         let create1 (src : S4FunctionalLocation) = 
             generate {
                 let! d1 = equipmentListEmitMmopCreate source.Equipment
+                do! liftAction (fun () -> printfn "source.Equipment.Length %i" source.Equipment.Length)
                 let! props = askChangeRequestProperties ()
                 let d2 = funclocToMmopCreateData props src.FuncLoc src.FlocProperties 
                                     src.Description src.ObjectType src.Classifications
@@ -294,7 +295,8 @@ module Emitter =
             | x :: rs -> 
                 generate { 
                     let! v1 = create1 x 
-                    return! work rs (fun vs -> cont (v1 :: vs))
+                    let kids = x.SubFlocs
+                    return! work (kids @ rs) (fun vs -> cont (v1 :: vs))
                 }
         
         generate {

@@ -57,10 +57,16 @@ open System
 open AssetPatch.OutstationPatcher.AiwPatcher
 open AssetPatch.OutstationPatcher.UxlPatcher
 
+
+let commonOptions  = 
+    {| WorkListPath  = @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\production-no-caa-worklist.csv"
+    ;  OutputRoot    = @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\patch_output" 
+    |}
+
 let aiwOptions : AiwOptions = 
     {   UserName = "TETLEYS"
-        WorkListPath =    @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\production-no-caa-worklist.csv" 
-        OutputDirectory = @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\patch_output"
+        WorkListPath = commonOptions.WorkListPath    
+        OutputDirectory = commonOptions.OutputRoot
     }
 
 let aiwOutstationUpgrades01 () = 
@@ -85,8 +91,8 @@ let aiwOutstationEquiPatchesPhase02 () =
 let uxlOptions : UxlOptions = 
     { ProcessRequester  = "ASSET DATA"
       ChangeRequestDescription = sprintf "S3953 MMIM Upgrades %s" (DateTime.Now.ToShortDateString())
-      WorkListPath      = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\QA_MMIM_upgrade_2019_worklist1_20_outstations.xlsx" 
-      OutputDirectory   = @"G:\work\Projects\assets\asset_patch\mmim_upgrade_2019\qa\patch_output\csv" 
+      WorkListPath      = commonOptions.WorkListPath
+      OutputDirectory   = System.IO.Path.Combine(commonOptions.OutputRoot, "uxl") 
     }
 
 let uxlOutstationUpgrades01 () = 

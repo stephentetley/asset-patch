@@ -64,7 +64,7 @@ module OutstationWorkList =
     type WorkListTable = 
          CsvProvider< Sample = WorkListSample,
                       Schema = WorkListSchema,
-                      HasHeaders = true >
+                      HasHeaders = true>
 
      type WorkListRow = WorkListTable.Row
 

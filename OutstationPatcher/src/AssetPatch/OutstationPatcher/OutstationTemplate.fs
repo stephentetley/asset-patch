@@ -19,15 +19,6 @@ module OutstationTemplate =
     open AssetPatch.OutstationPatcher.OutstationWorkList
 
 
-    ///// Note - this is very flaky as ExcelProvider seems to have difficulty 
-    ///// with Excel's type casting.
-    //let getInstallDate (source : string) : DateTime = 
-    //    printfn "getInstallDate source= `%s`" source
-    //    match tryGetUSDate source with
-    //    | Some date -> printfn "%O" date; date
-    //    | None -> new DateTime(year=1970, month=1, day=1)
-
-
     let private startupDateTrafo (parameters: {| InstallDate: string |}) : EnvTransformer = 
         match tryGetUSDate parameters.InstallDate with
         | None -> id
@@ -50,7 +41,7 @@ module OutstationTemplate =
     // Hierarchy templates
 
     let makeModem (parameters : WorkListRow) : Equipment = 
-        let installDate = getUSDate parameters.``Modem Install From Date``
+        let installDate = getAiDate parameters.``Modem Install From Date`` |> Option.defaultValue DateTime.Now
         modem parameters.``Modem Name`` 
               installDate
               parameters.``Memo Line``
@@ -109,7 +100,7 @@ module OutstationTemplate =
                 ]
                 Floc._no_assemblies_
                 [ makeTelemetryOustation parameters
-                  // makeModem parameters
+                  makeModem parameters
                 ]
     
     /// Level 4
