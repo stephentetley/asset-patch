@@ -103,7 +103,7 @@ module FileTypes =
                 ; ("USTW_FLOC",     "Status of an object",              x.ObjectStatus)
                 ; ("USWO_FLOC",     "Status without status number",     "")
                 ; ("TPLKZ_FLC",     "Structure indicator",              x.StructureIndicator)
-                ; ("TPLMA1",        "Superior FL for CR Processing",    "")
+                ; ("TPLMA1",        "Superior FL for CR Processing",    parentFloc)
                 ; ("TPLMA",         "Superior FunctLoc",                parentFloc)
                 ; ("PROI_FLOC",     "WBS Element",                      "")
                 ; ("ARBPLFLOC",     "Work center",                      "DEFAULT")
