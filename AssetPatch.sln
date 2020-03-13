@@ -15,6 +15,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "DisposeEquiPatcher", "Dispo
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AddAttributesPatcher", "AddAttributesPatcher\AddAttributesPatcher.fsproj", "{2B8CDCC6-2657-4288-B246-1BAE1F697886}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AiwRenameClassifications", "AiwRenameClassifications\AiwRenameClassifications.fsproj", "{59C6ED22-C276-4927-8506-189142625902}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{2B8CDCC6-2657-4288-B246-1BAE1F697886}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B8CDCC6-2657-4288-B246-1BAE1F697886}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B8CDCC6-2657-4288-B246-1BAE1F697886}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59C6ED22-C276-4927-8506-189142625902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C6ED22-C276-4927-8506-189142625902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C6ED22-C276-4927-8506-189142625902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C6ED22-C276-4927-8506-189142625902}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

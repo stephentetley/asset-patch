@@ -82,7 +82,8 @@ module FileTypes =
                 ; ("KOKR_FLOC",     "Controlling Area",                 x.CommonProps.ControllingArea.ToString())
                 ; ("KOST_FLOC",     "Cost Center",                      "")    
                 ; ("TXTMI",         "Description (medium text)",        x.Description)
-                ; ("USTA_FLOC",     "Display lines for user status",    x.CommonProps.UserStatus)
+                ; ("USTA_FLOC",     "Display lines for user status",    x.CommonProps.UserStatus)               
+                ; ("IEQUII",        "EquipInst. Origin",                "D")
                 ; ("FLTYP",         "FuncLocCategory",                  x.Category.ToString())
                 ; ("FUNCLOC",       "Function Location",                "")     // Must be blank
                 ; ("IEQUI",         "Installation allowed",             "")

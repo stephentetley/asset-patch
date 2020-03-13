@@ -67,5 +67,5 @@ let exportCsv02 () =
     outputAsCsv src
 
 let exportCsv03 () = 
-    let src =  @"G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.txt"
-    outputAsCsv src
+    @"G:\work\Projects\assets\asset_patch\outstation-worklists-march2020\file_download_floc_upload_staging_data.txt"
+        |> outputAsCsv

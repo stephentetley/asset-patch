@@ -69,10 +69,7 @@ let aiwOptions : AiwOptions =
         OutputDirectory = commonOptions.OutputRoot
     }
 
-let aiwOutstationUpgrades01 () = 
-    runAiwOutstationPatcherCreateFlocPhase aiwOptions 
 
-    
 let aiwOutstationFlocPatches01 () = 
     runAiwOutstationPatcherCreateFlocPhase aiwOptions 
     

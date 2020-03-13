@@ -17,7 +17,7 @@ module CsvExport =
         let decode1 (code: string) = 
             match decodeAcronym entityType code with
             | None -> code
-            | Some desc -> sprintf "%s (%s)" desc code
+            | Some desc -> sprintf "%s [%s]" desc code
         Array.map decode1 codes
 
     let exportCsv (changeFile: AiwChangeFile) (outputPath: string) : Unit = 
